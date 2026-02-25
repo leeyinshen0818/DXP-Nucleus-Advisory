@@ -326,6 +326,23 @@
 /* ======================================================= */
 /*  SECTION 1: What You Will Receive — Check Grid Cards    */
 /* ======================================================= */
+.n-list-receive .n-dynamic-assessment-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.n-list-receive .n-dynamic-assessment-item span {
+  letter-spacing: 0.3px;
+}
+
+.n-assessment-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 ul.n-list-receive {
     list-style: none;
     padding: 0;

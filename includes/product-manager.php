@@ -78,14 +78,43 @@ function nucleus_product_meta_boxes()
 }
 add_action('add_meta_boxes', 'nucleus_product_meta_boxes');
 
+// Assessments Provided
+function nucleus_get_assessment_catalog() {
+    return array(
+        'personality_assessment' => array(
+            'label' => 'Personality Assessment',
+            'icon'  => 'personality.svg',
+        ),
+        'work_styles_assessment' => array(
+            'label' => 'Work Styles Assessment',
+            'icon'  => 'workstyle.svg',
+        ),
+        'work_interest_assessment' => array(
+            'label' => 'Work Interest Assessment',
+            'icon'  => 'interest.svg',
+        ),
+        'numerical_assessment' => array(
+            'label' => 'Numerical Assessment',
+            'icon'  => 'numerical.svg',
+        ),
+    );
+}
+
 function nucleus_product_meta_box_html($post)
 {
     $subtitle = get_post_meta($post->ID, '_nucleus_product_subtitle', true);
     $price = get_post_meta($post->ID, '_nucleus_product_price', true);
     $hero_summary = get_post_meta($post->ID, '_nucleus_product_hero_summary', true);
+    $assessment_types = get_post_meta($post->ID, '_nucleus_product_assessment_types', true);
+    $catalog = nucleus_get_assessment_catalog();
     $shopify_button = get_post_meta($post->ID, '_nucleus_product_shopify_button', true);
     wp_nonce_field('nucleus_product_meta_box_nonce', 'nucleus_product_nonce');
+
+    if (!is_array($assessment_types)) {
+        $assessment_types = array();
+    }
     ?>
+
     <p>
         <label for="nucleus_product_subtitle"><strong>Subtitle:</strong></label><br>
         <input type="text" id="nucleus_product_subtitle" name="nucleus_product_subtitle"
@@ -105,6 +134,25 @@ function nucleus_product_meta_box_html($post)
             placeholder="A short overview of this product that will be displayed in the hero section."><?php echo esc_textarea($hero_summary); ?></textarea>
         <small>⬆ This text shows in the dark hero banner, next to the product image. Keep it concise (2-3
             sentences).</small>
+    </p>
+    <p>
+        <label><strong>Assessments Included</strong></label><br>
+        <?php foreach ($catalog as $key => $data) : ?>
+            <label style="display:block; margin-bottom:6px;">
+                <input type="checkbox"
+                       name="nucleus_product_assessment_types[]"
+                       value="<?php echo esc_attr($key); ?>"
+                       <?php checked(in_array($key, $assessment_types)); ?>>
+
+                <?php
+                $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $data['icon'];
+                ?>
+                <img src="<?php echo esc_url($icon_url); ?>" 
+                     style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
+                <?php echo esc_html($data['label']); ?>
+            </label>
+        <?php endforeach; ?>
+        <small>Select which assessment categories this product includes.</small>
     </p>
     <hr>
     <p>
@@ -135,6 +183,16 @@ function nucleus_save_product_meta($post_id)
     }
     if (isset($_POST['nucleus_product_hero_summary'])) {
         update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
+    }
+    if (isset($_POST['nucleus_product_assessment_types']) && is_array($_POST['nucleus_product_assessment_types'])) {
+        $catalog = nucleus_get_assessment_catalog();
+        $valid_keys = array_keys($catalog);
+        $submitted = array_map('sanitize_text_field', $_POST['nucleus_product_assessment_types']);
+        $sanitized_assessments = array_intersect($submitted, $valid_keys);
+        update_post_meta($post_id, '_nucleus_product_assessment_types', $sanitized_assessments);
+    } else {
+        // If nothing checked, delete meta
+        delete_post_meta($post_id, '_nucleus_product_assessment_types');
     }
     // Save Shopify button code raw (contains script tags, only admins can edit)
     if (isset($_POST['nucleus_product_shopify_button'])) {
@@ -170,7 +228,12 @@ function nucleus_single_product_shortcode($atts)
     }
 
     // Enqueue CSS when shortcode is used
-    wp_enqueue_style('nucleus-single-product', NUCLEUS_DXP_URL . 'assets/css/single-product.css', array(), '5.4');
+    wp_enqueue_style(
+        'nucleus-single-product',
+        NUCLEUS_DXP_URL . 'assets/css/single-product.css',
+        array(),
+        filemtime(NUCLEUS_DXP_PATH . 'assets/css/single-product.css')
+    );
 
     // Get product data
     $product = get_post($product_id);
@@ -181,6 +244,10 @@ function nucleus_single_product_shortcode($atts)
     $subtitle = get_post_meta($product_id, '_nucleus_product_subtitle', true);
     $price = get_post_meta($product_id, '_nucleus_product_price', true);
     $hero_summary = get_post_meta($product_id, '_nucleus_product_hero_summary', true);
+    $assessment_types = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
+    if (!is_array($assessment_types)) {
+      $assessment_types = array();
+    }
     $shopify_button = get_post_meta($product_id, '_nucleus_product_shopify_button', true);
     $thumbnail_url = get_the_post_thumbnail_url($product_id, 'full');
     $content = apply_filters('the_content', $product->post_content);

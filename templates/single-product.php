@@ -1,7 +1,40 @@
 <!--
     Single Product Template — Minimalist Design
-    Variables: $title, $subtitle, $price, $hero_summary, $shopify_button, $thumbnail_url, $content
+    Variables: $title, $subtitle, $price, $hero_summary, $assessment_types, $shopify_button, $thumbnail_url, $content
 -->
+
+<?php
+// Dynamically inject selected offering Assessment types
+$assessment_types = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
+$catalog = nucleus_get_assessment_catalog();
+
+if (!is_array($assessment_types)) {
+    $assessment_types = array();
+}
+
+if (!empty($assessment_types)) {
+    $dynamic_items = '';
+        foreach ($assessment_types as $type) {
+            if (isset($catalog[$type])) {
+                $label = esc_html($catalog[$type]['label']);
+                $icon = esc_attr($catalog[$type]['icon']);
+                $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $icon;
+                $dynamic_items .= '<li class="n-dynamic-assessment-item">';
+                $dynamic_items .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . $label . ' icon">';
+                $dynamic_items .= '<span>' . $label . '</span>';
+                $dynamic_items .= '</li>';
+            }
+    }
+
+    // Inject into first n-list-receive UL
+    $content = preg_replace(
+        '/(<ul[^>]*>)/',
+        '$1' . $dynamic_items,
+        $content,
+        1
+    );
+}
+?>
 
 <div class="nucleus-single-product-wrapper">
 

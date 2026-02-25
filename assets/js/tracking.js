@@ -8,7 +8,7 @@
  *   - view_feature      (click on a feature card)
  *   - view_service      (click on a service tag)
  *   - download_brochure (click on download button)
- *   - generate_lead     (form submit — handled in form-handler.php)
+ *   - generate_lead     (form submit — fired via CF7 wpcf7mailsent DOM event)
  *   - view_item         (product page loaded — for view-to-cart ratio)
  *   - add_to_cart       (Shopify Buy Button clicked — for view-to-cart ratio)
  *   - view_assessment   (click on View Assessment button on products landing page)
@@ -143,5 +143,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    console.log('✅ Nucleus DXP Tracking Active (v2.3)');
+    // ─── Consultation Lead Form — Generate Lead Event ────────────────────────
+    // CF7 fires the custom DOM event 'wpcf7mailsent' on the form element
+    // immediately after a successful submission (mail sent + DB saved).
+    // We listen for it here and push a 'generate_lead' event to GA4.
+
+    document.addEventListener('wpcf7mailsent', function (event) {
+        var formDetail = event.detail || {};
+        var formId = formDetail.contactFormId || formDetail.id || 'unknown';
+        var formTitle = (formDetail.inputs || []).reduce(function (acc, input) {
+            // Try to pull the page title as a fallback label
+            return acc;
+        }, document.title || 'Consultation Form');
+
+        console.log('✅ Lead Form Submitted — firing generate_lead (Form ID: ' + formId + ')');
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'generate_lead', {
+                'form_id': String(formId),
+                'form_name': formTitle,
+                'page_location': window.location.href
+            });
+        }
+    });
+
+    console.log('✅ Nucleus DXP Tracking Active (v2.4)');
 });

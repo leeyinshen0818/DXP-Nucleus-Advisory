@@ -108,6 +108,14 @@ function nucleus_product_meta_box_html($post)
     $assessment_types = get_post_meta($post->ID, '_nucleus_product_assessment_types', true);
     $catalog = nucleus_get_assessment_catalog();
     $shopify_button = get_post_meta($post->ID, '_nucleus_product_shopify_button', true);
+
+    // New structured sections
+    $sec1_items = get_post_meta($post->ID, '_nucleus_product_section_1_items', true) ?: array();
+    $sec2_title = get_post_meta($post->ID, '_nucleus_product_section_2_title', true);
+    $sec2_items = get_post_meta($post->ID, '_nucleus_product_section_2_items', true) ?: array();
+    $sec3_title = get_post_meta($post->ID, '_nucleus_product_section_3_title', true);
+    $sec3_items = get_post_meta($post->ID, '_nucleus_product_section_3_items', true) ?: array();
+
     wp_nonce_field('nucleus_product_meta_box_nonce', 'nucleus_product_nonce');
 
     if (!is_array($assessment_types)) {
@@ -115,6 +123,20 @@ function nucleus_product_meta_box_html($post)
     }
     ?>
 
+    <style>
+        .n-repeater-container { margin-top: 10px; }
+        .n-repeater-row { background: #f9f9f9; border: 1px solid #ccd0d4; padding: 10px 10px 10px 50px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; position: relative;}
+        .n-repeater-row input[type="text"], .n-repeater-row textarea { width: 100%; margin-bottom: 5px; }
+        .n-repeater-row .n-row-fields { flex-grow: 1; }
+        .n-row-number { position: absolute; left: 10px; top: 12px; width: 28px; height: 28px; background: #2271b1; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .n-repeater-remove { color: #d63638; cursor: pointer; font-weight: bold; background: none; border: none; padding: 5px; }
+        .n-repeater-remove:hover { color: #a00; }
+        .n-add-row-btn { display: inline-block; margin-bottom: 20px; background: #2271b1; color: #fff; border: none; padding: 6px 14px; border-radius: 3px; cursor: pointer; text-decoration: none; font-size: 13px;}
+        .n-add-row-btn:hover { background: #135e96; color: #fff; }
+        .n-section-title { font-size: 16px; font-weight: 600; padding: 10px 0 5px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
+    </style>
+
+    <div class="n-section-title">Hero Details</div>
     <p>
         <label for="nucleus_product_subtitle"><strong>Subtitle:</strong></label><br>
         <input type="text" id="nucleus_product_subtitle" name="nucleus_product_subtitle"
@@ -128,13 +150,69 @@ function nucleus_product_meta_box_html($post)
         <small>Displays as a large price tag. Leave blank if not needed.</small>
     </p>
     <p>
-        <label for="nucleus_product_hero_summary"><strong>Hero Summary</strong> <em>(appears in the hero section next to the
-                image)</em>:</label><br>
-        <textarea id="nucleus_product_hero_summary" name="nucleus_product_hero_summary" rows="5" style="width:100%;"
-            placeholder="A short overview of this product that will be displayed in the hero section."><?php echo esc_textarea($hero_summary); ?></textarea>
-        <small>⬆ This text shows in the dark hero banner, next to the product image. Keep it concise (2-3
-            sentences).</small>
+        <label for="nucleus_product_hero_summary"><strong>Hero Summary</strong> <em>(appears in the hero section next to the image)</em>:</label><br>
+        <textarea id="nucleus_product_hero_summary" name="nucleus_product_hero_summary" rows="3" style="width:100%;"
+            placeholder="A short overview of this product..."><?php echo esc_textarea($hero_summary); ?></textarea>
     </p>
+
+    <!-- SECTION 1 -->
+    <div class="n-section-title">Section 1: What You Will Receive</div>
+    <p><small>Note: If you fill in these 3 sections, the main WordPress content editor is ignored (Safe to use!).</small></p>
+    <div class="n-repeater-container" id="n-sec1-container">
+        <?php $i = 1; foreach ($sec1_items as $item): ?>
+            <div class="n-repeater-row">
+                <span class="n-row-number"><?php echo $i; ?></span>
+                <div class="n-row-fields">
+                    <input type="text" name="n_sec1_item[]" value="<?php echo esc_attr($item); ?>" placeholder="e.g. Compiled Report of Your Assessments">
+                </div>
+                <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
+            </div>
+        <?php $i++; endforeach; ?>
+    </div>
+    <button type="button" class="n-add-row-btn" onclick="addSec1Row()">+ Add Item</button>
+
+    <!-- SECTION 2 -->
+    <div class="n-section-title">Section 2 (Custom Layout Left)</div>
+    <p>
+        <label><strong>Section Title:</strong></label><br>
+        <input type="text" name="n_sec2_title" value="<?php echo esc_attr($sec2_title); ?>" style="width:100%;" placeholder="e.g. The Framework & Audience">
+    </p>
+    <div class="n-repeater-container" id="n-sec2-container">
+        <?php $i = 1; foreach ($sec2_items as $item): ?>
+            <div class="n-repeater-row">
+                <span class="n-row-number"><?php echo $i; ?></span>
+                <div class="n-row-fields">
+                    <input type="text" name="n_sec2_item_title[]" value="<?php echo esc_attr($item['title']); ?>" placeholder="Item Title (Bold)">
+                    <textarea name="n_sec2_item_desc[]" rows="2" placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
+                </div>
+                <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
+            </div>
+        <?php $i++; endforeach; ?>
+    </div>
+    <button type="button" class="n-add-row-btn" onclick="addSec2Row()">+ Add Item</button>
+
+    <!-- SECTION 3 -->
+    <div class="n-section-title">Section 3 (Custom Layout Right)</div>
+    <p>
+        <label><strong>Section Title:</strong></label><br>
+        <input type="text" name="n_sec3_title" value="<?php echo esc_attr($sec3_title); ?>" style="width:100%;" placeholder="e.g. The Transformation & Impact">
+    </p>
+    <div class="n-repeater-container" id="n-sec3-container">
+        <?php $i = 1; foreach ($sec3_items as $item): ?>
+            <div class="n-repeater-row">
+                <span class="n-row-number"><?php echo $i; ?></span>
+                <div class="n-row-fields">
+                    <input type="text" name="n_sec3_item_title[]" value="<?php echo esc_attr($item['title']); ?>" placeholder="Item Title (Bold)">
+                    <textarea name="n_sec3_item_desc[]" rows="2" placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
+                </div>
+                <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
+            </div>
+        <?php $i++; endforeach; ?>
+    </div>
+    <button type="button" class="n-add-row-btn" onclick="addSec3Row()">+ Add Item</button>
+
+
+    <div class="n-section-title">Assessments & Integrations</div>
     <p>
         <label><strong>Assessments Included</strong></label><br>
         <?php foreach ($catalog as $key => $data) : ?>
@@ -152,17 +230,46 @@ function nucleus_product_meta_box_html($post)
                 <?php echo esc_html($data['label']); ?>
             </label>
         <?php endforeach; ?>
-        <small>Select which assessment categories this product includes.</small>
     </p>
-    <hr>
     <p>
         <label for="nucleus_product_shopify_button"><strong>🛒 Shopify Buy Button Code:</strong></label><br>
         <textarea id="nucleus_product_shopify_button" name="nucleus_product_shopify_button" rows="6"
             style="width:100%; font-family:monospace; font-size:12px;"
             placeholder="Paste your Shopify Buy Button embed code here..."><?php echo esc_textarea($shopify_button); ?></textarea>
-        <small>Paste the full Shopify Buy Button embed code. This renders an "Add to Cart" button on the product
-            page.</small>
     </p>
+
+    <script>
+        function renumberRows(containerId) {
+            var rows = document.getElementById(containerId).querySelectorAll('.n-repeater-row');
+            rows.forEach(function(row, index) {
+                var badge = row.querySelector('.n-row-number');
+                if (badge) badge.textContent = index + 1;
+            });
+        }
+        function removeRow(btn) {
+            var container = btn.closest('.n-repeater-container');
+            btn.parentElement.remove();
+            renumberRows(container.id);
+        }
+        function addSec1Row() {
+            var container = document.getElementById('n-sec1-container');
+            var num = container.querySelectorAll('.n-repeater-row').length + 1;
+            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec1_item[]" placeholder="Item Text"></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            container.insertAdjacentHTML('beforeend', html);
+        }
+        function addSec2Row() {
+            var container = document.getElementById('n-sec2-container');
+            var num = container.querySelectorAll('.n-repeater-row').length + 1;
+            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec2_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec2_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            container.insertAdjacentHTML('beforeend', html);
+        }
+        function addSec3Row() {
+            var container = document.getElementById('n-sec3-container');
+            var num = container.querySelectorAll('.n-repeater-row').length + 1;
+            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec3_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec3_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            container.insertAdjacentHTML('beforeend', html);
+        }
+    </script>
     <?php
 }
 
@@ -175,15 +282,12 @@ function nucleus_save_product_meta($post_id)
     if (!current_user_can('edit_post', $post_id))
         return;
 
-    if (isset($_POST['nucleus_product_subtitle'])) {
-        update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
-    }
-    if (isset($_POST['nucleus_product_price'])) {
-        update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($_POST['nucleus_product_price']));
-    }
-    if (isset($_POST['nucleus_product_hero_summary'])) {
-        update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
-    }
+    // Basic meta
+    if (isset($_POST['nucleus_product_subtitle'])) update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
+    if (isset($_POST['nucleus_product_price'])) update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($_POST['nucleus_product_price']));
+    if (isset($_POST['nucleus_product_hero_summary'])) update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
+    
+    // Assessments
     if (isset($_POST['nucleus_product_assessment_types']) && is_array($_POST['nucleus_product_assessment_types'])) {
         $catalog = nucleus_get_assessment_catalog();
         $valid_keys = array_keys($catalog);
@@ -191,12 +295,52 @@ function nucleus_save_product_meta($post_id)
         $sanitized_assessments = array_intersect($submitted, $valid_keys);
         update_post_meta($post_id, '_nucleus_product_assessment_types', $sanitized_assessments);
     } else {
-        // If nothing checked, delete meta
         delete_post_meta($post_id, '_nucleus_product_assessment_types');
     }
-    // Save Shopify button code raw (contains script tags, only admins can edit)
+
+    // Shopify button
     if (isset($_POST['nucleus_product_shopify_button'])) {
         update_post_meta($post_id, '_nucleus_product_shopify_button', wp_unslash($_POST['nucleus_product_shopify_button']));
+    }
+
+    // Section 1 Repeater
+    if (isset($_POST['n_sec1_item'])) {
+        $sec1_items = array_filter(array_map('sanitize_text_field', $_POST['n_sec1_item']));
+        update_post_meta($post_id, '_nucleus_product_section_1_items', $sec1_items);
+    } else {
+        delete_post_meta($post_id, '_nucleus_product_section_1_items');
+    }
+
+    // Section 2 Repeater
+    if (isset($_POST['n_sec2_title'])) update_post_meta($post_id, '_nucleus_product_section_2_title', sanitize_text_field($_POST['n_sec2_title']));
+    if (isset($_POST['n_sec2_item_title']) && isset($_POST['n_sec2_item_desc'])) {
+        $titles = $_POST['n_sec2_item_title'];
+        $descs = $_POST['n_sec2_item_desc'];
+        $items = array();
+        for ($i = 0; $i < count($titles); $i++) {
+            if (!empty(trim($titles[$i]))) {
+                $items[] = array('title' => sanitize_text_field($titles[$i]), 'desc' => sanitize_textarea_field($descs[$i]));
+            }
+        }
+        update_post_meta($post_id, '_nucleus_product_section_2_items', $items);
+    } else {
+        delete_post_meta($post_id, '_nucleus_product_section_2_items');
+    }
+
+    // Section 3 Repeater
+    if (isset($_POST['n_sec3_title'])) update_post_meta($post_id, '_nucleus_product_section_3_title', sanitize_text_field($_POST['n_sec3_title']));
+    if (isset($_POST['n_sec3_item_title']) && isset($_POST['n_sec3_item_desc'])) {
+        $titles = $_POST['n_sec3_item_title'];
+        $descs = $_POST['n_sec3_item_desc'];
+        $items = array();
+        for ($i = 0; $i < count($titles); $i++) {
+            if (!empty(trim($titles[$i]))) {
+                $items[] = array('title' => sanitize_text_field($titles[$i]), 'desc' => sanitize_textarea_field($descs[$i]));
+            }
+        }
+        update_post_meta($post_id, '_nucleus_product_section_3_items', $items);
+    } else {
+        delete_post_meta($post_id, '_nucleus_product_section_3_items');
     }
 }
 add_action('save_post_nucleus_product', 'nucleus_save_product_meta');

@@ -12,27 +12,90 @@ if (!is_array($assessment_types)) {
     $assessment_types = array();
 }
 
+$dynamic_items = '';
 if (!empty($assessment_types)) {
-    $dynamic_items = '';
-        foreach ($assessment_types as $type) {
-            if (isset($catalog[$type])) {
-                $label = esc_html($catalog[$type]['label']);
-                $icon = esc_attr($catalog[$type]['icon']);
-                $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $icon;
-                $dynamic_items .= '<li class="n-dynamic-assessment-item">';
-                $dynamic_items .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . $label . ' icon">';
-                $dynamic_items .= '<span>' . $label . '</span>';
-                $dynamic_items .= '</li>';
+    foreach ($assessment_types as $type) {
+        if (isset($catalog[$type])) {
+            $label = esc_html($catalog[$type]['label']);
+            $icon = esc_attr($catalog[$type]['icon']);
+            $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $icon;
+            $dynamic_items .= '<li class="n-dynamic-assessment-item">';
+            $dynamic_items .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . esc_attr($label) . ' icon">';
+            $dynamic_items .= '<span>' . $label . '</span>';
+            $dynamic_items .= '</li>';
+        }
+    }
+}
+
+// Check for new structured fields
+$sec1_items = get_post_meta($product_id, '_nucleus_product_section_1_items', true);
+$sec2_title = get_post_meta($product_id, '_nucleus_product_section_2_title', true);
+$sec2_items = get_post_meta($product_id, '_nucleus_product_section_2_items', true);
+$sec3_title = get_post_meta($product_id, '_nucleus_product_section_3_title', true);
+$sec3_items = get_post_meta($product_id, '_nucleus_product_section_3_items', true);
+
+$is_structured = !empty($sec1_items) && is_array($sec1_items);
+
+// If using new custom fields
+if ($is_structured) {
+    $structured_content = '<h3>What You Will Receive</h3>';
+    $structured_content .= '<ul class="n-list-receive n-structured-list">'; // Added custom class just in case to stop JS manip
+    $structured_content .= $dynamic_items;
+
+    foreach ($sec1_items as $item) {
+        $structured_content .= '<li>' . esc_html($item) . '</li>';
+    }
+    $structured_content .= '</ul>';
+
+    // Section 2 and 3 Split Layout
+    if (!empty($sec2_title) || !empty($sec3_title)) {
+        $structured_content .= '<div class="n-details-split-layout n-structured-split-layout">';
+
+        // Left Col (Sec 2)
+        $structured_content .= '<div class="n-details-col n-details-col-left">';
+        if (!empty($sec2_title)) {
+            $structured_content .= '<h3>' . esc_html($sec2_title) . '</h3>';
+        }
+        if (!empty($sec2_items) && is_array($sec2_items)) {
+            $structured_content .= '<ul class="n-list-framework">';
+            foreach ($sec2_items as $item) {
+                $structured_content .= '<li><strong>' . esc_html($item['title']) . ' — </strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
             }
+            $structured_content .= '</ul>';
+        }
+        $structured_content .= '</div>';
+
+        // Right Col (Sec 3)
+        $structured_content .= '<div class="n-details-col n-details-col-right">';
+        if (!empty($sec3_title)) {
+            $structured_content .= '<h3>' . esc_html($sec3_title) . '</h3>';
+        }
+        if (!empty($sec3_items) && is_array($sec3_items)) {
+            $structured_content .= '<ul class="n-list-impact">';
+            foreach ($sec3_items as $item) {
+                $structured_content .= '<li><strong>' . esc_html($item['title']) . ' — </strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
+            }
+            $structured_content .= '</ul>';
+        }
+        $structured_content .= '</div>';
+
+        $structured_content .= '</div>';
     }
 
-    // Inject into first n-list-receive UL
-    $content = preg_replace(
-        '/(<ul[^>]*>)/',
-        '$1' . $dynamic_items,
-        $content,
-        1
-    );
+    // Override the post shortcode content entirely
+    $content = $structured_content;
+
+} else {
+    // Fallback: Legacy WordPress Content Editor approach
+    if (!empty($dynamic_items)) {
+        // Inject into first matched UL
+        $content = preg_replace(
+            '/(<ul[^>]*>)/',
+            '$1' . $dynamic_items,
+            $content,
+            1
+        );
+    }
 }
 ?>
 
@@ -108,7 +171,7 @@ if (!empty($assessment_types)) {
         <div class="n-product-details-section">
             <div class="n-product-details-inner">
                 <h2 class="n-details-title">What's Included</h2>
-                <div class="n-details-content">
+                <div class="n-details-content"<?php if ($is_structured) echo ' data-structured="true"'; ?>>
                     <?php echo $content; ?>
                 </div>
             </div>
@@ -136,9 +199,9 @@ if (!empty($assessment_types)) {
             }
 
             // --- Auto-Stunning Split Layout Builder ---
-            // Automatically creates the side-by-side layout for the 2nd and 3rd sections
+            // Only run JS DOM manipulation for OLD legacy content (not structured)
             const detailsContainer = document.querySelector('.n-details-content');
-            if (detailsContainer) {
+            if (detailsContainer && !detailsContainer.hasAttribute('data-structured')) {
                 const targetH3s = detailsContainer.querySelectorAll('h3');
 
                 // Only wrap if we have at least 3 sections

@@ -402,6 +402,32 @@
     margin-bottom: 0 !important;
 }
 
+.form-group {
+    margin-bottom: 14px !important;
+}
+
+.wpcf7-radio .wpcf7-list-item {
+    display: block !important;
+    margin: 6px 0 !important;
+}
+
+.wpcf7-radio .wpcf7-list-item label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+}
+
+.wpcf7-radio input[type="radio"] {
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 !important;
+}
+
+.reason-other-wrapper {
+    transition: all 0.25s ease;
+}
+
 .wpcf7-response-output {
     margin: 16px 0 0 0 !important;
     padding: 12px !important;

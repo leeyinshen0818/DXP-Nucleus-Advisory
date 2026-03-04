@@ -241,3 +241,36 @@
         }
     })();
 </script>
+
+<!-- Form select others to trigger textarea -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        function initReasonToggle() {
+
+            const radios = document.querySelectorAll('input[name="contact-reason"]');
+            const otherWrapper = document.querySelector('.reason-other-wrapper');
+
+            if (!radios.length || !otherWrapper) return;
+
+            function toggleOther() {
+                const selected = document.querySelector('input[name="contact-reason"]:checked');
+
+                if (selected && selected.value === "Others") {
+                    otherWrapper.style.display = "block";
+                } else {
+                    otherWrapper.style.display = "none";
+                }
+            }
+
+            radios.forEach(radio => {
+                radio.addEventListener("change", toggleOther);
+            });
+
+            toggleOther(); // run on load
+        }
+
+        initReasonToggle();
+
+    });
+</script>

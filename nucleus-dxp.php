@@ -78,7 +78,7 @@ function nucleus_dxp_enqueue_assets()
     $is_products_page = nucleus_is_products_landing(); // detects [nucleus_products_landing] shortcode
 
     if ($is_testing_lab) {
-        wp_enqueue_style('nucleus-testing-page', NUCLEUS_DXP_URL . 'assets/css/testing-page.css', array(), '4.3');
+        wp_enqueue_style('nucleus-testing-page', NUCLEUS_DXP_URL . 'assets/css/testing-page.css', array(), '4.5');
     }
 
     if ($is_testing_lab || $is_product_page || $is_products_page) {

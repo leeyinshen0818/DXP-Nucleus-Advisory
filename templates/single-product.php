@@ -59,7 +59,7 @@ if ($is_structured) {
         if (!empty($sec2_items) && is_array($sec2_items)) {
             $structured_content .= '<ul class="n-list-framework">';
             foreach ($sec2_items as $item) {
-                $structured_content .= '<li><strong>' . esc_html($item['title']) . ' — </strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
+                $structured_content .= '<li><strong>' . esc_html($item['title']) . '</strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
             }
             $structured_content .= '</ul>';
         }
@@ -73,7 +73,7 @@ if ($is_structured) {
         if (!empty($sec3_items) && is_array($sec3_items)) {
             $structured_content .= '<ul class="n-list-impact">';
             foreach ($sec3_items as $item) {
-                $structured_content .= '<li><strong>' . esc_html($item['title']) . ' — </strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
+                $structured_content .= '<li><strong>' . esc_html($item['title']) . '</strong> ' . nl2br(esc_html($item['desc'])) . '</li>';
             }
             $structured_content .= '</ul>';
         }
@@ -171,7 +171,8 @@ if ($is_structured) {
         <div class="n-product-details-section">
             <div class="n-product-details-inner">
                 <h2 class="n-details-title">What's Included</h2>
-                <div class="n-details-content"<?php if ($is_structured) echo ' data-structured="true"'; ?>>
+                <div class="n-details-content" <?php if ($is_structured)
+                    echo ' data-structured="true"'; ?>>
                     <?php echo $content; ?>
                 </div>
             </div>

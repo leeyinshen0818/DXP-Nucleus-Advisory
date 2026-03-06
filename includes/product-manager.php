@@ -78,30 +78,52 @@ function nucleus_product_meta_boxes()
 }
 add_action('add_meta_boxes', 'nucleus_product_meta_boxes');
 
-// Assessments Provided
-function nucleus_get_assessment_catalog() {
+// Remove AJAX save as it's not needed (main post save handles it)
+
+// Assessments Provided — reads from database (managed via Assessments settings page)
+function nucleus_get_assessment_catalog()
+{
+    $saved = get_option('nucleus_assessment_catalog', null);
+
+    // Build catalog from saved option
+    if (!empty($saved) && is_array($saved)) {
+        $catalog = array();
+        foreach ($saved as $a) {
+            if (!empty($a['key']) && !empty($a['label'])) {
+                $catalog[$a['key']] = array(
+                    'label' => $a['label'],
+                    'icon_url' => isset($a['icon_url']) ? $a['icon_url'] : '',
+                );
+            }
+        }
+        if (!empty($catalog))
+            return $catalog;
+    }
+
+    // Fallback defaults
     return array(
         'personality_assessment' => array(
             'label' => 'Personality Assessment',
-            'icon'  => 'personality.svg',
+            'icon_url' => NUCLEUS_DXP_URL . 'assets/icons/personality.svg',
         ),
         'work_styles_assessment' => array(
             'label' => 'Work Styles Assessment',
-            'icon'  => 'workstyle.svg',
+            'icon_url' => NUCLEUS_DXP_URL . 'assets/icons/workstyle.svg',
         ),
         'work_interest_assessment' => array(
             'label' => 'Work Interest Assessment',
-            'icon'  => 'interest.svg',
+            'icon_url' => NUCLEUS_DXP_URL . 'assets/icons/interest.svg',
         ),
         'numerical_assessment' => array(
             'label' => 'Numerical Assessment',
-            'icon'  => 'numerical.svg',
+            'icon_url' => NUCLEUS_DXP_URL . 'assets/icons/numerical.svg',
         ),
     );
 }
 
 function nucleus_product_meta_box_html($post)
 {
+    wp_enqueue_media();
     $subtitle = get_post_meta($post->ID, '_nucleus_product_subtitle', true);
     $price = get_post_meta($post->ID, '_nucleus_product_price', true);
     $hero_summary = get_post_meta($post->ID, '_nucleus_product_hero_summary', true);
@@ -124,16 +146,165 @@ function nucleus_product_meta_box_html($post)
     ?>
 
     <style>
-        .n-repeater-container { margin-top: 10px; }
-        .n-repeater-row { background: #f9f9f9; border: 1px solid #ccd0d4; padding: 10px 10px 10px 50px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; position: relative;}
-        .n-repeater-row input[type="text"], .n-repeater-row textarea { width: 100%; margin-bottom: 5px; }
-        .n-repeater-row .n-row-fields { flex-grow: 1; }
-        .n-row-number { position: absolute; left: 10px; top: 12px; width: 28px; height: 28px; background: #2271b1; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
-        .n-repeater-remove { color: #d63638; cursor: pointer; font-weight: bold; background: none; border: none; padding: 5px; }
-        .n-repeater-remove:hover { color: #a00; }
-        .n-add-row-btn { display: inline-block; margin-bottom: 20px; background: #2271b1; color: #fff; border: none; padding: 6px 14px; border-radius: 3px; cursor: pointer; text-decoration: none; font-size: 13px;}
-        .n-add-row-btn:hover { background: #135e96; color: #fff; }
-        .n-section-title { font-size: 16px; font-weight: 600; padding: 10px 0 5px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
+        .n-repeater-container {
+            margin-top: 10px;
+        }
+
+        .n-repeater-row {
+            background: #f9f9f9;
+            border: 1px solid #ccd0d4;
+            padding: 10px 10px 10px 78px;
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            position: relative;
+            transition: opacity 0.15s, box-shadow 0.15s;
+        }
+
+        .n-repeater-row.is-dragging {
+            opacity: 0.4;
+        }
+
+        .n-repeater-row.drag-over {
+            border-top: 2px dashed #2271b1;
+        }
+
+        .n-repeater-row input[type="text"],
+        .n-repeater-row textarea {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .n-repeater-row .n-row-fields {
+            flex-grow: 1;
+        }
+
+        .n-drag-handle {
+            position: absolute;
+            left: 10px;
+            top: 12px;
+            width: 22px;
+            height: 28px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 16px;
+            letter-spacing: 2px;
+            user-select: none;
+            border-radius: 3px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .n-drag-handle:hover {
+            color: #555;
+            background: #eee;
+        }
+
+        .n-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .n-row-number {
+            position: absolute;
+            left: 38px;
+            top: 12px;
+            width: 28px;
+            height: 28px;
+            background: #2271b1;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .n-repeater-remove {
+            color: #d63638;
+            cursor: pointer;
+            font-weight: bold;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .n-repeater-remove:hover {
+            color: #a00;
+        }
+
+        .n-add-row-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            background: #2271b1;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .n-add-row-btn:hover {
+            background: #135e96;
+            color: #fff;
+        }
+
+        .n-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 10px 0 5px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+
+        .n-sec1-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .n-sec1-text-input {
+            flex: 1;
+        }
+
+        .n-sec1-or {
+            color: #888;
+            font-size: 12px;
+            font-style: italic;
+            white-space: nowrap;
+        }
+
+        .n-sec1-assessment-select {
+            flex: 0 0 180px;
+            max-width: 180px;
+        }
+
+        /* Assessment Catalog Manager */
+        .n-catalog-toggle { background: none; border: 1px solid #c3c4c7; padding: 6px 14px; cursor: pointer; font-size: 12px; color: #2271b1; border-radius: 3px; margin-top: 8px; margin-left: 8px; }
+        .n-catalog-toggle:hover { background: #f0f0f1; color: #135e96; }
+        .n-catalog-panel { display: none; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; padding: 12px; margin-top: 10px; }
+        .n-catalog-panel.open { display: block; }
+        .n-catalog-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #eee; }
+        .n-catalog-row:last-child { border-bottom: none; }
+        .n-catalog-icon-preview { width: 28px; height: 28px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 2px; background: #fafafa; }
+        .n-catalog-icon-placeholder { width: 28px; height: 28px; border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 12px; background: #fafafa; }
+        .n-catalog-label { flex: 1; font-size: 13px; }
+        .n-catalog-label input { width: 100%; padding: 3px 6px; font-size: 13px; }
+        .n-catalog-btn { background: #f0f0f1; border: 1px solid #c3c4c7; padding: 2px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; color: #2271b1; }
+        .n-catalog-btn:hover { background: #e5e5e5; color: #135e96; }
+        .n-catalog-remove-icon { background: none; border: none; color: #d63638; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+        .n-catalog-remove-icon:hover { color: #a00; }
+        .n-catalog-delete { background: none; border: none; color: #d63638; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+        .n-catalog-delete:hover { color: #a00; }
+        .n-catalog-add-btn { margin-top: 8px; background: #f0f0f1; border: 1px solid #c3c4c7; padding: 4px 12px; font-size: 12px; cursor: pointer; border-radius: 3px; color: #2271b1; }
+        .n-catalog-add-btn:hover { background: #e5e5e5; }
+        .n-catalog-hint { color: #888; font-size: 11px; margin-top: 6px; }
     </style>
 
     <div class="n-section-title">Hero Details</div>
@@ -150,44 +321,108 @@ function nucleus_product_meta_box_html($post)
         <small>Displays as a large price tag. Leave blank if not needed.</small>
     </p>
     <p>
-        <label for="nucleus_product_hero_summary"><strong>Hero Summary</strong> <em>(appears in the hero section next to the image)</em>:</label><br>
+        <label for="nucleus_product_hero_summary"><strong>Hero Summary</strong> <em>(appears in the hero section next to the
+                image)</em>:</label><br>
         <textarea id="nucleus_product_hero_summary" name="nucleus_product_hero_summary" rows="3" style="width:100%;"
             placeholder="A short overview of this product..."><?php echo esc_textarea($hero_summary); ?></textarea>
     </p>
 
     <!-- SECTION 1 -->
     <div class="n-section-title">Section 1: What You Will Receive</div>
-    <p><small>Note: If you fill in these 3 sections, the main WordPress content editor is ignored (Safe to use!).</small></p>
+    <p><small>Type a custom name or pick from the assessment dropdown. Both will show on the product page. Add a description
+            to enable the popup.</small></p>
     <div class="n-repeater-container" id="n-sec1-container">
-        <?php $i = 1; foreach ($sec1_items as $item): ?>
-            <div class="n-repeater-row">
+        <?php $i = 1;
+        foreach ($sec1_items as $item):
+            $item_key = isset($item['key']) ? $item['key'] : '';
+            $item_desc = isset($item['desc']) ? $item['desc'] : '';
+            $item_text = isset($item['text']) ? $item['text'] : (is_string($item) ? $item : '');
+            ?>
+            <div class="n-repeater-row" draggable="true">
+                <span class="n-drag-handle" title="Drag to reorder">⠿</span>
                 <span class="n-row-number"><?php echo $i; ?></span>
                 <div class="n-row-fields">
-                    <input type="text" name="n_sec1_item[]" value="<?php echo esc_attr($item); ?>" placeholder="e.g. Compiled Report of Your Assessments">
+                    <div class="n-sec1-inline">
+                        <input type="hidden" name="n_sec1_text[]" value="<?php echo esc_attr($item_text); ?>" class="n-sec1-text-input">
+                        
+                        <select name="n_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;">
+                            <option value="">📋 Pick Assessment</option>
+                            <?php if (empty($item_key) && !empty($item_text)): ?>
+                                <!-- Legacy custom text fallback -->
+                                <option value="" selected><?php echo esc_html($item_text); ?> (Custom)</option>
+                            <?php endif; ?>
+                            <?php foreach ($catalog as $key => $data): ?>
+                                <option value="<?php echo esc_attr($key); ?>" <?php selected($item_key, $key); ?>
+                                    data-label="<?php echo esc_attr($data['label']); ?>">
+                                    <?php echo esc_html($data['label']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <textarea name="n_sec1_desc[]" rows="2"
+                        placeholder="Description (shown in popup when clicked on the product page)"><?php echo esc_textarea($item_desc); ?></textarea>
                 </div>
                 <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
             </div>
-        <?php $i++; endforeach; ?>
+            <?php $i++; endforeach; ?>
     </div>
     <button type="button" class="n-add-row-btn" onclick="addSec1Row()">+ Add Item</button>
+    <button type="button" class="n-catalog-toggle" onclick="toggleCatalogPanel()">⚙ Manage Assessments</button>
+
+    <div class="n-catalog-panel" id="n-catalog-panel">
+        <strong>Assessment Catalog</strong>
+        <p class="n-catalog-hint">Manage the assessments available in the dropdown above. Icons uploaded here apply to
+            <b>all products</b>.</p>
+        <div id="n-catalog-rows">
+            <?php foreach ($catalog as $key => $data):
+                $cat_icon = !empty($data['icon_url']) ? $data['icon_url'] : '';
+                ?>
+                <div class="n-catalog-row">
+                    <?php if (!empty($cat_icon)): ?>
+                        <img src="<?php echo esc_url($cat_icon); ?>" class="n-catalog-icon-preview">
+                    <?php else: ?>
+                        <div class="n-catalog-icon-placeholder">+</div>
+                    <?php endif; ?>
+                    <button type="button" class="n-catalog-btn"
+                        onclick="nCatalogUploadIcon(this)"><?php echo !empty($cat_icon) ? 'Replace' : 'Upload'; ?></button>
+                    <?php if (!empty($cat_icon)): ?>
+                        <button type="button" class="n-catalog-remove-icon" onclick="nCatalogRemoveIcon(this)">✕</button>
+                    <?php endif; ?>
+                    <div class="n-catalog-label">
+                        <input type="text" name="n_catalog_label[]" value="<?php echo esc_attr($data['label']); ?>"
+                            placeholder="Assessment name">
+                    </div>
+                    <input type="hidden" name="n_catalog_key[]" value="<?php echo esc_attr($key); ?>">
+                    <input type="hidden" name="n_catalog_icon_url[]" value="<?php echo esc_url($cat_icon); ?>">
+                    <button type="button" class="n-catalog-delete" onclick="nCatalogDeleteRow(this)" title="Delete">✖</button>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <button type="button" class="n-catalog-add-btn" onclick="nCatalogAddRow()">+ Add Assessment</button>
+    </div>
 
     <!-- SECTION 2 -->
     <div class="n-section-title">Section 2 (Custom Layout Left)</div>
     <p>
         <label><strong>Section Title:</strong></label><br>
-        <input type="text" name="n_sec2_title" value="<?php echo esc_attr($sec2_title); ?>" style="width:100%;" placeholder="e.g. The Framework & Audience">
+        <input type="text" name="n_sec2_title" value="<?php echo esc_attr($sec2_title); ?>" style="width:100%;"
+            placeholder="e.g. The Framework & Audience">
     </p>
     <div class="n-repeater-container" id="n-sec2-container">
-        <?php $i = 1; foreach ($sec2_items as $item): ?>
-            <div class="n-repeater-row">
+        <?php $i = 1;
+        foreach ($sec2_items as $item): ?>
+            <div class="n-repeater-row" draggable="true">
+                <span class="n-drag-handle" title="Drag to reorder">⠿</span>
                 <span class="n-row-number"><?php echo $i; ?></span>
                 <div class="n-row-fields">
-                    <input type="text" name="n_sec2_item_title[]" value="<?php echo esc_attr($item['title']); ?>" placeholder="Item Title (Bold)">
-                    <textarea name="n_sec2_item_desc[]" rows="2" placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
+                    <input type="text" name="n_sec2_item_title[]" value="<?php echo esc_attr($item['title']); ?>"
+                        placeholder="Item Title (Bold)">
+                    <textarea name="n_sec2_item_desc[]" rows="2"
+                        placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
                 </div>
                 <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
             </div>
-        <?php $i++; endforeach; ?>
+            <?php $i++; endforeach; ?>
     </div>
     <button type="button" class="n-add-row-btn" onclick="addSec2Row()">+ Add Item</button>
 
@@ -195,42 +430,29 @@ function nucleus_product_meta_box_html($post)
     <div class="n-section-title">Section 3 (Custom Layout Right)</div>
     <p>
         <label><strong>Section Title:</strong></label><br>
-        <input type="text" name="n_sec3_title" value="<?php echo esc_attr($sec3_title); ?>" style="width:100%;" placeholder="e.g. The Transformation & Impact">
+        <input type="text" name="n_sec3_title" value="<?php echo esc_attr($sec3_title); ?>" style="width:100%;"
+            placeholder="e.g. The Transformation & Impact">
     </p>
     <div class="n-repeater-container" id="n-sec3-container">
-        <?php $i = 1; foreach ($sec3_items as $item): ?>
-            <div class="n-repeater-row">
+        <?php $i = 1;
+        foreach ($sec3_items as $item): ?>
+            <div class="n-repeater-row" draggable="true">
+                <span class="n-drag-handle" title="Drag to reorder">⠿</span>
                 <span class="n-row-number"><?php echo $i; ?></span>
                 <div class="n-row-fields">
-                    <input type="text" name="n_sec3_item_title[]" value="<?php echo esc_attr($item['title']); ?>" placeholder="Item Title (Bold)">
-                    <textarea name="n_sec3_item_desc[]" rows="2" placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
+                    <input type="text" name="n_sec3_item_title[]" value="<?php echo esc_attr($item['title']); ?>"
+                        placeholder="Item Title (Bold)">
+                    <textarea name="n_sec3_item_desc[]" rows="2"
+                        placeholder="Item Description"><?php echo esc_textarea($item['desc']); ?></textarea>
                 </div>
                 <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
             </div>
-        <?php $i++; endforeach; ?>
+            <?php $i++; endforeach; ?>
     </div>
     <button type="button" class="n-add-row-btn" onclick="addSec3Row()">+ Add Item</button>
 
 
-    <div class="n-section-title">Assessments & Integrations</div>
-    <p>
-        <label><strong>Assessments Included</strong></label><br>
-        <?php foreach ($catalog as $key => $data) : ?>
-            <label style="display:block; margin-bottom:6px;">
-                <input type="checkbox"
-                       name="nucleus_product_assessment_types[]"
-                       value="<?php echo esc_attr($key); ?>"
-                       <?php checked(in_array($key, $assessment_types)); ?>>
-
-                <?php
-                $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $data['icon'];
-                ?>
-                <img src="<?php echo esc_url($icon_url); ?>" 
-                     style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
-                <?php echo esc_html($data['label']); ?>
-            </label>
-        <?php endforeach; ?>
-    </p>
+    <div class="n-section-title">Shopify Integration</div>
     <p>
         <label for="nucleus_product_shopify_button"><strong>🛒 Shopify Buy Button Code:</strong></label><br>
         <textarea id="nucleus_product_shopify_button" name="nucleus_product_shopify_button" rows="6"
@@ -239,9 +461,120 @@ function nucleus_product_meta_box_html($post)
     </p>
 
     <script>
+        var nCatalogOptions = '';
+        <?php foreach ($catalog as $key => $data): ?>
+            nCatalogOptions += '<option value="<?php echo esc_attr($key); ?>" data-label="<?php echo esc_attr($data['label']); ?>"><?php echo esc_html($data['label']); ?></option>';
+        <?php endforeach; ?>
+
+        function onAssessmentSelect(select) {
+            var row = select.closest('.n-repeater-row');
+            var textInput = row.querySelector('.n-sec1-text-input');
+            var opt = select.options[select.selectedIndex];
+            if (select.value && opt) {
+                textInput.value = opt.getAttribute('data-label') || opt.textContent.trim();
+            }
+        }
+
+        // --- Catalog Manager ---
+        function toggleCatalogPanel() {
+            document.getElementById('n-catalog-panel').classList.toggle('open');
+        }
+
+        function nCatalogUploadIcon(btn) {
+            var row = btn.closest('.n-catalog-row');
+            var frame = wp.media({ title: 'Select Assessment Icon', button: { text: 'Use this icon' }, multiple: false });
+            frame.on('select', function () {
+                var url = frame.state().get('selection').first().toJSON().url;
+                row.querySelector('input[name="n_catalog_icon_url[]"]').value = url;
+                var prev = row.querySelector('.n-catalog-icon-preview');
+                var ph = row.querySelector('.n-catalog-icon-placeholder');
+                if (prev) { prev.src = url; }
+                else if (ph) { var img = document.createElement('img'); img.src = url; img.className = 'n-catalog-icon-preview'; ph.parentNode.replaceChild(img, ph); }
+                btn.textContent = 'Replace';
+                if (!row.querySelector('.n-catalog-remove-icon')) {
+                    var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'n-catalog-remove-icon'; rm.textContent = '✕'; rm.onclick = function () { nCatalogRemoveIcon(rm); }; btn.after(rm);
+                }
+            });
+            frame.open();
+        }
+
+        function nCatalogRemoveIcon(btn) {
+            var row = btn.closest('.n-catalog-row');
+            row.querySelector('input[name="n_catalog_icon_url[]"]').value = '';
+            var prev = row.querySelector('.n-catalog-icon-preview');
+            if (prev) { var ph = document.createElement('div'); ph.className = 'n-catalog-icon-placeholder'; ph.textContent = '+'; prev.parentNode.replaceChild(ph, prev); }
+            var uploadBtn = row.querySelector('.n-catalog-btn');
+            if (uploadBtn) uploadBtn.textContent = 'Upload';
+            btn.remove();
+        }
+
+        function nCatalogDeleteRow(btn) {
+            if (!confirm('Remove this assessment from the catalog?')) return;
+            btn.closest('.n-catalog-row').remove();
+            updateCatalogDropdowns();
+        }
+
+        function nCatalogAddRow() {
+            var container = document.getElementById('n-catalog-rows');
+            var div = document.createElement('div'); div.className = 'n-catalog-row';
+            div.innerHTML = '<div class="n-catalog-icon-placeholder">+</div>'
+                + '<button type="button" class="n-catalog-btn" onclick="nCatalogUploadIcon(this)">Upload</button>'
+                + '<div class="n-catalog-label"><input type="text" name="n_catalog_label[]" placeholder="e.g. Leadership Assessment"></div>'
+                + '<input type="hidden" name="n_catalog_key[]" value="">'
+                + '<input type="hidden" name="n_catalog_icon_url[]" value="">'
+                + '<button type="button" class="n-catalog-delete" onclick="nCatalogDeleteRow(this)" title="Delete">✖</button>';
+            container.appendChild(div);
+            updateCatalogDropdowns();
+        }
+
+        // Dynamically rebuild the assessment dropdowns based on inputs in the catalog manager
+        function updateCatalogDropdowns() {
+            var panel = document.getElementById('n-catalog-panel');
+            var labels = panel.querySelectorAll('input[name="n_catalog_label[]"]');
+            var keys = panel.querySelectorAll('input[name="n_catalog_key[]"]');
+            
+            nCatalogOptions = '';
+            for (var i = 0; i < labels.length; i++) {
+                var label = labels[i].value.trim();
+                if (!label) continue;
+                
+                var key = keys[i].value;
+                if (!key) {
+                    // Generate a fake string key to link selection if not already saved
+                    key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+                    keys[i].value = key;
+                }
+                
+                nCatalogOptions += '<option value="' + key + '" data-label="' + label + '">' + label + '</option>';
+            }
+            
+            var selects = document.querySelectorAll('.n-sec1-assessment-select');
+            selects.forEach(function(sel){
+                var val = sel.value;
+                var isCustom = (val === '' && sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text.indexOf('(Custom)') !== -1);
+                var customHtml = isCustom ? '<option value="" selected>' + sel.options[sel.selectedIndex].text + '</option>' : '';
+                sel.innerHTML = '<option value="">📋 Pick Assessment</option>' + customHtml + nCatalogOptions;
+                if (!isCustom) {
+                    sel.value = val;
+                }
+            });
+        }
+
+        // Rebuild dropdowns reactively when the user types
+        document.addEventListener('DOMContentLoaded', function() {
+            var catalogPanel = document.getElementById('n-catalog-panel');
+            if(catalogPanel) {
+                catalogPanel.addEventListener('input', function(e){
+                    if(e.target.name === 'n_catalog_label[]') {
+                        updateCatalogDropdowns();
+                    }
+                });
+            }
+        });
+
         function renumberRows(containerId) {
             var rows = document.getElementById(containerId).querySelectorAll('.n-repeater-row');
-            rows.forEach(function(row, index) {
+            rows.forEach(function (row, index) {
                 var badge = row.querySelector('.n-row-number');
                 if (badge) badge.textContent = index + 1;
             });
@@ -254,21 +587,93 @@ function nucleus_product_meta_box_html($post)
         function addSec1Row() {
             var container = document.getElementById('n-sec1-container');
             var num = container.querySelectorAll('.n-repeater-row').length + 1;
-            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec1_item[]" placeholder="Item Text"></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            var html = '<div class="n-repeater-row" draggable="true"><span class="n-drag-handle" title="Drag to reorder">⠿</span><span class="n-row-number">' + num + '</span><div class="n-row-fields">'
+                + '<div class="n-sec1-inline"><input type="hidden" name="n_sec1_text[]" class="n-sec1-text-input"><select name="n_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;"><option value="">📋 Pick Assessment</option>' + nCatalogOptions + '</select></div>'
+                + '<textarea name="n_sec1_desc[]" rows="2" placeholder="Description (shown in popup when clicked on the product page)"></textarea>'
+                + '</div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
             container.insertAdjacentHTML('beforeend', html);
+            initDragDrop(container);
         }
         function addSec2Row() {
             var container = document.getElementById('n-sec2-container');
             var num = container.querySelectorAll('.n-repeater-row').length + 1;
-            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec2_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec2_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            var html = '<div class="n-repeater-row" draggable="true"><span class="n-drag-handle" title="Drag to reorder">⠿</span><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec2_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec2_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
             container.insertAdjacentHTML('beforeend', html);
+            initDragDrop(container);
         }
         function addSec3Row() {
             var container = document.getElementById('n-sec3-container');
             var num = container.querySelectorAll('.n-repeater-row').length + 1;
-            var html = '<div class="n-repeater-row"><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec3_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec3_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
+            var html = '<div class="n-repeater-row" draggable="true"><span class="n-drag-handle" title="Drag to reorder">⠿</span><span class="n-row-number">' + num + '</span><div class="n-row-fields"><input type="text" name="n_sec3_item_title[]" placeholder="Item Title (Bold)"><textarea name="n_sec3_item_desc[]" rows="2" placeholder="Item Description"></textarea></div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
             container.insertAdjacentHTML('beforeend', html);
+            initDragDrop(container);
         }
+
+        // --- Drag and Drop ---
+        var dragSrcEl = null;
+        function initDragDrop(container) {
+            var rows = container.querySelectorAll('.n-repeater-row');
+            rows.forEach(function (row) {
+                row.removeEventListener('dragstart', handleDragStart);
+                row.removeEventListener('dragover', handleDragOver);
+                row.removeEventListener('dragleave', handleDragLeave);
+                row.removeEventListener('drop', handleDrop);
+                row.removeEventListener('dragend', handleDragEnd);
+                row.addEventListener('dragstart', handleDragStart);
+                row.addEventListener('dragover', handleDragOver);
+                row.addEventListener('dragleave', handleDragLeave);
+                row.addEventListener('drop', handleDrop);
+                row.addEventListener('dragend', handleDragEnd);
+            });
+        }
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            this.classList.add('is-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this !== dragSrcEl) {
+                this.classList.add('drag-over');
+            }
+            return false;
+        }
+        function handleDragLeave() {
+            this.classList.remove('drag-over');
+        }
+        function handleDrop(e) {
+            e.stopPropagation();
+            if (dragSrcEl !== this) {
+                var container = this.closest('.n-repeater-container');
+                var allRows = Array.from(container.querySelectorAll('.n-repeater-row'));
+                var fromIdx = allRows.indexOf(dragSrcEl);
+                var toIdx = allRows.indexOf(this);
+                if (fromIdx < toIdx) {
+                    this.parentNode.insertBefore(dragSrcEl, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(dragSrcEl, this);
+                }
+                renumberRows(container.id);
+            }
+            this.classList.remove('drag-over');
+            return false;
+        }
+        function handleDragEnd() {
+            this.classList.remove('is-dragging');
+            var container = this.closest('.n-repeater-container');
+            container.querySelectorAll('.n-repeater-row').forEach(function (r) {
+                r.classList.remove('drag-over');
+            });
+        }
+
+        // Init drag on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.n-repeater-container').forEach(function (c) {
+                initDragDrop(c);
+            });
+        });
     </script>
     <?php
 }
@@ -283,36 +688,79 @@ function nucleus_save_product_meta($post_id)
         return;
 
     // Basic meta
-    if (isset($_POST['nucleus_product_subtitle'])) update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
-    if (isset($_POST['nucleus_product_price'])) update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($_POST['nucleus_product_price']));
-    if (isset($_POST['nucleus_product_hero_summary'])) update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
-    
-    // Assessments
-    if (isset($_POST['nucleus_product_assessment_types']) && is_array($_POST['nucleus_product_assessment_types'])) {
-        $catalog = nucleus_get_assessment_catalog();
-        $valid_keys = array_keys($catalog);
-        $submitted = array_map('sanitize_text_field', $_POST['nucleus_product_assessment_types']);
-        $sanitized_assessments = array_intersect($submitted, $valid_keys);
-        update_post_meta($post_id, '_nucleus_product_assessment_types', $sanitized_assessments);
-    } else {
-        delete_post_meta($post_id, '_nucleus_product_assessment_types');
-    }
+    if (isset($_POST['nucleus_product_subtitle']))
+        update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
+    if (isset($_POST['nucleus_product_price']))
+        update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($_POST['nucleus_product_price']));
+    if (isset($_POST['nucleus_product_hero_summary']))
+        update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
 
     // Shopify button
     if (isset($_POST['nucleus_product_shopify_button'])) {
         update_post_meta($post_id, '_nucleus_product_shopify_button', wp_unslash($_POST['nucleus_product_shopify_button']));
     }
 
-    // Section 1 Repeater
-    if (isset($_POST['n_sec1_item'])) {
-        $sec1_items = array_filter(array_map('sanitize_text_field', $_POST['n_sec1_item']));
-        update_post_meta($post_id, '_nucleus_product_section_1_items', $sec1_items);
+    // Save Assessment Catalog (global, shared across all products)
+    if (isset($_POST['n_catalog_label'])) {
+        $cat_labels = $_POST['n_catalog_label'];
+        $cat_keys = isset($_POST['n_catalog_key']) ? $_POST['n_catalog_key'] : array();
+        $cat_icons = isset($_POST['n_catalog_icon_url']) ? $_POST['n_catalog_icon_url'] : array();
+        $new_catalog = array();
+        for ($c = 0; $c < count($cat_labels); $c++) {
+            $cl = sanitize_text_field($cat_labels[$c]);
+            if (empty($cl))
+                continue;
+            $ck = !empty($cat_keys[$c]) ? sanitize_text_field($cat_keys[$c]) : sanitize_title($cl);
+            $ck = str_replace('-', '_', $ck);
+            $ci = isset($cat_icons[$c]) ? esc_url_raw($cat_icons[$c]) : '';
+            // Explicitly set string key here
+            $new_catalog[$ck] = array('key' => $ck, 'label' => $cl, 'icon_url' => $ci);
+        }
+        if (!empty($new_catalog)) {
+            update_option('nucleus_assessment_catalog', $new_catalog);
+        }
+    }
+
+    // Section 1 Repeater (unified: text + assessment key + description)
+    if (isset($_POST['n_sec1_text'])) {
+        $texts = $_POST['n_sec1_text'];
+        $keys = isset($_POST['n_sec1_key']) ? $_POST['n_sec1_key'] : array();
+        $descs = isset($_POST['n_sec1_desc']) ? $_POST['n_sec1_desc'] : array();
+        $catalog = nucleus_get_assessment_catalog();
+        $valid_keys = array_keys($catalog);
+        $items = array();
+        for ($i = 0; $i < count($texts); $i++) {
+            $txt = sanitize_text_field($texts[$i]);
+            $k = isset($keys[$i]) ? sanitize_text_field($keys[$i]) : '';
+            $d = isset($descs[$i]) ? sanitize_textarea_field($descs[$i]) : '';
+            // Determine type: if valid assessment key selected, it's assessment
+            if (!empty($k) && in_array($k, $valid_keys)) {
+                $items[] = array('type' => 'assessment', 'key' => $k, 'desc' => $d, 'text' => $txt);
+            } elseif (!empty($txt)) {
+                $items[] = array('type' => 'custom', 'key' => '', 'desc' => $d, 'text' => $txt);
+            }
+        }
+        if (!empty($items)) {
+            update_post_meta($post_id, '_nucleus_product_section_1_items', $items);
+        } else {
+            delete_post_meta($post_id, '_nucleus_product_section_1_items');
+        }
+        // Also update old assessment_types for backward compat
+        $assessment_keys = array();
+        foreach ($items as $item) {
+            if ($item['type'] === 'assessment' && !empty($item['key'])) {
+                $assessment_keys[] = $item['key'];
+            }
+        }
+        update_post_meta($post_id, '_nucleus_product_assessment_types', $assessment_keys);
     } else {
         delete_post_meta($post_id, '_nucleus_product_section_1_items');
+        delete_post_meta($post_id, '_nucleus_product_assessment_types');
     }
 
     // Section 2 Repeater
-    if (isset($_POST['n_sec2_title'])) update_post_meta($post_id, '_nucleus_product_section_2_title', sanitize_text_field($_POST['n_sec2_title']));
+    if (isset($_POST['n_sec2_title']))
+        update_post_meta($post_id, '_nucleus_product_section_2_title', sanitize_text_field($_POST['n_sec2_title']));
     if (isset($_POST['n_sec2_item_title']) && isset($_POST['n_sec2_item_desc'])) {
         $titles = $_POST['n_sec2_item_title'];
         $descs = $_POST['n_sec2_item_desc'];
@@ -328,7 +776,8 @@ function nucleus_save_product_meta($post_id)
     }
 
     // Section 3 Repeater
-    if (isset($_POST['n_sec3_title'])) update_post_meta($post_id, '_nucleus_product_section_3_title', sanitize_text_field($_POST['n_sec3_title']));
+    if (isset($_POST['n_sec3_title']))
+        update_post_meta($post_id, '_nucleus_product_section_3_title', sanitize_text_field($_POST['n_sec3_title']));
     if (isset($_POST['n_sec3_item_title']) && isset($_POST['n_sec3_item_desc'])) {
         $titles = $_POST['n_sec3_item_title'];
         $descs = $_POST['n_sec3_item_desc'];
@@ -388,9 +837,14 @@ function nucleus_single_product_shortcode($atts)
     $subtitle = get_post_meta($product_id, '_nucleus_product_subtitle', true);
     $price = get_post_meta($product_id, '_nucleus_product_price', true);
     $hero_summary = get_post_meta($product_id, '_nucleus_product_hero_summary', true);
-    $assessment_types = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
-    if (!is_array($assessment_types)) {
-      $assessment_types = array();
+    
+    wp_nonce_field('nucleus_product_meta_box_nonce', 'nucleus_product_nonce');
+    wp_nonce_field('nucleus_catalog_nonce', 'nucleus_catalog_nonce_field');
+
+    // Retrieve existing assigned assessments
+    $assigned_assessments = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
+    if (!is_array($assigned_assessments)) {
+        $assigned_assessments = array();
     }
     $shopify_button = get_post_meta($product_id, '_nucleus_product_shopify_button', true);
     $thumbnail_url = get_the_post_thumbnail_url($product_id, 'full');

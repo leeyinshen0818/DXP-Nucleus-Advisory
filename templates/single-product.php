@@ -4,28 +4,8 @@
 -->
 
 <?php
-// Dynamically inject selected offering Assessment types
-$assessment_types = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
+// Load assessment catalog
 $catalog = nucleus_get_assessment_catalog();
-
-if (!is_array($assessment_types)) {
-    $assessment_types = array();
-}
-
-$dynamic_items = '';
-if (!empty($assessment_types)) {
-    foreach ($assessment_types as $type) {
-        if (isset($catalog[$type])) {
-            $label = esc_html($catalog[$type]['label']);
-            $icon = esc_attr($catalog[$type]['icon']);
-            $icon_url = NUCLEUS_DXP_URL . 'assets/icons/' . $icon;
-            $dynamic_items .= '<li class="n-dynamic-assessment-item">';
-            $dynamic_items .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . esc_attr($label) . ' icon">';
-            $dynamic_items .= '<span>' . $label . '</span>';
-            $dynamic_items .= '</li>';
-        }
-    }
-}
 
 // Check for new structured fields
 $sec1_items = get_post_meta($product_id, '_nucleus_product_section_1_items', true);
@@ -35,15 +15,74 @@ $sec3_title = get_post_meta($product_id, '_nucleus_product_section_3_title', tru
 $sec3_items = get_post_meta($product_id, '_nucleus_product_section_3_items', true);
 
 $is_structured = !empty($sec1_items) && is_array($sec1_items);
+$popup_data = array();
 
 // If using new custom fields
 if ($is_structured) {
     $structured_content = '<h3>What You Will Receive</h3>';
-    $structured_content .= '<ul class="n-list-receive n-structured-list">'; // Added custom class just in case to stop JS manip
-    $structured_content .= $dynamic_items;
+    $structured_content .= '<ul class="n-list-receive n-structured-list">';
 
-    foreach ($sec1_items as $item) {
-        $structured_content .= '<li>' . esc_html($item) . '</li>';
+    foreach ($sec1_items as $idx => $item) {
+        if (is_array($item) && isset($item['type'])) {
+            if ($item['type'] === 'assessment' && !empty($item['key']) && isset($catalog[$item['key']])) {
+                $a = $catalog[$item['key']];
+                $label = esc_html($a['label']);
+                // Item-level icon takes priority, then catalog icon
+                $icon_url = !empty($item['icon_url']) ? $item['icon_url'] : (!empty($a['icon_url']) ? $a['icon_url'] : '');
+                $desc = !empty($item['desc']) ? $item['desc'] : '';
+                $popup_id = 'popup-' . esc_attr($item['key']);
+                $clickable = !empty($desc) ? ' n-assessment-clickable" data-popup="' . $popup_id . '"' : '"';
+
+                $structured_content .= '<li class="n-dynamic-assessment-item' . $clickable . '>';
+                if (!empty($icon_url)) {
+                    $structured_content .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . esc_attr($label) . ' icon">';
+                }
+                $structured_content .= '<span>' . $label . '</span>';
+                $structured_content .= '</li>';
+
+                if (!empty($desc)) {
+                    $popup_data[] = array(
+                        'id' => $popup_id,
+                        'label' => $label,
+                        'icon_url' => esc_url($icon_url),
+                        'desc' => $desc,
+                    );
+                }
+            } elseif ($item['type'] === 'custom' && !empty($item['text'])) {
+                $desc = !empty($item['desc']) ? $item['desc'] : '';
+                $custom_icon = !empty($item['icon_url']) ? $item['icon_url'] : '';
+                $has_icon = !empty($custom_icon);
+                $li_class = $has_icon ? 'n-dynamic-assessment-item' : '';
+                if (!empty($desc)) {
+                    $popup_id = 'popup-custom-' . $idx;
+                    $li_class .= ($li_class ? ' ' : '') . 'n-assessment-clickable';
+                    $structured_content .= '<li class="' . $li_class . '" data-popup="' . $popup_id . '">';
+                    if ($has_icon) {
+                        $structured_content .= '<img src="' . esc_url($custom_icon) . '" class="n-assessment-icon" alt="">';
+                    }
+                    $structured_content .= '<span>' . esc_html($item['text']) . '</span></li>';
+                    $popup_data[] = array(
+                        'id' => $popup_id,
+                        'label' => esc_html($item['text']),
+                        'icon_url' => $has_icon ? esc_url($custom_icon) : '',
+                        'desc' => $desc,
+                    );
+                } else {
+                    if ($has_icon) {
+                        $structured_content .= '<li class="n-dynamic-assessment-item">';
+                        $structured_content .= '<img src="' . esc_url($custom_icon) . '" class="n-assessment-icon" alt="">';
+                        $structured_content .= '<span>' . esc_html($item['text']) . '</span></li>';
+                    } else {
+                        $structured_content .= '<li>' . esc_html($item['text']) . '</li>';
+                    }
+                }
+            }
+        } else {
+            // Legacy: plain string item
+            if (is_string($item) && !empty($item)) {
+                $structured_content .= '<li>' . esc_html($item) . '</li>';
+            }
+        }
     }
     $structured_content .= '</ul>';
 
@@ -51,7 +90,6 @@ if ($is_structured) {
     if (!empty($sec2_title) || !empty($sec3_title)) {
         $structured_content .= '<div class="n-details-split-layout n-structured-split-layout">';
 
-        // Left Col (Sec 2)
         $structured_content .= '<div class="n-details-col n-details-col-left">';
         if (!empty($sec2_title)) {
             $structured_content .= '<h3>' . esc_html($sec2_title) . '</h3>';
@@ -65,7 +103,6 @@ if ($is_structured) {
         }
         $structured_content .= '</div>';
 
-        // Right Col (Sec 3)
         $structured_content .= '<div class="n-details-col n-details-col-right">';
         if (!empty($sec3_title)) {
             $structured_content .= '<h3>' . esc_html($sec3_title) . '</h3>';
@@ -82,13 +119,29 @@ if ($is_structured) {
         $structured_content .= '</div>';
     }
 
-    // Override the post shortcode content entirely
     $content = $structured_content;
 
 } else {
-    // Fallback: Legacy WordPress Content Editor approach
+    // Fallback: Legacy approach
+    $assessment_types = get_post_meta($product_id, '_nucleus_product_assessment_types', true);
+    if (!is_array($assessment_types))
+        $assessment_types = array();
+    $dynamic_items = '';
+    if (!empty($assessment_types)) {
+        foreach ($assessment_types as $type) {
+            if (isset($catalog[$type])) {
+                $label = esc_html($catalog[$type]['label']);
+                $icon_url = !empty($catalog[$type]['icon_url']) ? $catalog[$type]['icon_url'] : '';
+                $dynamic_items .= '<li class="n-dynamic-assessment-item">';
+                if (!empty($icon_url)) {
+                    $dynamic_items .= '<img src="' . esc_url($icon_url) . '" class="n-assessment-icon" alt="' . esc_attr($label) . ' icon">';
+                }
+                $dynamic_items .= '<span>' . $label . '</span>';
+                $dynamic_items .= '</li>';
+            }
+        }
+    }
     if (!empty($dynamic_items)) {
-        // Inject into first matched UL
         $content = preg_replace(
             '/(<ul[^>]*>)/',
             '$1' . $dynamic_items,
@@ -266,7 +319,185 @@ if ($is_structured) {
                 }, { threshold: 0.15 });
                 lists.forEach(function (el) { observer.observe(el); });
             }
+
+            // --- Assessment Popup Click Handlers ---
+            var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.querySelectorAll('.n-assessment-clickable').forEach(function (el) {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', function () {
+                    var popupId = this.getAttribute('data-popup');
+                    var modal = document.getElementById(popupId);
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        // Do not change body overflow to avoid shifting fixed headers/cart
+                    }
+                });
+            });
+
+            // Close modals
+            function closeAllModals() {
+                document.querySelectorAll('.n-modal-overlay').forEach(function (overlay) {
+                    overlay.style.display = 'none';
+                });
+            }
+            document.querySelectorAll('.n-modal-overlay').forEach(function (overlay) {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay || e.target.closest('.n-modal-close')) {
+                        closeAllModals();
+                    }
+                });
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeAllModals();
+            });
         });
     </script>
+
+    <?php if (!empty($popup_data)): ?>
+        <!-- Assessment Popup Modals -->
+        <style>
+            .n-modal-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: transparent;
+                z-index: 99999;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+            }
+
+            .n-modal-box {
+                background: #fff;
+                border-radius: 14px;
+                max-width: 480px;
+                width: 100%;
+                position: relative;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+                animation: nModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow: hidden;
+            }
+
+            @keyframes nModalIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px) scale(0.98);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            .n-modal-accent {
+                height: 4px;
+                background: linear-gradient(90deg, #2563eb, #7c3aed);
+            }
+
+            .n-modal-inner {
+                padding: 28px 32px 32px;
+            }
+
+            .n-modal-close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: transparent;
+                border: 1px solid #e5e7eb;
+                font-size: 16px;
+                cursor: pointer;
+                color: #9ca3af;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+                z-index: 1;
+                line-height: 1;
+            }
+
+            .n-modal-close:hover {
+                background: #f9fafb;
+                border-color: #d1d5db;
+                color: #374151;
+            }
+
+            .n-modal-header {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding-bottom: 18px;
+                border-bottom: 1px solid #f1f5f9;
+                margin-bottom: 18px;
+            }
+
+            .n-modal-icon {
+                width: 44px;
+                height: 44px;
+                padding: 8px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                flex-shrink: 0;
+            }
+
+            .n-modal-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #1e293b;
+                margin: 0;
+                letter-spacing: -0.01em;
+            }
+
+            .n-modal-desc {
+                font-size: 0.9rem;
+                line-height: 1.7;
+                color: #64748b;
+                margin: 0;
+            }
+
+            .n-assessment-clickable {
+                cursor: pointer;
+                transition: border-color 0.2s, box-shadow 0.2s;
+            }
+
+            .n-assessment-clickable:hover {
+                border-color: #2563eb !important;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12) !important;
+            }
+
+            @media (max-width: 540px) {
+                .n-modal-box {
+                    margin: 16px;
+                }
+
+                .n-modal-inner {
+                    padding: 22px 20px 26px;
+                }
+            }
+        </style>
+        <?php foreach ($popup_data as $popup): ?>
+            <div class="n-modal-overlay" id="<?php echo esc_attr($popup['id']); ?>">
+                <div class="n-modal-box">
+                    <div class="n-modal-accent"></div>
+                    <div class="n-modal-inner">
+                        <button class="n-modal-close" aria-label="Close">✕</button>
+                        <div class="n-modal-header">
+                            <?php if (!empty($popup['icon_url'])): ?>
+                                <img src="<?php echo $popup['icon_url']; ?>" class="n-modal-icon" alt="">
+                            <?php endif; ?>
+                            <h3 class="n-modal-title"><?php echo $popup['label']; ?></h3>
+                        </div>
+                        <div class="n-modal-desc">
+                            <?php echo nl2br(esc_html($popup['desc'])); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 
 </div>

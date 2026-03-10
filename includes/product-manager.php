@@ -125,27 +125,45 @@ function nucleus_product_meta_box_html($post)
 {
     wp_enqueue_media();
     $subtitle = get_post_meta($post->ID, '_nucleus_product_subtitle', true);
-    $price = get_post_meta($post->ID, '_nucleus_product_price', true);
     $hero_summary = get_post_meta($post->ID, '_nucleus_product_hero_summary', true);
-    $assessment_types = get_post_meta($post->ID, '_nucleus_product_assessment_types', true);
     $catalog = nucleus_get_assessment_catalog();
-    $shopify_button = get_post_meta($post->ID, '_nucleus_product_shopify_button', true);
+
+    // Packages array implementation
+    $packages = get_post_meta($post->ID, '_nucleus_packages', true);
+    if (empty($packages) || !is_array($packages)) {
+        // Migrate old data
+        $price = get_post_meta($post->ID, '_nucleus_product_price', true);
+        $shopify_button = get_post_meta($post->ID, '_nucleus_product_shopify_button', true);
+        $sec1_items = get_post_meta($post->ID, '_nucleus_product_section_1_items', true) ?: array();
+        $packages = array(
+            'basic' => array('price' => $price, 'shopify' => $shopify_button, 'sec1_items' => $sec1_items),
+            'plus' => array('price' => '', 'shopify' => '', 'sec1_items' => array()),
+            'max' => array('price' => '', 'shopify' => '', 'sec1_items' => array())
+        );
+    }
+    // Ensure all keys
+    foreach (array('basic', 'plus', 'max') as $k) {
+        if (!isset($packages[$k])) $packages[$k] = array('price'=>'', 'shopify'=>'', 'sec1_items'=>array());
+    }
 
     // New structured sections
-    $sec1_items = get_post_meta($post->ID, '_nucleus_product_section_1_items', true) ?: array();
     $sec2_title = get_post_meta($post->ID, '_nucleus_product_section_2_title', true);
     $sec2_items = get_post_meta($post->ID, '_nucleus_product_section_2_items', true) ?: array();
     $sec3_title = get_post_meta($post->ID, '_nucleus_product_section_3_title', true);
     $sec3_items = get_post_meta($post->ID, '_nucleus_product_section_3_items', true) ?: array();
 
     wp_nonce_field('nucleus_product_meta_box_nonce', 'nucleus_product_nonce');
-
-    if (!is_array($assessment_types)) {
-        $assessment_types = array();
-    }
     ?>
 
     <style>
+        /* Tabs CSS */
+        .n-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-top: 10px; }
+        .n-tab { padding: 10px 18px; cursor: pointer; border: 1px solid transparent; border-bottom: none; background: #f1f1f1; border-radius: 4px 4px 0 0; font-weight: 600; font-size: 13px; color: #555; transition: background 0.15s; }
+        .n-tab:hover { background: #e5e5e5; }
+        .n-tab.active { background: #fff; border-color: #ddd; border-bottom-color: #fff; margin-bottom: -2px; color: #2271b1;}
+        .n-tab-content { display: none; padding-top: 5px;}
+        .n-tab-content.active { display: block; }
+        
         .n-repeater-container {
             margin-top: 10px;
         }
@@ -315,58 +333,80 @@ function nucleus_product_meta_box_html($post)
         <small>Displays below the main title on the product page.</small>
     </p>
     <p>
-        <label for="nucleus_product_price"><strong>Price:</strong></label><br>
-        <input type="text" id="nucleus_product_price" name="nucleus_product_price" value="<?php echo esc_attr($price); ?>"
-            style="width:100%;" placeholder="e.g. RM80.00 MYR">
-        <small>Displays as a large price tag. Leave blank if not needed.</small>
-    </p>
-    <p>
         <label for="nucleus_product_hero_summary"><strong>Hero Summary</strong> <em>(appears in the hero section next to the
                 image)</em>:</label><br>
         <textarea id="nucleus_product_hero_summary" name="nucleus_product_hero_summary" rows="3" style="width:100%;"
             placeholder="A short overview of this product..."><?php echo esc_textarea($hero_summary); ?></textarea>
     </p>
 
-    <!-- SECTION 1 -->
-    <div class="n-section-title">Section 1: What You Will Receive</div>
-    <p><small>Type a custom name or pick from the assessment dropdown. Both will show on the product page. Add a description
-            to enable the popup.</small></p>
-    <div class="n-repeater-container" id="n-sec1-container">
-        <?php $i = 1;
-        foreach ($sec1_items as $item):
-            $item_key = isset($item['key']) ? $item['key'] : '';
-            $item_desc = isset($item['desc']) ? $item['desc'] : '';
-            $item_text = isset($item['text']) ? $item['text'] : (is_string($item) ? $item : '');
-            ?>
-            <div class="n-repeater-row" draggable="true">
-                <span class="n-drag-handle" title="Drag to reorder">⠿</span>
-                <span class="n-row-number"><?php echo $i; ?></span>
-                <div class="n-row-fields">
-                    <div class="n-sec1-inline">
-                        <input type="hidden" name="n_sec1_text[]" value="<?php echo esc_attr($item_text); ?>" class="n-sec1-text-input">
-                        
-                        <select name="n_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;">
-                            <option value="">📋 Pick Assessment</option>
-                            <?php if (empty($item_key) && !empty($item_text)): ?>
-                                <!-- Legacy custom text fallback -->
-                                <option value="" selected><?php echo esc_html($item_text); ?> (Custom)</option>
-                            <?php endif; ?>
-                            <?php foreach ($catalog as $key => $data): ?>
-                                <option value="<?php echo esc_attr($key); ?>" <?php selected($item_key, $key); ?>
-                                    data-label="<?php echo esc_attr($data['label']); ?>">
-                                    <?php echo esc_html($data['label']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <textarea name="n_sec1_desc[]" rows="2"
-                        placeholder="Description (shown in popup when clicked on the product page)"><?php echo esc_textarea($item_desc); ?></textarea>
-                </div>
-                <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
-            </div>
-            <?php $i++; endforeach; ?>
+    <!-- PACKAGES TABS -->
+    <div class="n-section-title" style="margin-top: 30px; border-bottom: none; margin-bottom: 0;">Product Packages</div>
+    <div class="n-tabs">
+        <div class="n-tab active" onclick="nSwitchTab('basic', this)">Basic Package</div>
+        <div class="n-tab" onclick="nSwitchTab('plus', this)">Plus Package</div>
+        <div class="n-tab" onclick="nSwitchTab('max', this)">Max Package</div>
     </div>
-    <button type="button" class="n-add-row-btn" onclick="addSec1Row()">+ Add Item</button>
+
+    <?php 
+    $package_keys = array('basic', 'plus', 'max');
+    foreach ($package_keys as $pkg): 
+        $pkg_data = $packages[$pkg];
+        $is_active = $pkg === 'basic' ? ' active' : '';
+    ?>
+    <div class="n-tab-content<?php echo $is_active; ?>" id="n-tab-content-<?php echo $pkg; ?>">
+        <p>
+            <label><strong>Price (<?php echo ucfirst($pkg); ?> Package):</strong></label><br>
+            <input type="text" name="n_pkg_<?php echo $pkg; ?>_price" value="<?php echo esc_attr($pkg_data['price']); ?>"
+                style="width:100%;" placeholder="e.g. RM80.00 MYR">
+        </p>
+        <p>
+            <label><strong>Shopify Buy Button Code:</strong></label><br>
+            <textarea name="n_pkg_<?php echo $pkg; ?>_shopify" rows="3" style="width:100%;"
+                placeholder="Paste the customized Shopify HTML embed code for this specific variation here."><?php echo esc_textarea($pkg_data['shopify']); ?></textarea>
+        </p>
+
+        <p>
+            <label><strong>What You Will Receive (Assessments):</strong></label><br>
+            <small>If you add an assessment to the Basic Package, it will automatically clone over to the Plus and Max packages as well to save you time.</small>
+        </p>
+        <div class="n-repeater-container" id="n-sec1-container-<?php echo $pkg; ?>">
+            <?php $i = 1;
+            foreach ($pkg_data['sec1_items'] as $item):
+                $item_key = isset($item['key']) ? $item['key'] : '';
+                $item_desc = isset($item['desc']) ? $item['desc'] : '';
+                $item_text = isset($item['text']) ? $item['text'] : (is_string($item) ? $item : '');
+                ?>
+                <div class="n-repeater-row" draggable="true">
+                    <span class="n-drag-handle" title="Drag to reorder">⠿</span>
+                    <span class="n-row-number"><?php echo $i; ?></span>
+                    <div class="n-row-fields">
+                        <div class="n-sec1-inline">
+                            <input type="hidden" name="n_pkg_<?php echo $pkg; ?>_sec1_text[]" value="<?php echo esc_attr($item_text); ?>" class="n-sec1-text-input">
+                            
+                            <select name="n_pkg_<?php echo $pkg; ?>_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;">
+                                <option value="">📋 Pick Assessment</option>
+                                <?php if (empty($item_key) && !empty($item_text)): ?>
+                                    <!-- Legacy custom text fallback -->
+                                    <option value="" selected><?php echo esc_html($item_text); ?> (Custom)</option>
+                                <?php endif; ?>
+                                <?php foreach ($catalog as $key => $data): ?>
+                                    <option value="<?php echo esc_attr($key); ?>" <?php selected($item_key, $key); ?>
+                                        data-label="<?php echo esc_attr($data['label']); ?>">
+                                        <?php echo esc_html($data['label']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <textarea name="n_pkg_<?php echo $pkg; ?>_sec1_desc[]" rows="2"
+                            placeholder="Description (shown in popup)"><?php echo esc_textarea($item_desc); ?></textarea>
+                    </div>
+                    <button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button>
+                </div>
+                <?php $i++; endforeach; ?>
+        </div>
+        <button type="button" class="n-add-row-btn" onclick="addSec1Row('<?php echo $pkg; ?>')">+ Add Item</button>
+    </div>
+    <?php endforeach; ?>
     <button type="button" class="n-catalog-toggle" onclick="toggleCatalogPanel()">⚙ Manage Assessments</button>
 
     <div class="n-catalog-panel" id="n-catalog-panel">
@@ -451,14 +491,6 @@ function nucleus_product_meta_box_html($post)
     </div>
     <button type="button" class="n-add-row-btn" onclick="addSec3Row()">+ Add Item</button>
 
-
-    <div class="n-section-title">Shopify Integration</div>
-    <p>
-        <label for="nucleus_product_shopify_button"><strong>🛒 Shopify Buy Button Code:</strong></label><br>
-        <textarea id="nucleus_product_shopify_button" name="nucleus_product_shopify_button" rows="6"
-            style="width:100%; font-family:monospace; font-size:12px;"
-            placeholder="Paste your Shopify Buy Button embed code here..."><?php echo esc_textarea($shopify_button); ?></textarea>
-    </p>
 
     <script>
         var nCatalogOptions = '';
@@ -584,12 +616,30 @@ function nucleus_product_meta_box_html($post)
             btn.parentElement.remove();
             renumberRows(container.id);
         }
-        function addSec1Row() {
-            var container = document.getElementById('n-sec1-container');
+        function nSwitchTab(pkg, tabEl) {
+            document.querySelectorAll('.n-tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.n-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.getElementById('n-tab-content-' + pkg).classList.add('active');
+            tabEl.classList.add('active');
+        }
+
+        function addSec1Row(sourcePkg) {
+            // First append to the current active tab
+            appendRowToPkg(sourcePkg);
+            // If they are adding to basic, let's instantly duplicate it for the higher packages!
+            if (sourcePkg === 'basic') {
+                appendRowToPkg('plus');
+                appendRowToPkg('max');
+            }
+        }
+
+        function appendRowToPkg(pkg) {
+            var container = document.getElementById('n-sec1-container-' + pkg);
+            if (!container) return;
             var num = container.querySelectorAll('.n-repeater-row').length + 1;
             var html = '<div class="n-repeater-row" draggable="true"><span class="n-drag-handle" title="Drag to reorder">⠿</span><span class="n-row-number">' + num + '</span><div class="n-row-fields">'
-                + '<div class="n-sec1-inline"><input type="hidden" name="n_sec1_text[]" class="n-sec1-text-input"><select name="n_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;"><option value="">📋 Pick Assessment</option>' + nCatalogOptions + '</select></div>'
-                + '<textarea name="n_sec1_desc[]" rows="2" placeholder="Description (shown in popup when clicked on the product page)"></textarea>'
+                + '<div class="n-sec1-inline"><input type="hidden" name="n_pkg_' + pkg + '_sec1_text[]" class="n-sec1-text-input"><select name="n_pkg_' + pkg + '_sec1_key[]" class="n-sec1-assessment-select" onchange="onAssessmentSelect(this)" style="min-width: 200px;"><option value="">📋 Pick Assessment</option>' + nCatalogOptions + '</select></div>'
+                + '<textarea name="n_pkg_' + pkg + '_sec1_desc[]" rows="2" placeholder="Description (shown in popup)"></textarea>'
                 + '</div><button type="button" class="n-repeater-remove" onclick="removeRow(this)">✖</button></div>';
             container.insertAdjacentHTML('beforeend', html);
             initDragDrop(container);
@@ -690,15 +740,8 @@ function nucleus_save_product_meta($post_id)
     // Basic meta
     if (isset($_POST['nucleus_product_subtitle']))
         update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
-    if (isset($_POST['nucleus_product_price']))
-        update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($_POST['nucleus_product_price']));
     if (isset($_POST['nucleus_product_hero_summary']))
         update_post_meta($post_id, '_nucleus_product_hero_summary', sanitize_textarea_field($_POST['nucleus_product_hero_summary']));
-
-    // Shopify button
-    if (isset($_POST['nucleus_product_shopify_button'])) {
-        update_post_meta($post_id, '_nucleus_product_shopify_button', wp_unslash($_POST['nucleus_product_shopify_button']));
-    }
 
     // Save Assessment Catalog (global, shared across all products)
     if (isset($_POST['n_catalog_label'])) {
@@ -721,41 +764,52 @@ function nucleus_save_product_meta($post_id)
         }
     }
 
-    // Section 1 Repeater (unified: text + assessment key + description)
-    if (isset($_POST['n_sec1_text'])) {
-        $texts = $_POST['n_sec1_text'];
-        $keys = isset($_POST['n_sec1_key']) ? $_POST['n_sec1_key'] : array();
-        $descs = isset($_POST['n_sec1_desc']) ? $_POST['n_sec1_desc'] : array();
-        $catalog = nucleus_get_assessment_catalog();
-        $valid_keys = array_keys($catalog);
-        $items = array();
+    // Save Packages
+    $package_keys = array('basic', 'plus', 'max');
+    $packages = array();
+    $all_assessments = array(); // For backward compatibility 
+
+    // Catalog handles validity 
+    $catalog = nucleus_get_assessment_catalog();
+    $valid_keys = array_keys($catalog);
+
+    foreach ($package_keys as $pkg) {
+        $price = isset($_POST['n_pkg_' . $pkg . '_price']) ? sanitize_text_field($_POST['n_pkg_' . $pkg . '_price']) : '';
+        $shopify = isset($_POST['n_pkg_' . $pkg . '_shopify']) ? wp_unslash($_POST['n_pkg_' . $pkg . '_shopify']) : '';
+        
+        $texts = isset($_POST['n_pkg_' . $pkg . '_sec1_text']) ? $_POST['n_pkg_' . $pkg . '_sec1_text'] : array();
+        $keys = isset($_POST['n_pkg_' . $pkg . '_sec1_key']) ? $_POST['n_pkg_' . $pkg . '_sec1_key'] : array();
+        $descs = isset($_POST['n_pkg_' . $pkg . '_sec1_desc']) ? $_POST['n_pkg_' . $pkg . '_sec1_desc'] : array();
+        
+        $sec1_items = array();
+        
         for ($i = 0; $i < count($texts); $i++) {
             $txt = sanitize_text_field($texts[$i]);
             $k = isset($keys[$i]) ? sanitize_text_field($keys[$i]) : '';
             $d = isset($descs[$i]) ? sanitize_textarea_field($descs[$i]) : '';
             // Determine type: if valid assessment key selected, it's assessment
             if (!empty($k) && in_array($k, $valid_keys)) {
-                $items[] = array('type' => 'assessment', 'key' => $k, 'desc' => $d, 'text' => $txt);
+                $sec1_items[] = array('type' => 'assessment', 'key' => $k, 'desc' => $d, 'text' => $txt);
+                $all_assessments[$k] = true;
             } elseif (!empty($txt)) {
-                $items[] = array('type' => 'custom', 'key' => '', 'desc' => $d, 'text' => $txt);
+                $sec1_items[] = array('type' => 'custom', 'key' => '', 'desc' => $d, 'text' => $txt);
             }
         }
-        if (!empty($items)) {
-            update_post_meta($post_id, '_nucleus_product_section_1_items', $items);
-        } else {
-            delete_post_meta($post_id, '_nucleus_product_section_1_items');
-        }
-        // Also update old assessment_types for backward compat
-        $assessment_keys = array();
-        foreach ($items as $item) {
-            if ($item['type'] === 'assessment' && !empty($item['key'])) {
-                $assessment_keys[] = $item['key'];
-            }
-        }
-        update_post_meta($post_id, '_nucleus_product_assessment_types', $assessment_keys);
-    } else {
-        delete_post_meta($post_id, '_nucleus_product_section_1_items');
-        delete_post_meta($post_id, '_nucleus_product_assessment_types');
+        
+        $packages[$pkg] = array(
+            'price' => $price,
+            'shopify' => $shopify,
+            'sec1_items' => $sec1_items
+        );
+    }
+    update_post_meta($post_id, '_nucleus_packages', $packages);
+    update_post_meta($post_id, '_nucleus_product_assessment_types', array_keys($all_assessments));
+    
+    // Also store basic price + shopify + sec1 items backward compatibility tags in case any old code fails 
+    if(isset($packages['basic'])){
+        update_post_meta($post_id, '_nucleus_product_price', sanitize_text_field($packages['basic']['price']));
+        update_post_meta($post_id, '_nucleus_product_shopify_button', wp_unslash($packages['basic']['shopify']));
+        update_post_meta($post_id, '_nucleus_product_section_1_items', $packages['basic']['sec1_items']);
     }
 
     // Section 2 Repeater

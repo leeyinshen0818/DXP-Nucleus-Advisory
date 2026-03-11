@@ -134,6 +134,73 @@
     }
 }
 
+/* ========== HERO NAVIGATION ARROWS ========== */
+.n-hero-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 20;
+}
+
+.n-hero-nav-arrow svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+}
+
+.n-hero-nav-arrow:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.n-hero-nav-prev {
+    left: 24px;
+}
+
+.n-hero-nav-next {
+    right: 24px;
+}
+
+@media (max-width: 1200px) {
+    .n-hero-nav-arrow {
+        width: 40px;
+        height: 40px;
+    }
+    .n-hero-nav-prev { left: 16px; }
+    .n-hero-nav-next { right: 16px; }
+    .n-hero-nav-arrow svg { width: 20px; height: 20px; }
+}
+
+@media (max-width: 768px) {
+    .n-hero-nav-arrow {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        backdrop-filter: blur(4px);
+    }
+    .n-hero-nav-prev { left: 8px; }
+    .n-hero-nav-next { right: 8px; }
+    .n-hero-nav-arrow svg { width: 16px; height: 16px; }
+    .n-hero-nav-arrow:hover { background: rgba(255, 255, 255, 0.2); }
+}
+
 /* ========== IMAGE ========== */
 .n-product-image-col {
     display: flex;
@@ -440,6 +507,40 @@ ul.n-list-receive li.n-dynamic-assessment-item {
     padding-left: 18px;
 }
 
+/* --- Added/Highlight Items --- */
+ul.n-list-receive li.n-item-highlight {
+    background: #f8faff; /* Very soft blue */
+    border-color: #bfdbfe; /* Distinct light blue border */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+}
+
+ul.n-list-receive.is-visible li.n-item-highlight:hover {
+    border-color: var(--np-accent);
+    background: #eff6ff;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+}
+
+.n-item-text-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.n-item-badge {
+    background: #eef2ff;
+    color: var(--np-accent);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
 /* ======================================================= */
 /*  SPLIT GRID LAYOUT CONTAINER (Added via JS)             */
 /* ======================================================= */
@@ -447,8 +548,8 @@ ul.n-list-receive li.n-dynamic-assessment-item {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 48px;
-    margin-top: 64px;
-    padding-top: 48px;
+    margin-top: 24px;
+    padding-top: 32px;
     border-top: 1px solid var(--np-border);
     align-items: start;
 }
@@ -559,8 +660,8 @@ ul.n-list-impact li {
     padding: 24px;
     background: var(--np-bg);
     border: 1px solid var(--np-border);
-    border-left: 3px solid var(--np-accent);
-    border-radius: 0 12px 12px 0;
+    border-left: 4px solid rgba(37, 99, 235, 0.25);
+    border-radius: 12px;
     font-weight: 400;
     font-size: 0.92rem;
     color: var(--np-text-light);
@@ -690,5 +791,343 @@ ul.n-list-impact li strong {
 
     ul.n-list-receive {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+ *  HERO — "Starts from" Price & CTA
+ * ========================================== */
+.n-product-price-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.n-price-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.02em;
+}
+
+.n-price-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
+}
+
+.n-hero-actions {
+    margin-top: 32px;
+}
+
+.n-btn-view-packages {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+    letter-spacing: 0.01em;
+}
+
+.n-btn-view-packages:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.45);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.n-btn-view-packages svg {
+    animation: nBounceDown 2s ease-in-out infinite;
+}
+
+@keyframes nBounceDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+}
+
+/* ==========================================
+ *  PACKAGE SLIDER SECTION
+ * ========================================== */
+.n-package-slider-section {
+    background: var(--np-bg);
+    padding: 72px 32px 16px;
+    scroll-margin-top: 120px;
+}
+
+.n-pkg-section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--np-dark);
+    text-align: center;
+    margin: 0 0 24px 0;
+    letter-spacing: -0.03em;
+}
+
+/* --- Tabs (centered, standalone row) --- */
+.n-slider-tabs {
+    display: flex;
+    justify-content: center;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 50px;
+    max-width: 360px;
+    margin: 0 auto 32px;
+}
+
+.n-slider-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.n-slider-tab:hover {
+    color: #0f172a;
+}
+
+.n-slider-tab.active {
+    background: #1737f1;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(23, 55, 241, 0.3);
+}
+
+/* --- Body: Arrow | Content | Arrow --- */
+.n-package-slider-body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1060px;
+    margin: 0 auto;
+}
+
+.n-slider-arrow {
+    background: none;
+    border: 2px solid #e2e8f0;
+    color: #64748b;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.n-slider-arrow:hover {
+    border-color: #1737f1;
+    color: #1737f1;
+    background: rgba(23, 55, 241, 0.04);
+}
+
+/* --- Slider Track --- */
+.n-package-slider-container {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.n-package-slider-track {
+    display: flex;
+    width: 300%;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.n-package-slide {
+    width: 33.3333%;
+    flex-shrink: 0;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Slide Header (compact) --- */
+.n-slide-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--np-border);
+}
+
+.n-slide-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--np-dark);
+    margin: 0 0 4px 0;
+}
+
+.n-slide-subtitle {
+    font-size: 0.85rem;
+    color: var(--np-text-light);
+    margin: 0 0 10px 0;
+}
+
+.n-slide-price {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1737f1;
+    letter-spacing: -0.02em;
+}
+
+.n-slide-receive-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--np-dark);
+    margin-bottom: 12px;
+}
+
+/* --- Checkout Area --- */
+.n-package-checkout-area {
+    margin-top: 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--np-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.n-package-checkout-area .n-terms-checkbox {
+    font-size: 0.85rem;
+    color: var(--np-text-light);
+    max-width: 480px;
+}
+
+.n-package-checkout-area .n-terms-checkbox a {
+    color: var(--np-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.n-package-checkout-area .n-terms-checkbox a:hover {
+    opacity: 0.7;
+}
+
+.n-custom-add-to-cart {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    padding: 16px 36px;
+    background: #94a3b8;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+    text-align: center;
+    letter-spacing: 0.01em;
+}
+
+.n-custom-add-to-cart.enabled {
+    background: linear-gradient(135deg, #1737f1, #1d4ed8);
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(23, 55, 241, 0.3);
+}
+
+.n-custom-add-to-cart.enabled:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(23, 55, 241, 0.4);
+    background: linear-gradient(135deg, #2563eb, #1737f1);
+}
+
+/* ==========================================
+ *  RESPONSIVE — Package Slider
+ * ========================================== */
+@media (max-width: 768px) {
+    .n-package-slider-section {
+        padding: 48px 16px 40px;
+    }
+
+    .n-pkg-section-title {
+        font-size: 1.3rem;
+    }
+
+    .n-slider-tab {
+        padding: 8px 16px;
+        font-size: 0.82rem;
+    }
+
+    .n-slider-arrow {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+    }
+
+    .n-package-slider-body {
+        gap: 8px;
+    }
+
+    .n-package-slide {
+        padding: 0 6px;
+    }
+
+    .n-slide-header {
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+    }
+
+    .n-slide-title {
+        font-size: 1.05rem;
+    }
+
+    .n-slide-price {
+        font-size: 1.35rem;
+    }
+
+    .n-custom-add-to-cart {
+        max-width: 100%;
+    }
+
+    .n-product-price-hero {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .n-price-value {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .n-slider-tabs {
+        padding: 3px;
+        max-width: 100%;
+    }
+
+    .n-slider-tab {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+    }
+
+    .n-package-slider-body {
+        gap: 4px;
+    }
+
+    .n-slider-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
     }
 }

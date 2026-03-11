@@ -355,7 +355,17 @@ function nucleus_product_meta_box_html($post)
     ?>
     <div class="n-tab-content<?php echo $is_active; ?>" id="n-tab-content-<?php echo $pkg; ?>">
         <p>
-            <label><strong>Price (<?php echo ucfirst($pkg); ?> Package):</strong></label><br>
+            <label><strong>Tab Name:</strong></label><br>
+            <input type="text" name="n_pkg_<?php echo $pkg; ?>_tab_name" value="<?php echo esc_attr(isset($pkg_data['tab_name']) ? $pkg_data['tab_name'] : ''); ?>"
+                style="width:100%;" placeholder="e.g. A Package, B Package, C Package">
+        </p>
+        <p>
+            <label><strong>Package Name:</strong></label><br>
+            <input type="text" name="n_pkg_<?php echo $pkg; ?>_name" value="<?php echo esc_attr(isset($pkg_data['name']) ? $pkg_data['name'] : ''); ?>"
+                style="width:100%;" placeholder="e.g. The Essentials, The Launchpad, Basic Package">
+        </p>
+        <p>
+            <label><strong>Price:</strong></label><br>
             <input type="text" name="n_pkg_<?php echo $pkg; ?>_price" value="<?php echo esc_attr($pkg_data['price']); ?>"
                 style="width:100%;" placeholder="e.g. RM80.00 MYR">
         </p>
@@ -774,6 +784,8 @@ function nucleus_save_product_meta($post_id)
     $valid_keys = array_keys($catalog);
 
     foreach ($package_keys as $pkg) {
+        $tab_name = isset($_POST['n_pkg_' . $pkg . '_tab_name']) ? sanitize_text_field($_POST['n_pkg_' . $pkg . '_tab_name']) : '';
+        $name = isset($_POST['n_pkg_' . $pkg . '_name']) ? sanitize_text_field($_POST['n_pkg_' . $pkg . '_name']) : '';
         $price = isset($_POST['n_pkg_' . $pkg . '_price']) ? sanitize_text_field($_POST['n_pkg_' . $pkg . '_price']) : '';
         $shopify = isset($_POST['n_pkg_' . $pkg . '_shopify']) ? wp_unslash($_POST['n_pkg_' . $pkg . '_shopify']) : '';
         
@@ -787,7 +799,6 @@ function nucleus_save_product_meta($post_id)
             $txt = sanitize_text_field($texts[$i]);
             $k = isset($keys[$i]) ? sanitize_text_field($keys[$i]) : '';
             $d = isset($descs[$i]) ? sanitize_textarea_field($descs[$i]) : '';
-            // Determine type: if valid assessment key selected, it's assessment
             if (!empty($k) && in_array($k, $valid_keys)) {
                 $sec1_items[] = array('type' => 'assessment', 'key' => $k, 'desc' => $d, 'text' => $txt);
                 $all_assessments[$k] = true;
@@ -797,6 +808,8 @@ function nucleus_save_product_meta($post_id)
         }
         
         $packages[$pkg] = array(
+            'tab_name' => $tab_name,
+            'name' => $name,
             'price' => $price,
             'shopify' => $shopify,
             'sec1_items' => $sec1_items

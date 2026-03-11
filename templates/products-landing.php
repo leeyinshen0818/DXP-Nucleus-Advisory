@@ -113,42 +113,41 @@
                 <div class="nl-step">
                     <div class="nl-step-number">03</div>
                     <h3 class="nl-step-title">Get Your Results</h3>
-                    <p class="nl-step-desc">Receive a compiled report and a 15-minute consultation with a Nucleus
-                        Advisory expert to discuss your insights.</p>
+                    <p class="nl-step-desc">Receive a compiled report or a professional consultation with a Nucleus Advisory expert to discuss your insights.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- What Every Package Includes -->
+    <!-- Core Values / Why Choose Us -->
     <div class="nl-includes-section">
         <div class="nl-includes-inner">
-            <h2 class="nl-section-title">Included in Every Package</h2>
-            <p class="nl-section-subtitle">Each assessment comes with a comprehensive package</p>
+            <h2 class="nl-section-title">Why Choose Nucleus Advisory</h2>
+            <p class="nl-section-subtitle">We don't just give you a report—we give you a strategic roadmap.</p>
             <div class="nl-includes-grid">
                 <div class="nl-include-item">
-                    <span class="nl-include-icon">📝</span>
-                    <span class="nl-include-text">Personality Assessment</span>
-                </div>
-                <div class="nl-include-item">
-                    <span class="nl-include-icon">💼</span>
-                    <span class="nl-include-text">Work Styles Assessment</span>
+                    <span class="nl-include-icon">📊</span>
+                    <span class="nl-include-text">Data-Backed Insights</span>
                 </div>
                 <div class="nl-include-item">
                     <span class="nl-include-icon">🎯</span>
-                    <span class="nl-include-text">Work Interest Assessment</span>
-                </div>
-                <div class="nl-include-item">
-                    <span class="nl-include-icon">📊</span>
-                    <span class="nl-include-text">Compiled Report</span>
+                    <span class="nl-include-text">Highly Actionable Roadmaps</span>
                 </div>
                 <div class="nl-include-item">
                     <span class="nl-include-icon">💬</span>
-                    <span class="nl-include-text">15-Min Expert Consultation</span>
+                    <span class="nl-include-text">1-on-1 Expert Consultations</span>
                 </div>
                 <div class="nl-include-item">
-                    <span class="nl-include-icon">🧭</span>
-                    <span class="nl-include-text">Career Path Exploration</span>
+                    <span class="nl-include-icon">🚀</span>
+                    <span class="nl-include-text">Accelerated Career Growth</span>
+                </div>
+                <div class="nl-include-item">
+                    <span class="nl-include-icon">👁️</span>
+                    <span class="nl-include-text">Identify Blind Spots</span>
+                </div>
+                <div class="nl-include-item">
+                    <span class="nl-include-icon">🔐</span>
+                    <span class="nl-include-text">100% Confidential & Secure</span>
                 </div>
             </div>
         </div>

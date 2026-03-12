@@ -595,6 +595,57 @@ function nucleus_page_dynamic_builder_html($post)
     padding: 20px;
     min-width: 0;
 }
+
+/* --- Tabs Editor --- */
+.ncl-tabs-editor {
+    background: #fafafa;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.ncl-tabs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ncl-tab-item {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-left: 3px solid #2271b1;
+    padding: 12px;
+    border-radius: 3px;
+}
+
+.ncl-tab-item .input-tab-title {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.ncl-tab-item .input-tab-content {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+    resize: vertical;
+}
+
+.ncl-tab-item .btn-delete-tab {
+    max-width: 100%;
+}
 </style>
 
 <script type="text/javascript">
@@ -732,17 +783,33 @@ jQuery(document).ready(function($) {
                                             <option value="number" ${comp.type === 'number' ? 'selected' : ''}>Number</option>
                                             <option value="url" ${comp.type === 'url' ? 'selected' : ''}>Link URL Only</option>
                                             <option value="image" ${comp.type === 'image' ? 'selected' : ''}>Image URL</option>
+                                            <option value="tabs" ${comp.type === 'tabs' ? 'selected' : ''}>Tabs/Sidebar</option>
                                         </select>
                                     </div>
                                     <div class="ncl-form-row">
                                         <label>Component Name</label>
                                         <input type="text" class="input-comp-key" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.id)}" placeholder="e.g. title, subtitle" />
                                     </div>
+                                    ${comp.type === 'tabs' ? `
+                                        <div class="ncl-tabs-editor">
+                                            <div class="ncl-tabs-list">
+                                                ${Array.isArray(comp.value) ? comp.value.map((item, tIndex) => `
+                                                    <div class="ncl-tab-item" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">
+                                                        <input type="text" class="input-tab-title" placeholder="Tab Title" value="${escapeHtml(item.title || '')}" />
+                                                        <textarea class="input-tab-content" placeholder="Tab Content" rows="3">${escapeHtml(item.content || '')}</textarea>
+                                                        <button type="button" class="ncl-btn ncl-btn-danger btn-delete-tab" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Remove Tab</button>
+                                                    </div>
+                                                `).join('') : ''}
+                                            </div>
+                                            <button type="button" class="ncl-btn ncl-btn-secondary btn-add-tab" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Tab Item</button>
+                                        </div>
+                                    ` : ''}
                                     <div class="ncl-form-row" style="align-items: flex-start;">
                                         <label style="padding-top:6px;">Content</label>
-                                        ${comp.type === 'textarea' 
-                                            ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(comp.value)}</textarea>`
-                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.value)}" placeholder="Value / Text" />`
+                                        ${comp.type === 'tabs' ? '' : 
+                                        comp.type === 'textarea' 
+                                            ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>`
+                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="Value / Text" />`
                                         }
                                         ${comp.type === 'image' ? 
                                             `<button type="button" style="margin-left: 10px;" class="ncl-btn ncl-btn-secondary btn-upload-comp-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload File</button>`
@@ -1011,11 +1078,74 @@ jQuery(document).ready(function($) {
         syncHiddenInput();
     });
 
+    // Handle Component Type Change
     $root.on('change', '.input-comp-type', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        pageData[sIndex].components[cIndex].type = $(this).val();
+        const newType = $(this).val();
+        pageData[sIndex].components[cIndex].type = newType;
+
+        // Initialize tabs array if switching to tabs type
+        if (newType === 'tabs' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [{
+                title: '',
+                content: ''
+            }];
+        }
         renderBuilder();
+    });
+
+    // Tabs: Add Tab Item
+    $root.on('click', '.btn-add-tab', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+
+        if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [];
+        }
+        pageData[sIndex].components[cIndex].value.push({
+            title: '',
+            content: ''
+        });
+        renderBuilder();
+    });
+
+    // Tabs: Delete Tab Item
+    $root.on('click', '.btn-delete-tab', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
+        }
+    });
+
+    // Tabs: Update Tab Title
+    $root.on('input', '.input-tab-title', function() {
+        const sIndex = $(this).closest('.ncl-tab-item').data('sindex');
+        const cIndex = $(this).closest('.ncl-tab-item').data('cindex');
+        const tIndex = $(this).closest('.ncl-tab-item').data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value[tIndex].title = $(this).val();
+            syncHiddenInput();
+        }
+    });
+
+    // Tabs: Update Tab Content
+    $root.on('input', '.input-tab-content', function() {
+        const sIndex = $(this).closest('.ncl-tab-item').data('sindex');
+        const cIndex = $(this).closest('.ncl-tab-item').data('cindex');
+        const tIndex = $(this).closest('.ncl-tab-item').data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value[tIndex].content = $(this).val();
+            syncHiddenInput();
+        }
     });
 
     // Sanitize Section ID on change
@@ -1245,10 +1375,52 @@ function nucleus_page_content_shortcode($atts) {
             color: #2271b1;
             text-decoration: underline;
         }
-        @media (max-width: 768px) {
-            .nucleus-section { padding: 40px 15px; }
-            .nucleus-title { font-size: 1.8em; }
+        .nucleus-tabs {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
         }
+        .nucleus-tabs-sidebar {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .nucleus-tabs-button {
+            padding: 12px 16px;
+            background: #f0f0f1;
+            border: 1px solid #c3c4c7;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 500;
+            border-radius: 3px 0 0 3px;
+            color: #1d2327;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .nucleus-tabs-button:hover {
+            background: #e9ecf0;
+        }
+        .nucleus-tabs-button.active {
+            background: #fff;
+            border-left-color: #2271b1;
+            color: #2271b1;
+        }
+        .nucleus-tabs-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .nucleus-tab-pane {
+            display: none;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #c3c4c7;
+            border-radius: 3px;
+        }
+        .nucleus-tab-pane.active {
+            display: block;
+        }
+        @media (max-width: 768px) {\n            .nucleus-section { padding: 40px 15px; }\n            .nucleus-title { font-size: 1.8em; }\n            .nucleus-tabs { flex-direction: column; }\n            .nucleus-tabs-sidebar { flex: 1; }\n            .nucleus-tabs-button { border-radius: 3px; }\n        }
     </style>";
 
     // -- Custom CSS from Builder --
@@ -1337,6 +1509,30 @@ function nucleus_page_content_shortcode($atts) {
                             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . wpautop(esc_html($val)) . '</div>';
                         } elseif ($type === 'number') {
                             echo '<span id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-number">' . esc_html($val) . '</span>';
+                        } elseif ($type === 'tabs') {
+                            // Render tabs/sidebar component
+                            if (is_array($val) && !empty($val)) {
+                                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-tabs" data-comp-id="' . esc_attr($full_id) . '">';
+                                echo '<div class="nucleus-tabs-sidebar">';
+                                
+                                foreach ($val as $tab_index => $tab) {
+                                    $tab_title = isset($tab['title']) ? $tab['title'] : 'Tab ' . ($tab_index + 1);
+                                    $is_active = ($tab_index === 0) ? 'active' : '';
+                                    echo '<button class="nucleus-tabs-button ' . $is_active . '" data-tab-idx="' . esc_attr($tab_index) . '">' . esc_html($tab_title) . '</button>';
+                                }
+                                
+                                echo '</div>'; // .nucleus-tabs-sidebar
+                                echo '<div class="nucleus-tabs-content">';
+                                
+                                foreach ($val as $tab_index => $tab) {
+                                    $tab_content = isset($tab['content']) ? $tab['content'] : '';
+                                    $is_active = ($tab_index === 0) ? 'active' : '';
+                                    echo '<div class="nucleus-tab-pane ' . $is_active . '" data-tab-idx="' . esc_attr($tab_index) . '">' . wp_kses_post($tab_content) . '</div>';
+                                }
+                                
+                                echo '</div>'; // .nucleus-tabs-content
+                                echo '</div>'; // .nucleus-tabs
+                            }
                         } else {
                             if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
                                 echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . esc_html($val) . '</h2>';
@@ -1372,6 +1568,29 @@ function nucleus_page_content_shortcode($atts) {
     }
 
     echo '</div>'; // .nucleus-page-container
+
+    // Add JavaScript for tabs interactivity
+    echo "<script type='text/javascript'>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle tab button clicks
+        const tabButtons = document.querySelectorAll('.nucleus-tabs-button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabIdx = this.getAttribute('data-tab-idx');
+                const tabComponent = this.closest('.nucleus-tabs');
+                
+                // Remove active class from all buttons and panes in this component
+                tabComponent.querySelectorAll('.nucleus-tabs-button').forEach(btn => btn.classList.remove('active'));
+                tabComponent.querySelectorAll('.nucleus-tab-pane').forEach(pane => pane.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding pane
+                this.classList.add('active');
+                tabComponent.querySelector('.nucleus-tab-pane[data-tab-idx=\"' + tabIdx + '\"]').classList.add('active');
+            });
+        });
+    });
+    </script>";
 
     return ob_get_clean();
 }

@@ -1,0 +1,1402 @@
+<?php
+/**
+ * Page Manager (Custom Post Type)
+ * ==================================
+ * Registers the 'nucleus_page' post type to create a 
+ * headless Page Manager dashboard. 
+ * Allows dynamic creation of sections, components, and CSS.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+function nucleus_dxp_register_page_cpt()
+{
+    $labels = array(
+        'name'               => _x('Page Manager', 'Post Type General Name', 'text_domain'),
+        'singular_name'      => _x('Page', 'Post Type Singular Name', 'text_domain'),
+        'menu_name'          => __('Page Manager', 'text_domain'),
+        'name_admin_bar'     => __('Page', 'text_domain'),
+        'all_items'          => __('All Pages', 'text_domain'),
+        'add_new_item'       => __('Add New Page', 'text_domain'),
+        'add_new'            => __('Add New', 'text_domain'),
+        'new_item'           => __('New Page', 'text_domain'),
+        'edit_item'          => __('Edit Page', 'text_domain'),
+        'update_item'        => __('Update Page', 'text_domain'),
+        'view_item'          => __('View Page', 'text_domain'),
+        'search_items'       => __('Search Page', 'text_domain'),
+        'not_found'          => __('Not found', 'text_domain'),
+        'not_found_in_trash' => __('Not found in Trash', 'text_domain'),
+    );
+
+    $args = array(
+        'label'               => __('Page', 'text_domain'),
+        'description'         => __('Manage dynamic pages, sections, and their components.', 'text_domain'),
+        'labels'              => $labels,
+        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions', 'page-attributes'),
+        'hierarchical'        => true,
+        'public'              => true,
+        'show_ui'             => true,
+        'show_in_menu'        => true,
+        'menu_position'       => 31,
+        'menu_icon'           => 'dashicons-admin-page',
+        'show_in_admin_bar'   => true,
+        'show_in_nav_menus'   => true,
+        'can_export'          => true,
+        'has_archive'         => true, // Enable archive
+        'exclude_from_search' => false,
+        'publicly_queryable'  => true,
+        'capability_type'     => 'page',
+        'show_in_rest'        => true,
+        'rewrite'             => array('slug' => 'nucleus_page', 'with_front' => true), // Explicit rewrite rule
+    );
+
+    register_post_type('nucleus_page', $args);
+    
+    // Refresh permalinks on first load
+    if (get_option('nucleus_page_cpt_flush_rewrite', false)) {
+        flush_rewrite_rules();
+        update_option('nucleus_page_cpt_flush_rewrite', false);
+    }
+}
+add_action('init', 'nucleus_dxp_register_page_cpt');
+
+// Add rewrite flush logic
+function nucleus_dxp_rewrite_flush() {
+    // Add activation flush
+    nucleus_dxp_register_page_cpt();
+    flush_rewrite_rules();
+}
+// Hook for manual plugin activation
+register_activation_hook(NUCLEUS_DXP_PATH . 'nucleus-dxp.php', 'nucleus_dxp_rewrite_flush');
+
+// Add a one-time automatic flush on admin init to fix existing active installs
+function nucleus_dxp_auto_flush_on_update() {
+    if (!get_option('nucleus_page_manager_rules_flushed')) {
+        nucleus_dxp_register_page_cpt();
+        flush_rewrite_rules();
+        update_option('nucleus_page_manager_rules_flushed', true);
+    }
+}
+add_action('admin_init', 'nucleus_dxp_auto_flush_on_update');
+
+/**
+ * Force template loading for Single Nucleus Page
+ */
+function nucleus_page_template_include($template) {
+    if (is_singular('nucleus_page')) {
+        $plugin_template = NUCLEUS_DXP_PATH . 'templates/single-nucleus_page.php';
+        if (file_exists($plugin_template)) {
+            return $plugin_template;
+        }
+    }
+    return $template;
+}
+add_filter('template_include', 'nucleus_page_template_include');
+
+/**
+ * =====================================
+ * Meta Boxes for Sections & Components Builder
+ * =====================================
+ */
+function nucleus_page_manager_meta_boxes()
+{
+    add_meta_box(
+        'nucleus_page_dynamic_builder',
+        'Page Content & Style Builder',
+        'nucleus_page_dynamic_builder_html',
+        'nucleus_page',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'nucleus_page_manager_meta_boxes');
+
+function nucleus_page_dynamic_builder_html($post)
+{
+    wp_nonce_field('nucleus_save_page_builder_data', 'nucleus_page_builder_meta_box_nonce');
+    wp_enqueue_script('jquery-ui-sortable');
+    wp_enqueue_script('wp-theme-plugin-editor');
+    wp_enqueue_style('wp-codemirror');
+    wp_enqueue_media();
+
+    // Retrieve Component Data
+    $page_data = get_post_meta($post->ID, '_nucleus_page_components', true);
+    if (!is_array($page_data)) {
+        $page_data = array();
+    }
+    
+    // Retrieve CSS Data
+    $page_css_data = get_post_meta($post->ID, '_nucleus_page_css', true);
+    if (!is_array($page_css_data)) {
+        $page_css_data = array();
+    }
+    
+    ?>
+
+<!-- TABS NAVIGATION -->
+<div class="ncl-tabs-nav">
+    <button type="button" class="ncl-tab-btn active" data-tab="content">Content Builder</button>
+    <button type="button" class="ncl-tab-btn" data-tab="css">CSS Manager</button>
+</div>
+
+<!-- CONTENT BUILDER TAB -->
+<div id="ncl-tab-content-content" class="ncl-tab-pane active">
+    <div id="nucleus-page-builder-root"></div>
+    <input type="hidden" name="_nucleus_page_data_json" id="_nucleus_page_data_json" value="" />
+</div>
+
+<!-- CSS MANAGER TAB -->
+<div id="ncl-tab-content-css" class="ncl-tab-pane">
+    <div class="ncl-css-manager-wrapper ncl-css-sidebar-layout">
+        <div class="ncl-css-sidebar">
+            <div class="ncl-css-sidebar-title">Sections</div>
+            <ul id="ncl-css-sidebar-list">
+                <!-- Populated via JS -->
+            </ul>
+        </div>
+        <div class="ncl-css-editor-panel">
+            <div id="ncl-css-editor-container"></div>
+            <p class="description">Enter standard CSS. Use selectors like <code>#section-component</code> or specific
+                IDs.</p>
+        </div>
+    </div>
+    <!-- Hidden elements kept for JS compatibility -->
+    <select id="ncl-css-section-select" style="display:none;"></select>
+    <input type="hidden" name="_nucleus_page_css_json" id="_nucleus_page_css_json" value="" />
+</div>
+
+<style>
+.ncl-tabs-nav {
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.ncl-tab-btn {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-bottom: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #50575e;
+    margin-bottom: -1px;
+    border-radius: 4px 4px 0 0;
+}
+
+.ncl-tab-btn.active {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    color: #1d2327;
+}
+
+.ncl-tab-pane {
+    display: none;
+}
+
+.ncl-tab-pane.active {
+    display: block;
+}
+
+.ncl-css-manager-wrapper {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.ncl-css-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+    background: #f0f0f1;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.ncl-css-box {
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ncl-css-box-header {
+    background: #f6f7f7;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-family: monospace;
+    color: #2271b1;
+}
+
+.ncl-css-textarea {
+    width: 100%;
+    height: 150px;
+    font-family: monospace;
+    border: none;
+    padding: 10px;
+    resize: vertical;
+    background: #fafafa;
+}
+
+.ncl-css-textarea:focus {
+    background: #fff;
+    outline: none;
+}
+
+#nucleus-page-builder-root {
+    margin-top: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.ncl-section-block {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.ncl-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dcdcde;
+    cursor: move;
+}
+
+.ncl-section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1d2327;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ncl-drag-handle {
+    cursor: grab;
+    font-size: 18px;
+    color: #8c8f94;
+}
+
+.ncl-section-badge {
+    background: #2271b1;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+.ncl-bg-settings {
+    background: #fff;
+    padding: 10px 15px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ncl-bg-settings label {
+    font-weight: 600;
+    color: #50575e;
+}
+
+.ncl-bg-settings select,
+.ncl-bg-settings input {
+    padding: 4px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+}
+
+.ncl-comp-list {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ncl-comp-item {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #2271b1;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.ncl-comp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ncl-comp-id-display {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d63638;
+    background: #f6f7f7;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #dcdcde;
+}
+
+.ncl-form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ncl-form-row label {
+    width: 120px;
+    font-weight: 600;
+    color: #50575e;
+    flex-shrink: 0;
+}
+
+.ncl-form-row input[type="text"],
+.ncl-form-row input[type="number"],
+.ncl-form-row input[type="url"],
+.ncl-form-row textarea,
+.ncl-form-row select {
+    width: 100%;
+    max-width: 600px;
+    padding: 6px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+}
+
+.ncl-btn {
+    cursor: pointer;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.ncl-btn-primary {
+    background: #2271b1;
+    color: #fff;
+    border: 1px solid #2271b1;
+}
+
+.ncl-btn-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+}
+
+.ncl-btn-danger {
+    background: #fff;
+    color: #d63638;
+    border: 1px solid #d63638;
+}
+
+.ncl-btn-danger:hover {
+    background: #d63638;
+    color: #fff;
+}
+
+.ncl-btn-secondary {
+    background: #f6f7f7;
+    color: #2271b1;
+    border: 1px solid #2271b1;
+}
+
+.ncl-btn-secondary:hover {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+
+.ncl-add-comp-container {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #c3c4c7;
+    text-align: right;
+}
+
+.ncl-add-section-container {
+    padding: 30px;
+    background: #fff;
+    border: 2px dashed #c3c4c7;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.ui-sortable-helper {
+    opacity: 0.9;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.ui-sortable-placeholder {
+    border: 2px dashed #2271b1;
+    background: #f0f6fc;
+    visibility: visible !important;
+    margin-bottom: 25px;
+    border-radius: 4px;
+}
+
+/* --- Collapsible Sections & Components --- */
+.ncl-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #50575e;
+    padding: 2px 6px;
+    transition: transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ncl-toggle-btn:hover {
+    color: #2271b1;
+}
+
+.ncl-toggle-btn .dashicons {
+    transition: transform 0.2s;
+}
+
+.ncl-section-block.collapsed .ncl-toggle-btn .dashicons {
+    transform: rotate(-90deg);
+}
+
+.ncl-section-block.collapsed .ncl-bg-settings,
+.ncl-section-block.collapsed .ncl-comp-list,
+.ncl-section-block.collapsed .ncl-add-comp-container {
+    display: none;
+}
+
+.ncl-section-block.collapsed .ncl-section-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ncl-comp-item.collapsed .ncl-form-row {
+    display: none;
+}
+
+.ncl-comp-item.collapsed .ncl-comp-header {
+    margin-bottom: 0;
+}
+
+.ncl-comp-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #50575e;
+    padding: 2px 4px;
+    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ncl-comp-toggle:hover {
+    color: #2271b1;
+}
+
+.ncl-comp-toggle .dashicons {
+    transition: transform 0.2s;
+}
+
+.ncl-comp-item.collapsed .ncl-comp-toggle .dashicons {
+    transform: rotate(-90deg);
+}
+
+/* --- CSS Sidebar Layout --- */
+.ncl-css-sidebar-layout {
+    display: flex;
+    gap: 0;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.ncl-css-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #f6f7f7;
+    border-right: 1px solid #c3c4c7;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.ncl-css-sidebar-title {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #50575e;
+    padding: 14px 16px 8px;
+}
+
+#ncl-css-sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#ncl-css-sidebar-list li {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1d2327;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#ncl-css-sidebar-list li:hover {
+    background: #e9ecf0;
+}
+
+#ncl-css-sidebar-list li.active {
+    background: #fff;
+    border-left-color: #2271b1;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+#ncl-css-sidebar-list li .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 6px;
+    color: #8c8f94;
+}
+
+#ncl-css-sidebar-list li.active .dashicons {
+    color: #2271b1;
+}
+
+.ncl-css-editor-panel {
+    flex: 1;
+    padding: 20px;
+    min-width: 0;
+}
+</style>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    let mediaUploader;
+
+    // DATA
+    let pageData = <?php echo json_encode($page_data); ?>;
+    let cssData = <?php echo json_encode($page_css_data); ?>; // { "hero": ".hero { bg... }", "intro": "..." }
+
+    // Ensure CSS data is object
+    if (!cssData || Array.isArray(cssData)) cssData = {};
+
+    // --- MIGRATION Logic ---
+    if (pageData && !Array.isArray(pageData) && Object.keys(pageData).length > 0) {
+        let newData = [];
+        Object.keys(pageData).forEach(secKey => {
+            let comps = [];
+            Object.keys(pageData[secKey]).forEach(compKey => {
+                comps.push({
+                    id: compKey,
+                    type: pageData[secKey][compKey].type || 'text',
+                    value: pageData[secKey][compKey].value || ''
+                });
+            });
+            newData.push({
+                section_id: secKey,
+                bg_type: 'none',
+                bg_value: '',
+                components: comps
+            });
+        });
+        pageData = newData;
+    } else if (!Array.isArray(pageData)) {
+        pageData = [];
+    }
+    // --- END MIGRATION ---
+
+    const $root = $('#nucleus-page-builder-root');
+    const $cssRoot = $('#ncl-css-editor-container');
+    const $sectionSelect = $('#ncl-css-section-select');
+
+    // Tracks currently active CSS section in the editor
+    let currentCssSection = '';
+
+    const $hiddenInput = $('#_nucleus_page_data_json');
+    const $hiddenCssInput = $('#_nucleus_page_css_json');
+
+    // Track collapsed section IDs to preserve state across re-renders
+    let collapsedSections = new Set();
+
+    function renderBuilder() {
+        // Save currently collapsed sections before re-rendering
+        collapsedSections.clear();
+        $('.ncl-section-block.collapsed').each(function() {
+            const sIndex = $(this).data('sindex');
+            const sectionId = pageData[sIndex]?.section_id;
+            if (sectionId) {
+                collapsedSections.add(sectionId);
+            }
+        });
+
+        $root.empty();
+
+        // Build CSS sidebar list
+        const $sidebarList = $('#ncl-css-sidebar-list');
+        $sidebarList.empty();
+        $sidebarList.append(
+            `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}"><span class="dashicons dashicons-admin-customizer"></span>Global Custom CSS</li>`
+        );
+
+        const $sectionsWrapper = $('<div class="ncl-sections-wrapper"></div>');
+
+        pageData.forEach((section, sIndex) => {
+            // Populate CSS sidebar
+            $sidebarList.append(
+                `<li data-section="${escapeHtml(section.section_id)}" class="${currentCssSection === section.section_id ? 'active' : ''}"><span class="dashicons dashicons-layout"></span>${escapeHtml(section.section_id)}</li>`
+            );
+
+            const $sectionBox = $(`
+                        <div class="ncl-section-block" data-sindex="${sIndex}">
+                            <div class="ncl-section-header">
+                                <h3>
+                                    <button type="button" class="ncl-toggle-btn btn-toggle-section"><span class="dashicons dashicons-arrow-down-alt2"></span></button>
+                                    <span class="dashicons dashicons-menu ncl-drag-handle"></span> 
+                                    Section: 
+                                    <input type="text" class="input-sec-id" data-sindex="${sIndex}" value="${escapeHtml(section.section_id)}" placeholder="e.g. hero" style="margin-left: 10px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: 3px; font-family: monospace; width: 180px; font-size: 14px; font-weight: normal;"/>
+                                </h3>
+                                <button type="button" class="ncl-btn ncl-btn-danger btn-delete-section" data-sindex="${sIndex}">Delete Section</button>
+                            </div>
+                            
+                            <div class="ncl-bg-settings">
+                                <label>Background:</label>
+                                <select class="input-sec-bg-type" data-sindex="${sIndex}">
+                                    <option value="none" ${section.bg_type === 'none' ? 'selected' : ''}>None</option>
+                                    <option value="color" ${section.bg_type === 'color' ? 'selected' : ''}>Solid Color</option>
+                                    <option value="image" ${section.bg_type === 'image' ? 'selected' : ''}>Image</option>
+                                </select>
+                                
+                                ${section.bg_type === 'color' ? 
+                                    `<input type="color" class="input-sec-bg-val" data-sindex="${sIndex}" value="${escapeHtml(section.bg_value)}" /> (Hex Color)` 
+                                : ''}
+                                
+                                ${section.bg_type === 'image' ? 
+                                    `<input type="text" class="input-sec-bg-val" data-sindex="${sIndex}" value="${escapeHtml(section.bg_value)}" placeholder="Image URL..." style="width: 250px;" />
+                                     <button type="button" class="ncl-btn ncl-btn-secondary btn-upload-image" data-sindex="${sIndex}">Select Image</button>`
+                                : ''}
+                            </div>
+
+                            <div class="ncl-comp-list"></div>
+                            <div class="ncl-add-comp-container">
+                                <button type="button" class="ncl-btn ncl-btn-secondary btn-add-comp" data-sindex="${sIndex}">+ Add Component</button>
+                            </div>
+                        </div>
+                    `);
+
+            const $compList = $sectionBox.find('.ncl-comp-list');
+
+            if (section.components && section.components.length > 0) {
+                section.components.forEach((comp, cIndex) => {
+                    const fullHtmlId = `${section.section_id}-${comp.id}`;
+
+                    $compBox = $(`
+                                <div class="ncl-comp-item">
+                                    <div class="ncl-comp-header">
+                                        <div><button type="button" class="ncl-comp-toggle btn-toggle-comp"><span class="dashicons dashicons-arrow-down-alt2"></span></button><span class="dashicons dashicons-editor-code" style="color: #2271b1; vertical-align: middle;"></span> Component ID: <span class="ncl-comp-id-display">${escapeHtml(fullHtmlId)}</span></div>
+                                        <button type="button" class="ncl-btn ncl-btn-danger btn-delete-comp" data-sindex="${sIndex}" data-cindex="${cIndex}">Remove</button>
+                                    </div>
+                                    <div class="ncl-form-row">
+                                        <label>Field Type</label>
+                                        <select class="input-comp-type" data-sindex="${sIndex}" data-cindex="${cIndex}">
+                                            <option value="text" ${comp.type === 'text' ? 'selected' : ''}>String (Text)</option>
+                                            <option value="textarea" ${comp.type === 'textarea' ? 'selected' : ''}>Text Area</option>
+                                            <option value="link_text" ${comp.type === 'link_text' ? 'selected' : ''}>Text with Link (Button)</option>
+                                            <option value="number" ${comp.type === 'number' ? 'selected' : ''}>Number</option>
+                                            <option value="url" ${comp.type === 'url' ? 'selected' : ''}>Link URL Only</option>
+                                            <option value="image" ${comp.type === 'image' ? 'selected' : ''}>Image URL</option>
+                                        </select>
+                                    </div>
+                                    <div class="ncl-form-row">
+                                        <label>Component Name</label>
+                                        <input type="text" class="input-comp-key" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.id)}" placeholder="e.g. title, subtitle" />
+                                    </div>
+                                    <div class="ncl-form-row" style="align-items: flex-start;">
+                                        <label style="padding-top:6px;">Content</label>
+                                        ${comp.type === 'textarea' 
+                                            ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(comp.value)}</textarea>`
+                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.value)}" placeholder="Value / Text" />`
+                                        }
+                                        ${comp.type === 'image' ? 
+                                            `<button type="button" style="margin-left: 10px;" class="ncl-btn ncl-btn-secondary btn-upload-comp-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload File</button>`
+                                        : ''}
+                                        
+                                        ${comp.type === 'link_text' ? 
+                                            `<input type="text" class="input-comp-meta" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.meta || '')}" placeholder="Link URL (http://...)" style="margin-left:10px;" />` 
+                                        : ''}
+                                    </div>
+                                </div>
+                            `);
+                    $compList.append($compBox);
+                });
+            } else {
+                $compList.append(
+                    '<p style="color:#646970; font-style:italic;">No components added to this section yet.</p>'
+                );
+            }
+
+            $sectionsWrapper.append($sectionBox);
+        });
+
+        $root.append($sectionsWrapper);
+        $root.append(`
+                    <div class="ncl-add-section-container">
+                        <button type="button" class="ncl-btn ncl-btn-primary btn-add-section" style="font-size: 15px; padding: 10px 20px;">+ Add New Section</button>
+                    </div>
+                `);
+
+        // Restore collapsed state
+        collapsedSections.forEach(sectionId => {
+            $sectionBlock = $root.find('.ncl-section-block').filter(function() {
+                const sIndex = $(this).data('sindex');
+                return pageData[sIndex]?.section_id === sectionId;
+            });
+            if ($sectionBlock.length) {
+                $sectionBlock.addClass('collapsed');
+            }
+        });
+
+        // Initialize Sortable for Drag and Drop
+        $sectionsWrapper.sortable({
+            handle: '.ncl-section-header',
+            placeholder: 'ui-sortable-placeholder',
+            forcePlaceholderSize: true,
+            update: function(event, ui) {
+                reorderDataArray();
+            }
+        });
+
+        syncHiddenInput();
+        renderCssEditor(); // Re-render CSS portion
+    }
+
+    // NEW: Render just the editor for the stored/current selection
+    function renderCssEditor() {
+        $cssRoot.empty();
+
+        if (!currentCssSection) {
+            $cssRoot.html(
+                '<div style="padding: 40px; text-align: center; color: #666; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px;">Select a section from the sidebar to edit its CSS.</div>'
+            );
+            return;
+        }
+
+        const cssContent = cssData[currentCssSection] || '';
+        let placeholder = '';
+        if (currentCssSection === 'global') {
+            placeholder = "/* Global CSS — applies to the entire page */\nbody {\n\n}";
+        } else {
+            // Build a helpful placeholder showing component IDs
+            const section = pageData.find(s => s.section_id === currentCssSection);
+            let compHints = '';
+            if (section && section.components && section.components.length > 0) {
+                compHints = section.components.map(c =>
+                    `#${currentCssSection}-${c.id} {\n    /* style this component */\n}`).join('\n\n');
+            } else {
+                compHints = `/* Add components in Content Builder first */`;
+            }
+            placeholder = `/* CSS for section: ${currentCssSection} */\n${compHints}`;
+        }
+
+        const $editor = $(`
+            <div class="ncl-css-editor-single">
+                <textarea class="ncl-css-textarea" id="ncl-active-css-editor" placeholder="${placeholder}" style="height: 300px;">${escapeHtml(cssContent)}</textarea>
+            </div>
+        `);
+
+        $cssRoot.append($editor);
+    }
+
+    function syncCssInput() {
+        $hiddenCssInput.val(JSON.stringify(cssData));
+    }
+
+    function reorderDataArray() {
+        const newData = [];
+        $('.ncl-section-block').each(function() {
+            const originalIndex = $(this).data('sindex');
+            newData.push(pageData[originalIndex]);
+        });
+        pageData = newData;
+        renderBuilder(); // Re-render to fix indices
+    }
+
+    function syncHiddenInput() {
+        $hiddenInput.val(JSON.stringify(pageData));
+    }
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return String(unsafe).replace(/[&<"']/g, function(m) {
+            switch (m) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '"':
+                    return '&quot;';
+                case "'":
+                    return '&#039;';
+            }
+        });
+    }
+
+    // --- Interactions --- //
+
+    // TABS
+    $('.ncl-tab-btn').on('click', function() {
+        $('.ncl-tab-btn').removeClass('active');
+        $(this).addClass('active');
+        const tab = $(this).data('tab');
+        $('.ncl-tab-pane').removeClass('active');
+        $('#ncl-tab-content-' + tab).addClass('active');
+    });
+
+    // CSS Interactions
+    // 1. Handle Dropdown Change (kept for backward compat, sidebar is primary)
+    $sectionSelect.on('change', function() {
+        const val = $(this).val();
+        currentCssSection = val;
+        renderCssEditor();
+    });
+
+    // 2. CSS Sidebar Click
+    $(document).on('click', '#ncl-css-sidebar-list li', function() {
+        const val = $(this).data('section');
+        currentCssSection = val;
+        $('#ncl-css-sidebar-list li').removeClass('active');
+        $(this).addClass('active');
+
+        // Auto-initialize if empty
+        if (val && !cssData[val]) {
+            if (val === 'global') {
+                cssData[val] = "/* Global Styles */\nbody {\n\n}";
+            } else {
+                const section = pageData.find(s => s.section_id === val);
+                let starterCss = `/* CSS for section: ${val} */\n`;
+                if (section && section.components && section.components.length > 0) {
+                    starterCss += section.components.map(c => `#${val}-${c.id} {\n\n}`).join('\n\n');
+                }
+                cssData[val] = starterCss;
+            }
+            syncCssInput();
+        }
+
+        renderCssEditor();
+    });
+
+    // 3. Live Type Saving
+    $cssRoot.on('input', '#ncl-active-css-editor', function() {
+        if (currentCssSection) {
+            cssData[currentCssSection] = $(this).val();
+            syncCssInput();
+        }
+    });
+
+    // Content Interactions (Existing)
+    $root.on('click', '.btn-add-section', function() {
+        // Generate a readable default name like "new-section", "new-section-2", etc.
+        let baseName = 'new-section';
+        let newId = baseName;
+        let counter = 2;
+        while (pageData.some(s => s.section_id === newId)) {
+            newId = baseName + '-' + counter;
+            counter++;
+        }
+        pageData.push({
+            section_id: newId,
+            bg_type: 'none',
+            bg_value: '',
+            components: []
+        });
+        renderBuilder();
+    });
+
+    $root.on('click', '.btn-delete-section', function() {
+        if (confirm('Are you sure you want to delete this entire section and all its contents?')) {
+            const sIndex = $(this).data('sindex');
+            pageData.splice(sIndex, 1);
+            renderBuilder();
+        }
+    });
+
+    $root.on('input', '.input-sec-id', function() {
+        const sIndex = $(this).data('sindex');
+        let newId = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_]/g, '-');
+        pageData[sIndex].section_id = newId;
+
+        // Live update the frontend IDs displayed for all components in this section
+        $(this).closest('.ncl-section-block').find('.ncl-comp-item').each(function() {
+            const cIndex = $(this).find('.input-comp-key').data('cindex');
+            const compId = pageData[sIndex].components[cIndex].id;
+            $(this).find('.ncl-comp-id-display').text(newId + '-' + (compId || '[empty]'));
+        });
+        syncHiddenInput();
+    });
+
+    // Toggle section collapse
+    $root.on('click', '.btn-toggle-section', function(e) {
+        e.stopPropagation();
+        $(this).closest('.ncl-section-block').toggleClass('collapsed');
+    });
+
+    // Toggle component collapse
+    $root.on('click', '.btn-toggle-comp', function(e) {
+        e.stopPropagation();
+        $(this).closest('.ncl-comp-item').toggleClass('collapsed');
+    });
+
+    $root.on('click', '.btn-add-comp', function() {
+        const sIndex = $(this).data('sindex');
+        pageData[sIndex].components.push({
+            id: '',
+            type: 'text',
+            value: '',
+            meta: ''
+        });
+        renderBuilder();
+    });
+
+    $root.on('click', '.btn-delete-comp', function() {
+        if (confirm('Delete this component?')) {
+            const sIndex = $(this).data('sindex');
+            const cIndex = $(this).data('cindex');
+            pageData[sIndex].components.splice(cIndex, 1);
+            renderBuilder();
+        }
+    });
+
+    // Updating Data dynamically
+    $root.on('change', '.input-sec-bg-type', function() {
+        const sIndex = $(this).data('sindex');
+        pageData[sIndex].bg_type = $(this).val();
+
+        // Reset value when switching types
+        if (pageData[sIndex].bg_type === 'color') pageData[sIndex].bg_value = '#ffffff';
+        else pageData[sIndex].bg_value = '';
+
+        renderBuilder();
+    });
+
+    $root.on('input change', '.input-sec-bg-val', function() {
+        const sIndex = $(this).data('sindex');
+        pageData[sIndex].bg_value = $(this).val();
+        syncHiddenInput();
+    });
+
+    $root.on('change', '.input-comp-type', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        pageData[sIndex].components[cIndex].type = $(this).val();
+        renderBuilder();
+    });
+
+    // Sanitize Section ID on change
+    $root.on('change', '.input-sec-id', function() {
+        const sIndex = $(this).data('sindex');
+        let val = $(this).val().trim();
+        // Convert to slug: lowercase, replace spaces/specials with dashes
+        val = val.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        if (!val) val = 'section-' + Math.floor(Math.random() * 1000);
+
+        pageData[sIndex].section_id = val;
+        renderBuilder(); // Refresh UI to show sanitized value
+    });
+
+    $root.on('input change', '.input-comp-val', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        pageData[sIndex].components[cIndex].value = $(this).val();
+        syncHiddenInput();
+    });
+
+    // New META field listener (for links)
+    $root.on('input change', '.input-comp-meta', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        pageData[sIndex].components[cIndex].meta = $(this).val();
+        syncHiddenInput();
+    });
+
+    // Handle Component Key Renaming Live (Updates the UI frontend ID string instantly)
+    $root.on('input', '.input-comp-key', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        let newId = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_]/g, '-');
+
+        pageData[sIndex].components[cIndex].id = newId;
+
+        // Live visual update on the header
+        $(this).closest('.ncl-comp-item')
+            .find('.ncl-comp-id-display')
+            .text(pageData[sIndex].section_id + '-' + (newId || '[empty]'));
+
+        syncHiddenInput();
+    });
+
+    // WP Media Uploader for Section Backgrounds
+    $root.on('click', '.btn-upload-image', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+
+        if (mediaUploader) {
+            mediaUploader.open();
+            return;
+        }
+
+        mediaUploader = wp.media.frames.file_frame = wp.media({
+            title: 'Choose Background Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
+        });
+
+        mediaUploader.on('select', function() {
+            const attachment = mediaUploader.state().get('selection').first().toJSON();
+            pageData[sIndex].bg_value = attachment.url;
+            renderBuilder();
+        });
+        mediaUploader.open();
+    });
+
+    // WP Media Uploader for Component Images
+    $root.on('click', '.btn-upload-comp-image', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+
+        let compUploader = wp.media({
+            title: 'Choose Image Component',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
+        });
+
+        compUploader.on('select', function() {
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            pageData[sIndex].components[cIndex].value = attachment.url;
+            renderBuilder();
+        });
+        compUploader.open();
+    });
+
+    // Initialize UI
+    renderBuilder();
+});
+</script>
+<?php
+}
+
+/**
+ * =====================================
+ * Save Meta Box Data
+ * =====================================
+ */
+function nucleus_save_page_builder_data($post_id)
+{
+    // Check if nonce is set and valid.
+    if (!isset($_POST['nucleus_page_builder_meta_box_nonce']) || !wp_verify_nonce($_POST['nucleus_page_builder_meta_box_nonce'], 'nucleus_save_page_builder_data')) {
+        return;
+    }
+
+    // Ignore autosaves
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+
+    // Check permissions
+    if (isset($_POST['post_type']) && 'nucleus_page' == $_POST['post_type']) {
+        if (!current_user_can('edit_page', $post_id)) return;
+    } else {
+        if (!current_user_can('edit_post', $post_id)) return;
+    }
+
+    // Save CONTENT data cleanly
+    if (isset($_POST['_nucleus_page_data_json'])) {
+        $json_string = stripslashes($_POST['_nucleus_page_data_json']);
+        $decoded_data = json_decode($json_string, true);
+        
+        if (is_array($decoded_data)) {
+            update_post_meta($post_id, '_nucleus_page_components', $decoded_data);
+        } else {
+            delete_post_meta($post_id, '_nucleus_page_components');
+        }
+    }
+    
+    // Save CSS data cleanly
+    if (isset($_POST['_nucleus_page_css_json'])) {
+        $json_string = stripslashes($_POST['_nucleus_page_css_json']);
+        $decoded_data = json_decode($json_string, true);
+        
+        if (is_array($decoded_data)) {
+            update_post_meta($post_id, '_nucleus_page_css', $decoded_data);
+        } else {
+            delete_post_meta($post_id, '_nucleus_page_css');
+        }
+    }
+}
+add_action('save_post', 'nucleus_save_page_builder_data');
+
+/**
+ * =====================================
+ * Shortcode: [nucleus_page_content]
+ * =====================================
+ * Renders the dynamic sections and CSS for the current nucleus_page.
+ * Use this shortcode inside Oxygen Builder to display the page content.
+ */
+function nucleus_page_content_shortcode($atts) {
+    // Allow specifying a post_id, default to current post
+    $atts = shortcode_atts(array('id' => 0), $atts);
+    $post_id = intval($atts['id']) > 0 ? intval($atts['id']) : get_the_ID();
+
+    if (!$post_id) return '';
+
+    $page_data = get_post_meta($post_id, '_nucleus_page_components', true);
+    $page_css  = get_post_meta($post_id, '_nucleus_page_css', true);
+
+    ob_start();
+
+    // -- Default Styles --
+    echo "<style type='text/css'>
+        .nucleus-page-container {
+            width: 100%;
+            color: #1d2327;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .nucleus-section {
+            display: block;
+            width: 100%;
+            position: relative;
+            padding: 60px 20px;
+            box-sizing: border-box;
+        }
+        .nucleus-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .nucleus-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            color: inherit;
+        }
+        .nucleus-subtitle {
+            font-size: 1.4em;
+            font-weight: 400;
+            margin: 0 0 20px 0;
+            opacity: 0.85;
+            color: inherit;
+        }
+        .nucleus-text {
+            font-size: 1em;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: inherit;
+        }
+        .nucleus-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: inherit;
+        }
+        .nucleus-component {
+            margin-bottom: 20px;
+        }
+        .nucleus-btn-primary {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2271b1;
+            color: #fff !important;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .nucleus-btn-primary:hover {
+            background: #135e96;
+        }
+        .nucleus-link {
+            color: #2271b1;
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .nucleus-section { padding: 40px 15px; }
+            .nucleus-title { font-size: 1.8em; }
+        }
+    </style>";
+
+    // -- Custom CSS from Builder --
+    if (!empty($page_css) && is_array($page_css)) {
+        echo "\n<style type='text/css' id='nucleus-page-custom-css'>\n";
+        foreach ($page_css as $section_id => $css_block) {
+            if (!empty($css_block)) {
+                echo "/* Section: " . esc_html($section_id) . " */\n";
+                echo strip_tags($css_block) . "\n";
+            }
+        }
+        echo "</style>\n";
+    }
+
+    echo '<div id="nucleus-page-container" class="nucleus-page-container">';
+
+    if (!empty($page_data) && is_array($page_data)) {
+        echo '<div class="nucleus-sections-root">';
+
+        foreach ($page_data as $section) {
+            $original_sec_id = isset($section['section_id']) ? $section['section_id'] : 'section-' . rand(100, 999);
+            $sec_id = sanitize_title($original_sec_id);
+
+            // Background Logic
+            $bg_style = '';
+            if (isset($section['bg_type'])) {
+                if ($section['bg_type'] === 'color' && !empty($section['bg_value'])) {
+                    $bg_style = 'background-color: ' . esc_attr($section['bg_value']) . ';';
+                } elseif ($section['bg_type'] === 'image' && !empty($section['bg_value'])) {
+                    $bg_style = 'background-image: url(' . esc_url($section['bg_value']) . '); background-size: cover; background-position: center;';
+                }
+            }
+
+            echo '<section id="nucleus-section-' . esc_attr($sec_id) . '" class="nucleus-section" style="' . $bg_style . '">';
+            echo '<div class="nucleus-container">';
+
+            if (!empty($section['components'])) {
+                // --- GROUP components by prefix ---
+                // Components named "card-heading", "card-list" share prefix "card"
+                // Components named "cta-primary", "cta-secondary" share prefix "cta"  
+                // Components with no dash (e.g. "badge", "title") are standalone
+                $groups = array();
+                $group_order = array();
+                
+                foreach ($section['components'] as $comp) {
+                    $comp_id = isset($comp['id']) ? sanitize_title($comp['id']) : 'comp';
+                    $parts = explode('-', $comp_id, 2);
+                    $prefix = (count($parts) > 1) ? $parts[0] : '__standalone_' . $comp_id;
+                    
+                    if (!isset($groups[$prefix])) {
+                        $groups[$prefix] = array();
+                        $group_order[] = $prefix;
+                    }
+                    $groups[$prefix][] = $comp;
+                }
+                
+                foreach ($group_order as $prefix) {
+                    $comps_in_group = $groups[$prefix];
+                    $is_group = (count($comps_in_group) > 1 && strpos($prefix, '__standalone_') !== 0);
+                    
+                    // Open wrapper div for grouped components
+                    if ($is_group) {
+                        echo '<div id="' . esc_attr($sec_id . '-' . $prefix) . '" class="nucleus-group nucleus-group-' . esc_attr($prefix) . '">';
+                    }
+                    
+                    foreach ($comps_in_group as $comp) {
+                        $comp_id = isset($comp['id']) ? sanitize_title($comp['id']) : 'comp';
+                        $full_id = $sec_id . '-' . $comp_id;
+                        $val  = isset($comp['value']) ? $comp['value'] : '';
+                        $type = isset($comp['type']) ? $comp['type'] : 'text';
+
+                        if ($type === 'image') {
+                            if (!empty($val)) {
+                                echo '<img id="' . esc_attr($full_id) . '" class="nucleus-component" src="' . esc_url($val) . '" alt="' . esc_attr($full_id) . '" style="max-width: 100%; height: auto;" />';
+                            }
+                        } elseif ($type === 'url') {
+                            if (!empty($val)) {
+                                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-link" href="' . esc_url($val) . '">' . esc_html($val) . '</a>';
+                            }
+                        } elseif ($type === 'link_text') {
+                            $link_url = isset($comp['meta']) ? $comp['meta'] : '#';
+                            if (!empty($val)) {
+                                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-btn-primary" href="' . esc_url($link_url) . '">' . esc_html($val) . '</a>';
+                            }
+                        } elseif ($type === 'textarea') {
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . wpautop(esc_html($val)) . '</div>';
+                        } elseif ($type === 'number') {
+                            echo '<span id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-number">' . esc_html($val) . '</span>';
+                        } else {
+                            if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
+                                echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . esc_html($val) . '</h2>';
+                            } elseif (strpos($comp_id, 'subtitle') !== false) {
+                                echo '<h4 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-subtitle">' . esc_html($val) . '</h4>';
+                            } else {
+                                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . esc_html($val) . '</div>';
+                            }
+                        }
+                    }
+                    
+                    // Close wrapper div
+                    if ($is_group) {
+                        echo '</div>'; // .nucleus-group
+                    }
+                }
+            }
+
+            echo '</div>'; // .nucleus-container
+            echo '</section>';
+        }
+
+        echo '</div>'; // .nucleus-sections-root
+    } else {
+        // Debug: only show for admins
+        if (current_user_can('edit_posts')) {
+            echo '<div style="max-width:800px;margin:80px auto;padding:40px;background:#fff;border:2px dashed #ccc;text-align:center;color:#666;">';
+            echo '<h3>No Sections Found</h3>';
+            echo '<p>Add sections and components in the "Page Content & Style Builder" meta box, then click Update.</p>';
+            echo '<small>Post ID: ' . intval($post_id) . ' | Shortcode active</small>';
+            echo '</div>';
+        }
+    }
+
+    echo '</div>'; // .nucleus-page-container
+
+    return ob_get_clean();
+}
+add_shortcode('nucleus_page_content', 'nucleus_page_content_shortcode');
+
+/**
+ * =====================================
+ * Auto-Setup Oxygen for New Nucleus Pages
+ * =====================================
+ * Automatically assigns the "Header Footer" template (ID: 36)
+ * and sets our shortcode as the Oxygen content when a nucleus_page
+ * is created or published. No manual Oxygen setup needed.
+ */
+function nucleus_auto_setup_oxygen_page_template($post_id) {
+    if (get_post_type($post_id) !== 'nucleus_page') return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+
+    // Auto-assign Header Footer template (only if not already set)
+    if (!get_post_meta($post_id, 'ct_other_template', true)) {
+        update_post_meta($post_id, 'ct_other_template', '36');
+    }
+
+    // Auto-set Oxygen content with our shortcode (only if not edited in Oxygen yet)
+    if (!get_post_meta($post_id, 'ct_builder_shortcodes', true)) {
+        update_post_meta($post_id, 'ct_builder_shortcodes', '[nucleus_page_content]');
+    }
+}
+add_action('save_post', 'nucleus_auto_setup_oxygen_page_template', 20);

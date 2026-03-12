@@ -19,6 +19,7 @@ require_once NUCLEUS_DXP_PATH . 'includes/form-handler.php';
 require_once NUCLEUS_DXP_PATH . 'includes/analytics.php';
 require_once NUCLEUS_DXP_PATH . 'includes/admin-dashboard.php';
 require_once NUCLEUS_DXP_PATH . 'includes/product-manager.php';
+require_once NUCLEUS_DXP_PATH . 'includes/page-manager.php';
 require_once NUCLEUS_DXP_PATH . 'includes/rest-api.php';
 
 // Database table creation on activation
@@ -79,6 +80,11 @@ function nucleus_dxp_enqueue_assets()
 
     if ($is_testing_lab) {
         wp_enqueue_style('nucleus-testing-page', NUCLEUS_DXP_URL . 'assets/css/testing-page.css', array(), '4.5');
+    }
+
+    // Enqueue styles for Nucleus Page Template
+    if (is_page_template('templates/single-nucleus_page.php') || is_page_template('single-nucleus_page.php')) {
+        wp_enqueue_style('nucleus-page-style', NUCLEUS_DXP_URL . 'assets/css/nucleus-page.css', array(), '1.0');
     }
 
     if ($is_testing_lab || $is_product_page || $is_products_page) {

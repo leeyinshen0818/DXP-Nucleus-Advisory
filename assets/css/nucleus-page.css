@@ -1,0 +1,68 @@
+/* Nucleus Page Default Styles */
+
+.nucleus-page-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.nucleus-section {
+    width: 100%;
+    box-sizing: border-box;
+    display: block;
+    position: relative;
+    overflow: hidden; /* Ensure background covers */
+    color: inherit; /* Inherit from body/theme unless overridden */
+}
+
+/* Ensure default readability if background is light */
+.nucleus-section[style*="background-color: #ffffff"],
+.nucleus-section[style*="background-color: #fff"], 
+.nucleus-section:not([style*="background-color"]) {
+   color: #1d2327; 
+}
+
+.nucleus-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Component Styles */
+.nucleus-component {
+    margin-bottom: 20px;
+}
+
+.nucleus-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.nucleus-subtitle {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+.nucleus-text {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.nucleus-btn {
+    display: inline-block;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nucleus-section {
+        padding: 40px 15px !important; 
+    }
+}

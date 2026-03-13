@@ -181,24 +181,37 @@ function nucleus_page_dynamic_builder_html($post)
 
         <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-        <h3 style="font-size:18px;">1. Targeting Sections</h3>
+        <h3 style="font-size:18px;">1. Targeting Sections & Backgrounds</h3>
         <p>Every section you create gets an automatic ID based on its <strong>Section Name</strong>. All section IDs
-            start with <code>nucleus-section-</code>.</p>
-        <ul style="list-style:disc; margin-left:20px;">
-            <li><strong>Formula:</strong> <code>#nucleus-section-{section_name}</code></li>
+            start with <code>nucleus-section-</code>. When you add a <strong>Background Image or Color</strong> using
+            the dropdown settings, the style is applied directly to this section container.</p>
+        <ul style="list-style:disc; margin-left:20px; margin-bottom:15px;">
+            <li><strong>Section ID Formula:</strong> <code>#nucleus-section-{section_name}</code></li>
         </ul>
-        <p><em>Example: (If your section is named "hero")</em></p>
-        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Add a dark overlay over a background image in the Hero section */
+        <p><em>Example: Accessing Section Layout & Styling Background Overlays (Assuming Section Name is "hero")</em>
+        </p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Set padding and text alignment for the entire section */
 #nucleus-section-hero {
-    position: relative;
-    z-index: 1;
+    padding: 80px 20px;
+    text-align: center;
+    position: relative; /* Required for absolute positioning inside */
+    z-index: 1; /* Required for overlays */
 }
+
+/* Example: Add a dark dimming overlay directly over the attached Background Image */
 #nucleus-section-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: -1;
+    background: rgba(0,0,0,0.6); /* 60% black dim shadow over the background image */
+    z-index: -1; /* Pushes the dim overlay behind the contents but above the image */
+}
+
+/* Advanced: Apply CSS filters (like blur or grayscale) to the section, but use backdrop-filter or careful targeting so contents don't blur */
+#nucleus-section-hero {
+    /* If you uploaded an image via builder but need to override how it behaves: */
+    background-position: top center !important; 
+    background-attachment: fixed !important; /* Parallax effect */
 }</code></pre>
 
         <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
@@ -316,7 +329,8 @@ function nucleus_page_dynamic_builder_html($post)
         <p>The builder has a hidden superpower: <strong>Prefix Grouping</strong>. If you name multiple components with
             the <em>exact same word and a dash</em> (e.g., <code>card-image</code>, <code>card-title</code>,
             <code>card-text</code>), they are automatically wrapped in a single Group <code>&lt;div&gt;</code> so you
-            can style them together easily.</p>
+            can style them together easily.
+        </p>
         <ul style="list-style:disc; margin-left:20px;">
             <li><strong>Group Class:</strong> <code>.nucleus-group-{prefix}</code></li>
             <li><strong>Group ID:</strong> <code>#{section_name}-{prefix}</code></li>
@@ -903,8 +917,11 @@ jQuery(document).ready(function($) {
                                 <h3>
                                     <button type="button" class="ncl-toggle-btn btn-toggle-section"><span class="dashicons dashicons-arrow-down-alt2"></span></button>
                                     <span class="dashicons dashicons-menu ncl-drag-handle"></span> 
-                                    Section: 
+                                    Section Name: 
                                     <input type="text" class="input-sec-id" data-sindex="${sIndex}" value="${escapeHtml(section.section_id)}" placeholder="e.g. hero" style="margin-left: 10px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: 3px; font-family: monospace; width: 180px; font-size: 14px; font-weight: normal;"/>
+                                    <div style="font-size: 13px; font-weight: normal; color: #50575e; margin-left: 15px; display: inline-block;">
+                                        Section CSS ID: <code class="ncl-sec-css-display" style="color: #d63638; background: #f0f0f1; padding: 2px 5px; border-radius: 3px;">#nucleus-section-${escapeHtml(section.section_id)}</code>
+                                    </div>
                                 </h3>
                                 <button type="button" class="ncl-btn ncl-btn-danger btn-delete-section" data-sindex="${sIndex}">Delete Section</button>
                             </div>
@@ -1298,6 +1315,8 @@ jQuery(document).ready(function($) {
         pageData[sIndex].section_id = newId;
 
         // Live update the frontend IDs displayed for all components in this section
+        $(this).closest('.ncl-section-block').find('.ncl-sec-css-display').text('#nucleus-section-' + (
+            newId || '[empty]'));
         $(this).closest('.ncl-section-block').find('.ncl-comp-item').each(function() {
             const cIndex = $(this).find('.input-comp-key').data('cindex');
             const compId = pageData[sIndex].components[cIndex].id;

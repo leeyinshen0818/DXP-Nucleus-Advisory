@@ -991,6 +991,7 @@ jQuery(document).ready(function($) {
                                                 <option value="wysiwyg" ${comp.type === 'wysiwyg' ? 'selected' : ''}>Rich Text Editor (WYSIWYG)</option>
                                                 <option value="html" ${comp.type === 'html' ? 'selected' : ''}>Custom HTML / Embed</option>
                                                 <option value="code" ${comp.type === 'code' ? 'selected' : ''}>Code Block</option>
+                                                <option value="shortcode" ${comp.type === 'shortcode' ? 'selected' : ''}>WP Shortcode (e.g. Form)</option>
                                             </optgroup>
                                         </select>
                                     </div>
@@ -1066,7 +1067,7 @@ jQuery(document).ready(function($) {
                                             ? `<textarea class="input-comp-val input-comp-html" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="6" style="font-family: monospace; background: #2d2d2d; color: #ccc;" placeholder="${comp.type === 'code' ? '/* Raw Code Snippet */' : '<!-- raw HTML here -->'}">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>` :
                                         comp.type === 'textarea' 
                                             ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>`
-                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="${comp.type === 'video' ? 'YouTube / Vimeo URL' : 'Value / Text'}" />`
+                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="${comp.type === 'video' ? 'YouTube / Vimeo URL' : comp.type === 'shortcode' ? '[your_shortcode]' : 'Value / Text'}" />`
                                         }
                                         ${comp.type === 'image' ? 
                                             `<button type="button" style="margin-left: 10px;" class="ncl-btn ncl-btn-secondary btn-upload-comp-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload File</button>`
@@ -2155,6 +2156,10 @@ function nucleus_page_content_shortcode($atts) {
                         } elseif ($type === 'code') {
                             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-code-block">';
                             echo '<pre><code>' . esc_html($val) . '</code></pre>';
+                            echo '</div>';
+                        } elseif ($type === 'shortcode') {
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-shortcode">';
+                            echo do_shortcode($val);
                             echo '</div>';
                         } elseif ($type === 'stats') {
                             $label = !empty($comp['meta']) ? $comp['meta'] : '';

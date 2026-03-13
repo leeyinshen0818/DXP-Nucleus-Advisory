@@ -120,6 +120,7 @@ function nucleus_page_dynamic_builder_html($post)
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
     wp_enqueue_media();
+    wp_enqueue_editor();
 
     // Retrieve Component Data
     $page_data = get_post_meta($post->ID, '_nucleus_page_components', true);
@@ -139,6 +140,8 @@ function nucleus_page_dynamic_builder_html($post)
 <div class="ncl-tabs-nav">
     <button type="button" class="ncl-tab-btn active" data-tab="content">Content Builder</button>
     <button type="button" class="ncl-tab-btn" data-tab="css">CSS Manager</button>
+    <button type="button" class="ncl-tab-btn" data-tab="help"><span class="dashicons dashicons-book"></span> User
+        Handbook</button>
 </div>
 
 <!-- CONTENT BUILDER TAB -->
@@ -165,6 +168,168 @@ function nucleus_page_dynamic_builder_html($post)
     <!-- Hidden elements kept for JS compatibility -->
     <select id="ncl-css-section-select" style="display:none;"></select>
     <input type="hidden" name="_nucleus_page_css_json" id="_nucleus_page_css_json" value="" />
+</div>
+
+<!-- HELP HANDBOOK TAB -->
+<div id="ncl-tab-content-help" class="ncl-tab-pane">
+    <div class="ncl-help-container"
+        style="background:#fff; border:1px solid #c3c4c7; padding:30px; border-radius:4px; max-width:850px;">
+        <h2 style="margin-top:0; font-size:24px;">📖 Nucleus Page Manager: CSS & Layout Handbook</h2>
+        <p style="font-size:15px; color:#50575e; line-height:1.6;">Welcome to the Nucleus Page Manager! This builder
+            allows you to stack Sections and Components to build dynamic pages. Because the builder uses standard HTML,
+            you can use the <strong>CSS Manager</strong> tab to style absolutely anything you want.</p>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+
+        <h3 style="font-size:18px;">1. Targeting Sections</h3>
+        <p>Every section you create gets an automatic ID based on its <strong>Section Name</strong>. All section IDs
+            start with <code>nucleus-section-</code>.</p>
+        <ul style="list-style:disc; margin-left:20px;">
+            <li><strong>Formula:</strong> <code>#nucleus-section-{section_name}</code></li>
+        </ul>
+        <p><em>Example: (If your section is named "hero")</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Add a dark overlay over a background image in the Hero section */
+#nucleus-section-hero {
+    position: relative;
+    z-index: 1;
+}
+#nucleus-section-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: -1;
+}</code></pre>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+
+        <h3 style="font-size:18px;">2. Targeting Individual Components</h3>
+        <p>Every component inside a section is given a unique ID combining the Section Name and the Component Name.</p>
+        <ul style="list-style:disc; margin-left:20px;">
+            <li><strong>Formula:</strong> <code>#{section_name}-{component_name}</code></li>
+        </ul>
+        <p><em>Example: (If section is "hero" and text component is "main-title")</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Target the specific title in the hero section */
+#hero-main-title {
+    color: #ffffff;
+    font-size: 48px;
+    text-align: center;
+}</code></pre>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+
+        <h3 style="font-size:18px;">3. General Component Classes</h3>
+        <p>If you want to style <em>all</em> components of a certain type across a section, use the built-in classes
+            below:</p>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; border:1px solid #dcdcde;">
+            <tr style="background:#f6f7f7;">
+                <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Class Name</th>
+                <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Applies To</th>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-title</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "title"</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-subtitle</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "subtitle"</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-text</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Standard String (Text), text areas, and WYSIWYG
+                    boxes</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-number</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">All "Number" fields</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-heading</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Explicit H1-H6 Heading tags</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-btn-primary</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Button (Text + Link) modules</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-link</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Raw Link URL fields</td>
+            </tr>
+        </table>
+        <p><em>Example:</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Change the background color of ALL buttons in the 'pricing' section */
+#nucleus-section-pricing .nucleus-btn-primary {
+    background-color: #ff5500;
+}</code></pre>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+
+        <h3 style="font-size:18px;">4. Styling Advanced Components</h3>
+        <p>Advanced blocks output specific wrapper classes that contain inner elements. Here are the keys you need to
+            style them:</p>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Accordion / FAQ (<code>.nucleus-accordion</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-accordion-item</li>
+                    <li>.nucleus-accordion-header</li>
+                    <li>.nucleus-accordion-content</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Slider (<code>.nucleus-carousel-wrapper</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-carousel-slide</li>
+                    <li>.nucleus-carousel-slide-title</li>
+                    <li>.nucleus-carousel-slide-desc</li>
+                    <li>.nucleus-carousel-dot.active</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Testimonial (<code>.nucleus-testimonial</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-testimonial-quote</li>
+                    <li>.nucleus-testimonial-author</li>
+                    <li>.nucleus-testimonial-avatar</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Stats / KPI (<code>.nucleus-stats</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-stats-number</li>
+                    <li>.nucleus-stats-label</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+
+        <h3 style="font-size:18px;">5. Grouping Components (Flexbox & Grids)</h3>
+        <p>The builder has a hidden superpower: <strong>Prefix Grouping</strong>. If you name multiple components with
+            the <em>exact same word and a dash</em> (e.g., <code>card-image</code>, <code>card-title</code>,
+            <code>card-text</code>), they are automatically wrapped in a single Group <code>&lt;div&gt;</code> so you
+            can style them together easily.</p>
+        <ul style="list-style:disc; margin-left:20px;">
+            <li><strong>Group Class:</strong> <code>.nucleus-group-{prefix}</code></li>
+            <li><strong>Group ID:</strong> <code>#{section_name}-{prefix}</code></li>
+        </ul>
+        <p><em>Example: (You are in section 'services' and add components: box-1, box-2, box-3. They are automatically
+                grouped under <code>#services-box</code>)</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Turn the group into a 3-column CSS Grid */
+#services-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}</code></pre>
+    </div>
 </div>
 
 <style>
@@ -708,6 +873,13 @@ jQuery(document).ready(function($) {
             }
         });
 
+        // Destroy existing wp_editor instances to prevent caching issues
+        if (typeof wp !== 'undefined' && wp.editor) {
+            $('.input-comp-wysiwyg').each(function() {
+                wp.editor.remove($(this).attr('id'));
+            });
+        }
+
         $root.empty();
 
         // Build CSS sidebar list
@@ -777,13 +949,32 @@ jQuery(document).ready(function($) {
                                     <div class="ncl-form-row">
                                         <label>Field Type</label>
                                         <select class="input-comp-type" data-sindex="${sIndex}" data-cindex="${cIndex}">
-                                            <option value="text" ${comp.type === 'text' ? 'selected' : ''}>String (Text)</option>
-                                            <option value="textarea" ${comp.type === 'textarea' ? 'selected' : ''}>Text Area</option>
-                                            <option value="link_text" ${comp.type === 'link_text' ? 'selected' : ''}>Text with Link (Button)</option>
-                                            <option value="number" ${comp.type === 'number' ? 'selected' : ''}>Number</option>
-                                            <option value="url" ${comp.type === 'url' ? 'selected' : ''}>Link URL Only</option>
-                                            <option value="image" ${comp.type === 'image' ? 'selected' : ''}>Image URL</option>
-                                            <option value="tabs" ${comp.type === 'tabs' ? 'selected' : ''}>Tabs/Sidebar</option>
+                                            <optgroup label="Basic">
+                                                <option value="text" ${comp.type === 'text' ? 'selected' : ''}>String (Text)</option>
+                                                <option value="heading" ${comp.type === 'heading' ? 'selected' : ''}>Heading</option>
+                                                <option value="textarea" ${comp.type === 'textarea' ? 'selected' : ''}>Text Area</option>
+                                                <option value="image" ${comp.type === 'image' ? 'selected' : ''}>Image URL</option>
+                                                <option value="number" ${comp.type === 'number' ? 'selected' : ''}>Number</option>
+                                            </optgroup>
+                                            <optgroup label="Links & Buttons">
+                                                <option value="link_text" ${comp.type === 'link_text' ? 'selected' : ''}>Button (Text + Link)</option>
+                                                <option value="url" ${comp.type === 'url' ? 'selected' : ''}>Raw Link URL</option>
+                                            </optgroup>
+                                            <optgroup label="Interactive & Media">
+                                                <option value="tabs" ${comp.type === 'tabs' ? 'selected' : ''}>Tabs / Sidebar</option>
+                                                <option value="carousel" ${comp.type === 'carousel' ? 'selected' : ''}>Carousel / Slider</option>
+                                                <option value="accordion" ${comp.type === 'accordion' ? 'selected' : ''}>Accordion / FAQ</option>
+                                                <option value="video" ${comp.type === 'video' ? 'selected' : ''}>Video Embed</option>
+                                            </optgroup>
+                                            <optgroup label="Content Blocks">
+                                                <option value="testimonial" ${comp.type === 'testimonial' ? 'selected' : ''}>Testimonial / Quote</option>
+                                                <option value="stats" ${comp.type === 'stats' ? 'selected' : ''}>Stats / KPI Block</option>
+                                            </optgroup>
+                                            <optgroup label="Advanced">
+                                                <option value="wysiwyg" ${comp.type === 'wysiwyg' ? 'selected' : ''}>Rich Text Editor (WYSIWYG)</option>
+                                                <option value="html" ${comp.type === 'html' ? 'selected' : ''}>Custom HTML / Embed</option>
+                                                <option value="code" ${comp.type === 'code' ? 'selected' : ''}>Code Block</option>
+                                            </optgroup>
                                         </select>
                                     </div>
                                     <div class="ncl-form-row">
@@ -804,15 +995,79 @@ jQuery(document).ready(function($) {
                                             <button type="button" class="ncl-btn ncl-btn-secondary btn-add-tab" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Tab Item</button>
                                         </div>
                                     ` : ''}
+                                    ${comp.type === 'carousel' ? `
+                                        <div class="ncl-carousel-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                            <div class="ncl-carousel-list" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
+                                                ${Array.isArray(comp.value) ? comp.value.map((item, tIndex) => `
+                                                    <div class="ncl-carousel-item" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}" style="background:#fff; border:1px solid #dcdcde; border-left:3px solid #68d391; padding:12px; border-radius:3px;">
+                                                        <div style="display:flex; gap:10px; margin-bottom:8px;">
+                                                            <input type="text" class="input-carousel-image" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" placeholder="Image URL" value="${escapeHtml(item.image || '')}" />
+                                                            <button type="button" class="ncl-btn ncl-btn-secondary btn-upload-carousel-image" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Upload</button>
+                                                        </div>
+                                                        <input type="text" class="input-carousel-title" placeholder="Slide Title" value="${escapeHtml(item.title || '')}" style="display:block; width:100%; padding:6px 8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                                        <textarea class="input-carousel-content" placeholder="Slide Content (Text)" rows="2" style="display:block; width:100%; padding:8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(item.content || '')}</textarea>
+                                                        <input type="text" class="input-carousel-link" placeholder="Button Link URL (Optional)" value="${escapeHtml(item.link || '')}" style="display:block; width:100%; padding:6px 8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                                        <button type="button" class="ncl-btn ncl-btn-danger btn-delete-carousel-slide" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Remove Slide</button>
+                                                    </div>
+                                                `).join('') : ''}
+                                            </div>
+                                            <button type="button" class="ncl-btn ncl-btn-secondary btn-add-carousel-slide" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Slide</button>
+                                        </div>
+                                    ` : ''}
+                                    ${comp.type === 'accordion' ? `
+                                        <div class="ncl-accordion-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                            <div class="ncl-accordion-list" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
+                                                ${Array.isArray(comp.value) ? comp.value.map((item, tIndex) => `
+                                                    <div class="ncl-accordion-item" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}" style="background:#fff; border:1px solid #dcdcde; border-left:3px solid #f56565; padding:12px; border-radius:3px;">
+                                                        <input type="text" class="input-accordion-title" placeholder="Accordion Title" value="${escapeHtml(item.title || '')}" style="display:block; width:100%; padding:6px 8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                                        <textarea class="input-accordion-content" placeholder="Accordion Content" rows="3" style="display:block; width:100%; padding:8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(item.content || '')}</textarea>
+                                                        <button type="button" class="ncl-btn ncl-btn-danger btn-delete-accordion" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Remove Item</button>
+                                                    </div>
+                                                `).join('') : ''}
+                                            </div>
+                                            <button type="button" class="ncl-btn ncl-btn-secondary btn-add-accordion" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Accordion Item</button>
+                                        </div>
+                                    ` : ''}
+                                    ${comp.type === 'testimonial' ? `
+                                        <div class="ncl-testimonial-editor" data-sindex="${sIndex}" data-cindex="${cIndex}" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                            <textarea class="input-testimonial-quote" placeholder="Testimonial Quote" rows="3" style="display:block; width:100%; padding:8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(comp.value?.quote || '')}</textarea>
+                                            <div style="display:flex; gap:10px;">
+                                                <input type="text" class="input-testimonial-author" placeholder="Author Name" value="${escapeHtml(comp.value?.author || '')}" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                                <div style="flex:1; display:flex; gap:10px;">
+                                                    <input type="text" class="input-testimonial-image" placeholder="Author Avatar URL" value="${escapeHtml(comp.value?.image || '')}" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                                    <button type="button" class="ncl-btn ncl-btn-secondary btn-upload-testimonial-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                     <div class="ncl-form-row" style="align-items: flex-start;">
                                         <label style="padding-top:6px;">Content</label>
-                                        ${comp.type === 'tabs' ? '' : 
+                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial') ? '' : 
+                                        comp.type === 'wysiwyg'
+                                            ? `<div style="width: 100%; max-width: 800px; background: #fff;"><textarea id="wysiwyg_${sIndex}_${cIndex}" class="input-comp-wysiwyg" data-sindex="${sIndex}" data-cindex="${cIndex}" style="width:100%; height: 250px;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea></div>` :
+                                        (comp.type === 'html' || comp.type === 'code')
+                                            ? `<textarea class="input-comp-val input-comp-html" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="6" style="font-family: monospace; background: #2d2d2d; color: #ccc;" placeholder="${comp.type === 'code' ? '/* Raw Code Snippet */' : '<!-- raw HTML here -->'}">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>` :
                                         comp.type === 'textarea' 
                                             ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>`
-                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="Value / Text" />`
+                                            : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="${comp.type === 'video' ? 'YouTube / Vimeo URL' : 'Value / Text'}" />`
                                         }
                                         ${comp.type === 'image' ? 
                                             `<button type="button" style="margin-left: 10px;" class="ncl-btn ncl-btn-secondary btn-upload-comp-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload File</button>`
+                                        : ''}
+                                        
+                                        ${comp.type === 'heading' ? 
+                                            `<select class="input-comp-meta" data-sindex="${sIndex}" data-cindex="${cIndex}" style="margin-left:10px; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;">
+                                                <option value="h1" ${comp.meta === 'h1' ? 'selected' : ''}>H1</option>
+                                                <option value="h2" ${comp.meta === 'h2' || !comp.meta ? 'selected' : ''}>H2</option>
+                                                <option value="h3" ${comp.meta === 'h3' ? 'selected' : ''}>H3</option>
+                                                <option value="h4" ${comp.meta === 'h4' ? 'selected' : ''}>H4</option>
+                                                <option value="h5" ${comp.meta === 'h5' ? 'selected' : ''}>H5</option>
+                                                <option value="h6" ${comp.meta === 'h6' ? 'selected' : ''}>H6</option>
+                                            </select>`
+                                        : ''}
+
+                                        ${comp.type === 'stats' ? 
+                                            `<input type="text" class="input-comp-meta" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(comp.meta || '')}" placeholder="Label (e.g. Happy Clients)" style="margin-left:10px;" />` 
                                         : ''}
                                         
                                         ${comp.type === 'link_text' ? 
@@ -859,6 +1114,29 @@ jQuery(document).ready(function($) {
                 reorderDataArray();
             }
         });
+
+        // Initialize WYSIWYG editors
+        if (typeof wp !== 'undefined' && wp.editor) {
+            $('.input-comp-wysiwyg').each(function() {
+                const id = $(this).attr('id');
+                const sIndex = $(this).data('sindex');
+                const cIndex = $(this).data('cindex');
+
+                wp.editor.initialize(id, {
+                    tinymce: {
+                        wpautop: true,
+                        setup: function(ed) {
+                            ed.on('keyup change redo undo', function() {
+                                ed.save(); // Save visual content back to textarea
+                                $('#' + id).trigger(
+                                    'change'); // Trigger our saving logic
+                            });
+                        }
+                    },
+                    quicktags: true
+                });
+            });
+        }
 
         syncHiddenInput();
         renderCssEditor(); // Re-render CSS portion
@@ -1092,6 +1370,35 @@ jQuery(document).ready(function($) {
                 content: ''
             }];
         }
+
+        // Initialize carousel array if switching to carousel type
+        if (newType === 'carousel' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [{
+                image: '',
+                title: '',
+                content: '',
+                link: ''
+            }];
+        }
+
+        // Initialize accordion array
+        if (newType === 'accordion' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [{
+                title: '',
+                content: ''
+            }];
+        }
+
+        // Initialize testimonial object
+        if (newType === 'testimonial' && typeof pageData[sIndex].components[cIndex].value !==
+            'object') {
+            pageData[sIndex].components[cIndex].value = {
+                quote: '',
+                author: '',
+                image: ''
+            };
+        }
+
         renderBuilder();
     });
 
@@ -1148,6 +1455,167 @@ jQuery(document).ready(function($) {
         }
     });
 
+    // Carousel: Add Slide
+    $root.on('click', '.btn-add-carousel-slide', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+
+        if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [];
+        }
+        pageData[sIndex].components[cIndex].value.push({
+            image: '',
+            title: '',
+            content: '',
+            link: ''
+        });
+        renderBuilder();
+    });
+
+    // Carousel: Delete Slide
+    $root.on('click', '.btn-delete-carousel-slide', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
+        }
+    });
+
+    // Carousel: Update Fields
+    $root.on('input',
+        '.input-carousel-image, .input-carousel-title, .input-carousel-content, .input-carousel-link',
+        function() {
+            const $item = $(this).closest('.ncl-carousel-item');
+            const sIndex = $item.data('sindex');
+            const cIndex = $item.data('cindex');
+            const tIndex = $item.data('tindex');
+
+            if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+                pageData[sIndex].components[cIndex].value[tIndex] = {
+                    image: $item.find('.input-carousel-image').val(),
+                    title: $item.find('.input-carousel-title').val(),
+                    content: $item.find('.input-carousel-content').val(),
+                    link: $item.find('.input-carousel-link').val()
+                };
+                syncHiddenInput();
+            }
+        });
+
+    // Carousel: Upload Image
+    $root.on('click', '.btn-upload-carousel-image', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+
+        let compUploader = wp.media({
+            title: 'Choose Slide Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
+        });
+
+        compUploader.on('select', function() {
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+                pageData[sIndex].components[cIndex].value[tIndex].image = attachment.url;
+                renderBuilder();
+            }
+        });
+        compUploader.open();
+    });
+
+    // Accordion: Add Item
+    $root.on('click', '.btn-add-accordion', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [];
+        }
+        pageData[sIndex].components[cIndex].value.push({
+            title: '',
+            content: ''
+        });
+        renderBuilder();
+    });
+
+    // Accordion: Delete Item
+    $root.on('click', '.btn-delete-accordion', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
+        }
+    });
+
+    // Accordion: Update Fields
+    $root.on('input', '.input-accordion-title, .input-accordion-content', function() {
+        const $item = $(this).closest('.ncl-accordion-item');
+        const sIndex = $item.data('sindex');
+        const cIndex = $item.data('cindex');
+        const tIndex = $item.data('tindex');
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value[tIndex] = {
+                title: $item.find('.input-accordion-title').val(),
+                content: $item.find('.input-accordion-content').val()
+            };
+            syncHiddenInput();
+        }
+    });
+
+    // Testimonial: Update Fields
+    $root.on('input', '.input-testimonial-quote, .input-testimonial-author, .input-testimonial-image',
+        function() {
+            const $editor = $(this).closest('.ncl-testimonial-editor');
+            const sIndex = $editor.data('sindex');
+            const cIndex = $editor.data('cindex');
+            pageData[sIndex].components[cIndex].value = {
+                quote: $editor.find('.input-testimonial-quote').val(),
+                author: $editor.find('.input-testimonial-author').val(),
+                image: $editor.find('.input-testimonial-image').val()
+            };
+            syncHiddenInput();
+        });
+
+    // Testimonial: Upload Image
+    $root.on('click', '.btn-upload-testimonial-image', function(e) {
+        e.preventDefault();
+        const $editor = $(this).closest('.ncl-testimonial-editor');
+        const sIndex = $editor.data('sindex');
+        const cIndex = $editor.data('cindex');
+
+        let compUploader = wp.media({
+            title: 'Choose Author Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
+        });
+        compUploader.on('select', function() {
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            if (typeof pageData[sIndex].components[cIndex].value !== 'object') {
+                pageData[sIndex].components[cIndex].value = {
+                    quote: '',
+                    author: '',
+                    image: ''
+                };
+            }
+            pageData[sIndex].components[cIndex].value.image = attachment.url;
+            renderBuilder();
+        });
+        compUploader.open();
+    });
+
     // Sanitize Section ID on change
     $root.on('change', '.input-sec-id', function() {
         const sIndex = $(this).data('sindex');
@@ -1160,7 +1628,7 @@ jQuery(document).ready(function($) {
         renderBuilder(); // Refresh UI to show sanitized value
     });
 
-    $root.on('input change', '.input-comp-val', function() {
+    $root.on('input change', '.input-comp-val, .input-comp-wysiwyg', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         pageData[sIndex].components[cIndex].value = $(this).val();
@@ -1420,6 +1888,46 @@ function nucleus_page_content_shortcode($atts) {
         .nucleus-tab-pane.active {
             display: block;
         }
+        .nucleus-carousel-wrapper { position: relative; overflow: hidden; width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .nucleus-carousel-inner { display: flex; transition: transform 0.5s ease; width: 100%; }
+        .nucleus-carousel-slide { flex: 0 0 100%; width: 100%; box-sizing: border-box; }
+        .nucleus-carousel-slide-content { display: flex; flex-wrap: wrap; background: #fff; align-items: stretch; min-height: 100%; }
+        .nucleus-carousel-slide-image { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .nucleus-carousel-slide-image img { width: 100%; height: 100%; object-fit: cover; }
+        .nucleus-carousel-slide-text { flex: 1; padding: 40px; min-width: 300px; display: flex; flex-direction: column; justify-content: center; }
+        .nucleus-carousel-slide-title { font-size: 2em; margin-top: 0; margin-bottom: 20px; font-weight: 700; color: #1d2327; }
+        .nucleus-carousel-slide-desc { font-size: 1.1em; color: #555; margin-bottom: 25px; line-height: 1.6; }
+        .nucleus-carousel-controls { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%); pointer-events: none; }
+        .nucleus-carousel-btn { background: rgba(0,0,0,0.5); color: #fff; border: none; padding: 15px 20px; cursor: pointer; pointer-events: auto; font-size: 20px; transition: background 0.3s; }
+        .nucleus-carousel-btn:hover { background: rgba(0,0,0,0.8); }
+        .nucleus-carousel-dots { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 10; margin: 0; padding: 0; }
+        .nucleus-carousel-dot { width: 12px; height: 12px; background: rgba(0,0,0,0.3); border-radius: 50%; cursor: pointer; border: none; padding: 0; transition: background 0.3s; }
+        .nucleus-carousel-dot.active { background: #2271b1; }
+        
+        .nucleus-accordion { border: 1px solid #c3c4c7; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+        .nucleus-accordion-item { border-bottom: 1px solid #c3c4c7; background: #fff; }
+        .nucleus-accordion-item:last-child { border-bottom: none; }
+        .nucleus-accordion-header { width: 100%; text-align: left; padding: 15px 20px; font-weight: 600; font-size: 1.1em; background: #fafafa; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; color: #1d2327; margin: 0; }
+        .nucleus-accordion-header:hover { background: #f0f0f1; }
+        .nucleus-accordion-header.active { background: #fff; border-bottom: 1px solid #eee; }
+        .nucleus-accordion-icon { transition: transform 0.3s; font-family: monospace; font-size: 1.2em; font-weight: bold; }
+        .nucleus-accordion-header.active .nucleus-accordion-icon { transform: rotate(45deg); }
+        .nucleus-accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .nucleus-accordion-content-inner { padding: 20px; }
+        
+        .nucleus-testimonial { padding: 30px; background: #f9f9f9; border-radius: 8px; font-style: italic; border-left: 4px solid #2271b1; margin-bottom: 20px; }
+        .nucleus-testimonial-quote { font-size: 1.25em; line-height: 1.6; margin-bottom: 20px; color: #3c434a; }
+        .nucleus-testimonial-author-area { display: flex; align-items: center; gap: 15px; }
+        .nucleus-testimonial-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .nucleus-testimonial-author { font-weight: 600; font-style: normal; color: #1d2327; }
+        
+        .nucleus-stats { text-align: center; padding: 20px; margin-bottom: 20px; }
+        .nucleus-stats-number { font-size: 3em; font-weight: 800; color: #2271b1; line-height: 1; margin-bottom: 10px; }
+        .nucleus-stats-label { font-size: 1.1em; font-weight: 500; color: #50575e; text-transform: uppercase; letter-spacing: 1px; }
+
+        .nucleus-code-block { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 0.9em; margin-bottom: 20px; }
+        .nucleus-video-wrapper { position: relative; width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
         @media (max-width: 768px) {\n            .nucleus-section { padding: 40px 15px; }\n            .nucleus-title { font-size: 1.8em; }\n            .nucleus-tabs { flex-direction: column; }\n            .nucleus-tabs-sidebar { flex: 1; }\n            .nucleus-tabs-button { border-radius: 3px; }\n        }
     </style>";
 
@@ -1533,6 +2041,117 @@ function nucleus_page_content_shortcode($atts) {
                                 echo '</div>'; // .nucleus-tabs-content
                                 echo '</div>'; // .nucleus-tabs
                             }
+                        } elseif ($type === 'carousel') {
+                            // Render carousel component
+                            if (is_array($val) && !empty($val)) {
+                                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-carousel-wrapper" data-comp-id="' . esc_attr($full_id) . '">';
+                                echo '<div class="nucleus-carousel-inner">';
+                                
+                                foreach ($val as $idx => $slide) {
+                                    $s_title = isset($slide['title']) ? $slide['title'] : '';
+                                    $s_content = isset($slide['content']) ? $slide['content'] : '';
+                                    $s_image = isset($slide['image']) ? $slide['image'] : '';
+                                    $s_link = isset($slide['link']) ? $slide['link'] : '';
+                                    
+                                    echo '<div class="nucleus-carousel-slide" data-slide-idx="' . esc_attr($idx) . '">';
+                                    echo '<div class="nucleus-carousel-slide-content">';
+                                    
+                                    if (!empty($s_image)) {
+                                        echo '<div class="nucleus-carousel-slide-image"><img src="' . esc_url($s_image) . '" alt="' . esc_attr($s_title) . '" loading="lazy" /></div>';
+                                    }
+                                    
+                                    echo '<div class="nucleus-carousel-slide-text">';
+                                    if (!empty($s_title)) echo '<h3 class="nucleus-carousel-slide-title">' . esc_html($s_title) . '</h3>';
+                                    if (!empty($s_content)) echo '<div class="nucleus-carousel-slide-desc">' . wpautop(wp_kses_post($s_content)) . '</div>';
+                                    if (!empty($s_link)) echo '<a href="' . esc_url($s_link) . '" class="nucleus-btn-primary" style="margin-top: 20px; align-self: flex-start;">Learn More</a>';
+                                    echo '</div>'; // .slide-text
+                                    
+                                    echo '</div>'; // .slide-content
+                                    echo '</div>'; // .slide
+                                }
+                                echo '</div>'; // .nucleus-carousel-inner
+                                
+                                if (count($val) > 1) {
+                                    echo '<div class="nucleus-carousel-controls">';
+                                    echo '<button type="button" class="nucleus-carousel-btn nucleus-carousel-prev">&#10094;</button>';
+                                    echo '<button type="button" class="nucleus-carousel-btn nucleus-carousel-next">&#10095;</button>';
+                                    echo '</div>';
+                                    
+                                    echo '<div class="nucleus-carousel-dots">';
+                                    foreach ($val as $idx => $slide) {
+                                        $active_class = ($idx === 0) ? 'active' : '';
+                                        echo '<button type="button" class="nucleus-carousel-dot ' . $active_class . '" aria-label="Slide ' . ($idx + 1) . '" data-slide-idx="' . esc_attr($idx) . '"></button>';
+                                    }
+                                    echo '</div>';
+                                }
+                                
+                                echo '</div>'; // .nucleus-carousel-wrapper
+                            }
+                        } elseif ($type === 'accordion') {
+                            if (is_array($val) && !empty($val)) {
+                                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-accordion" data-comp-id="' . esc_attr($full_id) . '">';
+                                foreach ($val as $idx => $item) {
+                                    $item_title = isset($item['title']) ? $item['title'] : '';
+                                    $item_content = isset($item['content']) ? $item['content'] : '';
+                                    echo '<div class="nucleus-accordion-item">';
+                                    echo '<button class="nucleus-accordion-header">' . esc_html($item_title) . '<span class="nucleus-accordion-icon">+</span></button>';
+                                    echo '<div class="nucleus-accordion-content"><div class="nucleus-accordion-content-inner">' . wpautop(wp_kses_post($item_content)) . '</div></div>';
+                                    echo '</div>';
+                                }
+                                echo '</div>';
+                            }
+                        } elseif ($type === 'testimonial') {
+                            if (is_array($val)) {
+                                $quote = isset($val['quote']) ? $val['quote'] : '';
+                                $author = isset($val['author']) ? $val['author'] : '';
+                                $image = isset($val['image']) ? $val['image'] : '';
+                                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-testimonial">';
+                                echo '<div class="nucleus-testimonial-quote">"' . esc_html($quote) . '"</div>';
+                                echo '<div class="nucleus-testimonial-author-area">';
+                                if (!empty($image)) {
+                                    echo '<img src="' . esc_url($image) . '" class="nucleus-testimonial-avatar" alt="' . esc_attr($author) . '" />';
+                                }
+                                if (!empty($author)) {
+                                    echo '<div class="nucleus-testimonial-author">' . esc_html($author) . '</div>';
+                                }
+                                echo '</div>';
+                                echo '</div>';
+                            }
+                        } elseif ($type === 'video') {
+                            $embed_url = $val;
+                            if (strpos($val, 'youtube.com/watch') !== false) {
+                                parse_str(parse_url($val, PHP_URL_QUERY), $vars);
+                                if (isset($vars['v'])) $embed_url = 'https://www.youtube.com/embed/' . $vars['v'];
+                            } elseif (strpos($val, 'youtu.be/') !== false) {
+                                $path = parse_url($val, PHP_URL_PATH);
+                                $embed_url = 'https://www.youtube.com/embed' . $path;
+                            } elseif (strpos($val, 'vimeo.com/') !== false) {
+                                $path = parse_url($val, PHP_URL_PATH);
+                                $embed_url = 'https://player.vimeo.com/video' . $path;
+                            }
+                            
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-video-wrapper">';
+                            echo '<iframe src="' . esc_url($embed_url) . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; aspect-ratio:16/9;"></iframe>';
+                            echo '</div>';
+                        } elseif ($type === 'code') {
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-code-block">';
+                            echo '<pre><code>' . esc_html($val) . '</code></pre>';
+                            echo '</div>';
+                        } elseif ($type === 'stats') {
+                            $label = !empty($comp['meta']) ? $comp['meta'] : '';
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-stats">';
+                            echo '<div class="nucleus-stats-number">' . esc_html($val) . '</div>';
+                            if (!empty($label)) {
+                                echo '<div class="nucleus-stats-label">' . esc_html($label) . '</div>';
+                            }
+                            echo '</div>';
+                        } elseif ($type === 'heading') {
+                            $level = !empty($comp['meta']) ? $comp['meta'] : 'h2';
+                            echo '<' . esc_attr($level) . ' id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-heading">' . esc_html($val) . '</' . esc_attr($level) . '>';
+                        } elseif ($type === 'wysiwyg') {
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text nucleus-wysiwyg">' . wp_kses_post($val) . '</div>';
+                        } elseif ($type === 'html') {
+                            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-html">' . $val . '</div>';
                         } else {
                             if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
                                 echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . esc_html($val) . '</h2>';
@@ -1569,7 +2188,7 @@ function nucleus_page_content_shortcode($atts) {
 
     echo '</div>'; // .nucleus-page-container
 
-    // Add JavaScript for tabs interactivity
+    // Add JavaScript for tabs and carousel interactivity
     echo "<script type='text/javascript'>
     document.addEventListener('DOMContentLoaded', function() {
         // Handle tab button clicks
@@ -1587,6 +2206,94 @@ function nucleus_page_content_shortcode($atts) {
                 // Add active class to clicked button and corresponding pane
                 this.classList.add('active');
                 tabComponent.querySelector('.nucleus-tab-pane[data-tab-idx=\"' + tabIdx + '\"]').classList.add('active');
+            });
+        });
+
+        // Handle carousels
+        const carousels = document.querySelectorAll('.nucleus-carousel-wrapper');
+        carousels.forEach(carousel => {
+            const inner = carousel.querySelector('.nucleus-carousel-inner');
+            const slides = carousel.querySelectorAll('.nucleus-carousel-slide');
+            const prevBtn = carousel.querySelector('.nucleus-carousel-prev');
+            const nextBtn = carousel.querySelector('.nucleus-carousel-next');
+            const dots = carousel.querySelectorAll('.nucleus-carousel-dot');
+            
+            if (!inner || slides.length <= 1) return;
+            
+            let currentIndex = 0;
+            const slideCount = slides.length;
+            let autoPlayInterval;
+            
+            function showSlide(index) {
+                if (index < 0) index = slideCount - 1;
+                if (index >= slideCount) index = 0;
+                currentIndex = index;
+                
+                inner.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+                
+                dots.forEach((dot, i) => {
+                    if (i === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSlide(currentIndex - 1);
+                    resetAutoPlay();
+                });
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSlide(currentIndex + 1);
+                    resetAutoPlay();
+                });
+            }
+            
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSlide(i);
+                    resetAutoPlay();
+                });
+            });
+            
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(() => {
+                    showSlide(currentIndex + 1);
+                }, 5000);
+            }
+            
+            function resetAutoPlay() {
+                clearInterval(autoPlayInterval);
+                startAutoPlay();
+            }
+            
+            startAutoPlay();
+            
+            // Pause on hover
+            carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+            carousel.addEventListener('mouseleave', startAutoPlay);
+        });
+
+        // Handle Accordions
+        const accordions = document.querySelectorAll('.nucleus-accordion-header');
+        accordions.forEach(header => {
+            header.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
             });
         });
     });

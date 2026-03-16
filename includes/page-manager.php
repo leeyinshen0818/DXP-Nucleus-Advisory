@@ -62,6 +62,48 @@ function nucleus_dxp_register_page_cpt()
 }
 add_action('init', 'nucleus_dxp_register_page_cpt');
 
+function nucleus_dxp_register_hf_cpt()
+{
+    $labels = array(
+        'name'               => _x('Header & Footer Sets', 'Post Type General Name', 'text_domain'),
+        'singular_name'      => _x('H&F Set', 'Post Type Singular Name', 'text_domain'),
+        'menu_name'          => __('Header & Footer', 'text_domain'),
+        'all_items'          => __('All H&F Sets', 'text_domain'),
+        'add_new_item'       => __('Add New Set', 'text_domain'),
+        'add_new'            => __('Add New', 'text_domain'),
+        'new_item'           => __('New Set', 'text_domain'),
+        'edit_item'          => __('Edit Set', 'text_domain'),
+        'update_item'        => __('Update Set', 'text_domain'),
+        'view_item'          => __('View Set', 'text_domain'),
+        'search_items'       => __('Search Sets', 'text_domain'),
+        'not_found'          => __('Not found', 'text_domain'),
+        'not_found_in_trash' => __('Not found in Trash', 'text_domain'),
+    );
+
+    $args = array(
+        'label'               => __('Header & Footer Set', 'text_domain'),
+        'description'         => __('Manage Header and Footer templates.', 'text_domain'),
+        'labels'              => $labels,
+        'supports'            => array('title'),
+        'hierarchical'        => false,
+        'public'              => false,  // Don't need public single pages for them
+        'show_ui'             => true,
+        'show_in_menu'        => 'edit.php?post_type=nucleus_page',
+        'menu_position'       => null,
+        'show_in_admin_bar'   => false,
+        'show_in_nav_menus'   => false,
+        'can_export'          => true,
+        'has_archive'         => false,
+        'exclude_from_search' => true,
+        'publicly_queryable'  => false,
+        'capability_type'     => 'page',
+        'show_in_rest'        => false,
+    );
+
+    register_post_type('nucleus_hf_set', $args);
+}
+add_action('init', 'nucleus_dxp_register_hf_cpt');
+
 // Add rewrite flush logic
 function nucleus_dxp_rewrite_flush() {
     // Add activation flush
@@ -110,8 +152,428 @@ function nucleus_page_manager_meta_boxes()
         'normal',
         'high'
     );
+
+    add_meta_box(
+        'nucleus_hf_builder',
+        'Header & Footer Builder',
+        'nucleus_hf_builder_html',
+        'nucleus_hf_set',
+        'normal',
+        'high'
+    );
 }
 add_action('add_meta_boxes', 'nucleus_page_manager_meta_boxes');
+
+function nucleus_hf_builder_html($post)
+{
+    wp_nonce_field('nucleus_save_page_builder_data', 'nucleus_page_builder_meta_box_nonce');
+    wp_enqueue_script('jquery-ui-sortable');
+    wp_enqueue_script('wp-theme-plugin-editor');
+    wp_enqueue_style('wp-codemirror');
+    wp_enqueue_media();
+    wp_enqueue_editor();
+
+    // Data for Header and Footer (backward compatible with non-base64 array values)
+    $header_meta = get_post_meta($post->ID, '_nucleus_header_components', true);
+    $header_data = is_string($header_meta) ? json_decode(base64_decode($header_meta), true) : $header_meta;
+    if (!is_array($header_data)) $header_data = array();
+
+    $footer_meta = get_post_meta($post->ID, '_nucleus_footer_components', true);
+    $footer_data = is_string($footer_meta) ? json_decode(base64_decode($footer_meta), true) : $footer_meta;
+    if (!is_array($footer_data)) $footer_data = array();
+
+    $css_meta = get_post_meta($post->ID, '_nucleus_hf_css', true);
+    $hf_css_data = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
+    if (!is_array($hf_css_data)) $hf_css_data = array();
+    ?>
+<!-- TABS NAVIGATION -->
+<div class="ncl-tabs-nav">
+    <button type="button" class="ncl-tab-btn active" data-tab="header">Header Builder</button>
+    <button type="button" class="ncl-tab-btn" data-tab="footer">Footer Builder</button>
+    <button type="button" class="ncl-tab-btn" data-tab="css">CSS Manager</button>
+</div>
+
+<!-- HEADER BUILDER TAB -->
+<div id="ncl-tab-content-header" class="ncl-tab-pane active">
+    <!-- Simplistic Builder JS uses this -->
+    <div id="nucleus-header-builder-root" class="ncl-hf-builder-root" data-hf="header"></div>
+    <input type="hidden" name="_nucleus_header_data_json" id="_nucleus_header_data_json" value="" />
+</div>
+
+<!-- FOOTER BUILDER TAB -->
+<div id="ncl-tab-content-footer" class="ncl-tab-pane">
+    <div id="nucleus-footer-builder-root" class="ncl-hf-builder-root" data-hf="footer"></div>
+    <input type="hidden" name="_nucleus_footer_data_json" id="_nucleus_footer_data_json" value="" />
+</div>
+
+<!-- CSS MANAGER TAB -->
+<div id="ncl-tab-content-css" class="ncl-tab-pane">
+    <div class="ncl-css-manager-wrapper ncl-css-sidebar-layout">
+        <div class="ncl-css-sidebar">
+            <div class="ncl-css-sidebar-title">Sections</div>
+            <ul id="ncl-css-sidebar-list"></ul>
+        </div>
+        <div class="ncl-css-editor-panel">
+            <div id="ncl-css-editor-container"></div>
+            <p class="description">Use IDs like <code>#header-logo</code> or <code>#footer-links</code>.</p>
+        </div>
+    </div>
+    <input type="hidden" name="_nucleus_hf_css_json" id="_nucleus_hf_css_json" value="" />
+</div>
+
+<style>
+/* Reset and shared styles from page builder */
+.ncl-tabs-nav { border-bottom: 1px solid #dcdcde; margin-bottom: 20px; display: flex; gap: 5px; }
+.ncl-tab-btn { background: #f0f0f1; border: 1px solid #dcdcde; border-bottom: none; padding: 10px 20px; cursor: pointer; font-weight: 600; color: #50575e; margin-bottom: -1px; border-radius: 4px 4px 0 0; }
+.ncl-tab-btn.active { background: #fff; border-bottom: 1px solid #fff; color: #1d2327; }
+.ncl-tab-pane { display: none; }
+.ncl-tab-pane.active { display: block; }
+
+/* --- CSS Sidebar Layout --- */
+.ncl-css-sidebar-layout {
+    display: flex;
+    gap: 0;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+.ncl-css-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #f6f7f7;
+    border-right: 1px solid #c3c4c7;
+    padding: 0;
+    flex-shrink: 0;
+}
+.ncl-css-sidebar-title {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #50575e;
+    padding: 14px 16px 8px;
+}
+#ncl-css-sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#ncl-css-sidebar-list li {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1d2327;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+    border-bottom: 1px solid #eee;
+}
+#ncl-css-sidebar-list li:hover {
+    background: #e9ecf0;
+}
+#ncl-css-sidebar-list li.active {
+    background: #fff;
+    border-left-color: #2271b1;
+    font-weight: 600;
+    color: #2271b1;
+}
+.ncl-css-editor-panel {
+    flex: 1;
+    padding: 20px;
+    min-width: 0;
+}
+</style>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    let headerData = <?php echo json_encode($header_data); ?>;
+    let footerData = <?php echo json_encode($footer_data); ?>;
+    let cssData = <?php echo json_encode($hf_css_data); ?>;
+
+    if (!Array.isArray(headerData)) headerData = [];
+    if (!Array.isArray(footerData)) footerData = [];
+    if (!cssData || Array.isArray(cssData)) cssData = {};
+
+    let currentCssSection = '';
+    const $cssRoot = $('#ncl-css-editor-container');
+    const $sidebarList = $('#ncl-css-sidebar-list');
+
+    function syncHiddenInputs() {
+        $('#_nucleus_header_data_json').val(JSON.stringify(headerData));
+        $('#_nucleus_footer_data_json').val(JSON.stringify(footerData));
+        $('#_nucleus_hf_css_json').val(JSON.stringify(cssData));
+    }
+
+    function renderBuilder(type) {
+        const dataArr = type === 'header' ? headerData : footerData;
+        const $root = $('#nucleus-' + type + '-builder-root');
+        $root.empty();
+
+        const $sectionsWrapper = $('<div class="ncl-sections-wrapper"></div>');
+
+        dataArr.forEach((section, sIndex) => {
+            const $sectionBox = $(`
+                <div class="ncl-section-block" data-sindex="${sIndex}" data-type="${type}" style="background: #f0f0f1; padding: 15px; margin-bottom: 15px; border: 1px solid #c3c4c7; border-radius: 4px;">
+                    <div class="ncl-section-header" style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 2px solid #ccc; padding-bottom: 10px;">
+                        <h3>
+                            <span class="dashicons dashicons-menu ncl-drag-handle" style="cursor:grab;"></span>
+                            Section Name:
+                            <input type="text" class="input-sec-id" value="${escapeHtml(section.section_id)}" style="font-family: monospace;" />
+                            <code style="color: #d63638; background: #fff; padding: 2px 5px;">#${escapeHtml(type)}-${escapeHtml(section.section_id)}</code>
+                        </h3>
+                        <button type="button" class="btn-delete-section" style="background:#d63638; color:#fff; border:none; padding:4px 8px; border-radius:3px;">Delete Section</button>
+                    </div>
+                    
+                    <div class="ncl-bg-settings" style="margin-bottom:10px;">
+                        <label>Nav/Footer Background color:</label>
+                        <input type="text" class="input-sec-bg" value="${escapeHtml(section.bg_value || '#ffffff')}" placeholder="#ffffff or rgba(0,0,0,1)" style="width: 150px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: 3px;" />
+                    </div>
+
+                    <div class="ncl-comp-list" style="margin-left: 20px; display:flex; flex-direction:column; gap:10px;"></div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <button type="button" class="btn-add-comp" style="background:#2271b1; color:#fff; border:none; padding:6px 12px; border-radius:3px;">+ Add Component</button>
+                    </div>
+                </div>
+            `);
+
+            const $compList = $sectionBox.find('.ncl-comp-list');
+            if (section.components) {
+                section.components.forEach((comp, cIndex) => {
+                    const fullHtmlId = `${type}-${section.section_id}-${comp.id}`;
+                    $compList.append(`
+                        <div class="ncl-comp-item" data-cindex="${cIndex}" style="background:#fff; border:1px solid #ccc; border-left:4px solid #2271b1; padding:10px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <div><strong>ID:</strong> <code>${escapeHtml(fullHtmlId)}</code></div>
+                                <button type="button" class="btn-delete-comp" style="background:transparent; border:1px solid #d63638; color:#d63638; padding:2px 6px; cursor:pointer;">Remove</button>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <div>
+                                    <label>Type:</label>
+                                    <select class="input-comp-type">
+                                        <option value="text" ${comp.type==='text'?'selected':''}>Text / String</option>
+                                        <option value="image" ${comp.type==='image'?'selected':''}>Image / Logo</option>
+                                        <option value="url" ${comp.type==='url'?'selected':''}>Link URL</option>
+                                        <option value="html" ${comp.type==='html'?'selected':''}>Custom HTML</option>
+                                        <option value="shortcode" ${comp.type==='shortcode'?'selected':''}>Shortcode (Nav Menu)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Name:</label>
+                                    <input type="text" class="input-comp-key" value="${escapeHtml(comp.id)}" placeholder="e.g. logo, link-1" />
+                                </div>
+                            </div>
+                            <div>
+                                <label>Value:</label>
+                                ${comp.type === 'html' ? 
+                                    `<textarea class="input-comp-val" rows="3" style="width:100%; font-family:monospace;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>` :
+                                    `<input type="text" class="input-comp-val" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" style="width:100%;" />`
+                                }
+                                ${(comp.type === 'image') ? `<button type="button" class="btn-upload-img" style="margin-top:5px;">Select Image</button>` : ''}
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            $sectionsWrapper.append($sectionBox);
+        });
+
+        $root.append($sectionsWrapper);
+        $root.append(`
+            <div style="text-align:center; padding:20px; border:2px dashed #ccc; background:#fff; margin-top:20px;">
+                <button type="button" class="btn-add-section" style="background:#2271b1; color:#fff; border:none; padding:10px 20px; border-radius:3px;">+ Add New ${type.charAt(0).toUpperCase() + type.slice(1)} Section</button>
+            </div>
+        `);
+
+        $sectionsWrapper.sortable({
+            handle: '.ncl-drag-handle',
+            update: function() {
+                reorderDataArray(type);
+            }
+        });
+
+        syncHiddenInputs();
+        buildCssSidebar();
+    }
+
+    function reorderDataArray(type) {
+        const newData = [];
+        const dataArr = type === 'header' ? headerData : footerData;
+        $('#nucleus-' + type + '-builder-root .ncl-section-block').each(function() {
+            const originalIndex = $(this).data('sindex');
+            newData.push(dataArr[originalIndex]);
+        });
+        if (type === 'header') headerData = newData; else footerData = newData;
+        renderBuilder(type);
+    }
+
+    function buildCssSidebar() {
+        $sidebarList.empty();
+        $sidebarList.append(`<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}" style="padding:10px; cursor:pointer; font-weight:bold; border-bottom:1px solid #ccc;">Global H&F CSS</li>`);
+        
+        ['header', 'footer'].forEach(type => {
+            const arr = type === 'header' ? headerData : footerData;
+            arr.forEach(sec => {
+                const secId = type + '-' + sec.section_id;
+                $sidebarList.append(`<li data-section="${secId}" class="${currentCssSection === secId ? 'active' : ''}" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">${secId}</li>`);
+            });
+        });
+        renderCssEditor();
+    }
+
+    function renderCssEditor() {
+        $cssRoot.empty();
+        if (!currentCssSection) {
+            $cssRoot.html('<div style="padding:40px; text-align:center; color:#666;">Select a section to edit CSS</div>');
+            return;
+        }
+        const val = cssData[currentCssSection] || '';
+        $cssRoot.append(`
+            <textarea id="ncl-active-css-editor" style="width:100%; height:300px; font-family:monospace; padding:10px; background:#fafafa;">${escapeHtml(val)}</textarea>
+        `);
+    }
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return String(unsafe).replace(/[&<"']/g, function(m) {
+            switch (m) { case '&': return '&amp;'; case '<': return '&lt;'; case '"': return '&quot;'; case "'": return '&#039;'; }
+        });
+    }
+
+    // Tabs
+    $('.ncl-tab-btn').on('click', function() {
+        $('.ncl-tab-btn').removeClass('active');
+        $(this).addClass('active');
+        const tab = $(this).data('tab');
+        $('.ncl-tab-pane').removeClass('active');
+        $('#ncl-tab-content-' + tab).addClass('active');
+    });
+
+    // Content Interactions
+    $(document).on('click', '.ncl-hf-builder-root .btn-add-section', function() {
+        const type = $(this).closest('.ncl-hf-builder-root').data('hf');
+        const arr = type === 'header' ? headerData : footerData;
+        arr.push({ section_id: 'sec-' + Math.floor(Math.random()*100), bg_value: '#ffffff', components: [] });
+        renderBuilder(type);
+    });
+
+    $(document).on('click', '.ncl-hf-builder-root .btn-delete-section', function() {
+        if(confirm('Delete section?')) {
+            const block = $(this).closest('.ncl-section-block');
+            const type = block.data('type');
+            const sIndex = block.data('sindex');
+            const arr = type === 'header' ? headerData : footerData;
+            arr.splice(sIndex, 1);
+            renderBuilder(type);
+        }
+    });
+
+    $(document).on('input', '.ncl-hf-builder-root .input-sec-id', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const arr = type === 'header' ? headerData : footerData;
+        arr[sIndex].section_id = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        syncHiddenInputs();
+    });
+
+    $(document).on('input', '.ncl-hf-builder-root .input-sec-bg', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const arr = type === 'header' ? headerData : footerData;
+        arr[sIndex].bg_value = $(this).val();
+        syncHiddenInputs();
+    });
+
+    $(document).on('click', '.ncl-hf-builder-root .btn-add-comp', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const arr = type === 'header' ? headerData : footerData;
+        arr[sIndex].components.push({ id: 'comp-'+Math.floor(Math.random()*100), type: 'text', value: '' });
+        renderBuilder(type);
+    });
+
+    $(document).on('click', '.ncl-hf-builder-root .btn-delete-comp', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const item = $(this).closest('.ncl-comp-item');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const cIndex = item.data('cindex');
+        const arr = type === 'header' ? headerData : footerData;
+        arr[sIndex].components.splice(cIndex, 1);
+        renderBuilder(type);
+    });
+
+    $(document).on('change', '.ncl-hf-builder-root .input-comp-type', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const item = $(this).closest('.ncl-comp-item');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const cIndex = item.data('cindex');
+        const arr = type === 'header' ? headerData : footerData;
+        arr[sIndex].components[cIndex].type = $(this).val();
+        renderBuilder(type);
+    });
+
+    $(document).on('input', '.ncl-hf-builder-root .input-comp-key, .ncl-hf-builder-root .input-comp-val', function() {
+        const block = $(this).closest('.ncl-section-block');
+        const item = $(this).closest('.ncl-comp-item');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const cIndex = item.data('cindex');
+        const arr = type === 'header' ? headerData : footerData;
+        
+        arr[sIndex].components[cIndex].id = item.find('.input-comp-key').val().trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        arr[sIndex].components[cIndex].value = item.find('.input-comp-val').val();
+        syncHiddenInputs();
+    });
+
+    // Image Upload
+    let mediaUploader;
+    $(document).on('click', '.ncl-hf-builder-root .btn-upload-img', function(e) {
+        e.preventDefault();
+        const block = $(this).closest('.ncl-section-block');
+        const item = $(this).closest('.ncl-comp-item');
+        const type = block.data('type');
+        const sIndex = block.data('sindex');
+        const cIndex = item.data('cindex');
+        const arr = type === 'header' ? headerData : footerData;
+
+        let compUploader = wp.media({ title: 'Choose Image', button: { text: 'Choose' }, multiple: false });
+        compUploader.on('select', function() {
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            arr[sIndex].components[cIndex].value = attachment.url;
+            renderBuilder(type);
+        });
+        compUploader.open();
+    });
+
+    // CSS actions
+    $(document).on('click', '#ncl-css-sidebar-list li', function() {
+        currentCssSection = $(this).data('section');
+        $('#ncl-css-sidebar-list li').removeClass('active');
+        $(this).addClass('active');
+        if (currentCssSection && !cssData[currentCssSection]) cssData[currentCssSection] = `/* Style for ${currentCssSection} */\n`;
+        renderCssEditor();
+        syncHiddenInputs();
+    });
+    
+    $(document).on('input', '#ncl-active-css-editor', function() {
+        if (currentCssSection) {
+            cssData[currentCssSection] = $(this).val();
+            syncHiddenInputs();
+        }
+    });
+
+    renderBuilder('header');
+    renderBuilder('footer');
+});
+</script>
+<?php
+}
 
 function nucleus_page_dynamic_builder_html($post)
 {
@@ -134,7 +596,26 @@ function nucleus_page_dynamic_builder_html($post)
         $page_css_data = array();
     }
     
+    // Retrieve HF Sets
+    $hf_sets = get_posts(array(
+        'post_type' => 'nucleus_hf_set',
+        'numberposts' => -1,
+        'post_status' => 'any'
+    ));
+    $selected_hf = get_post_meta($post->ID, '_nucleus_selected_hf_set', true);
     ?>
+
+<!-- HF SET SELECTION -->
+<div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; align-items: center; gap: 15px;">
+    <strong><span class="dashicons dashicons-layout"></span> Header & Footer Template:</strong>
+    <select name="_nucleus_selected_hf_set" style="min-width: 250px;">
+        <option value="">Use Theme Default (Oxygen)</option>
+        <?php foreach($hf_sets as $set): ?>
+            <option value="<?php echo esc_attr($set->ID); ?>" <?php selected($selected_hf, $set->ID); ?>><?php echo esc_html($set->post_title); ?></option>
+        <?php endforeach; ?>
+    </select>
+    <a href="<?php echo admin_url('edit.php?post_type=nucleus_hf_set'); ?>" target="_blank" style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
+</div>
 
 <!-- TABS NAVIGATION -->
 <div class="ncl-tabs-nav">
@@ -1759,15 +2240,16 @@ function nucleus_save_page_builder_data($post_id)
     // Check permissions
     if (isset($_POST['post_type']) && 'nucleus_page' == $_POST['post_type']) {
         if (!current_user_can('edit_page', $post_id)) return;
+    } elseif (isset($_POST['post_type']) && 'nucleus_hf_set' == $_POST['post_type']) {
+        if (!current_user_can('edit_page', $post_id)) return;
     } else {
         if (!current_user_can('edit_post', $post_id)) return;
     }
 
-    // Save CONTENT data cleanly
+    // Save Page Data
     if (isset($_POST['_nucleus_page_data_json'])) {
         $json_string = stripslashes($_POST['_nucleus_page_data_json']);
         $decoded_data = json_decode($json_string, true);
-        
         if (is_array($decoded_data)) {
             update_post_meta($post_id, '_nucleus_page_components', $decoded_data);
         } else {
@@ -1775,16 +2257,37 @@ function nucleus_save_page_builder_data($post_id)
         }
     }
     
-    // Save CSS data cleanly
+    // Save Page CSS
     if (isset($_POST['_nucleus_page_css_json'])) {
         $json_string = stripslashes($_POST['_nucleus_page_css_json']);
         $decoded_data = json_decode($json_string, true);
-        
         if (is_array($decoded_data)) {
             update_post_meta($post_id, '_nucleus_page_css', $decoded_data);
         } else {
             delete_post_meta($post_id, '_nucleus_page_css');
         }
+    }
+
+    // Save HF selection on Page
+    if (isset($_POST['_nucleus_selected_hf_set'])) {
+        update_post_meta($post_id, '_nucleus_selected_hf_set', sanitize_text_field($_POST['_nucleus_selected_hf_set']));
+    }
+
+    // Save HF Data - using base64 for data persistence to prevent WordPress/MySQL Emoji truncation bugs
+    if (isset($_POST['_nucleus_header_data_json'])) {
+        $json_string = wp_unslash($_POST['_nucleus_header_data_json']);
+        $decoded_data = json_decode($json_string, true);
+        if (is_array($decoded_data)) update_post_meta($post_id, '_nucleus_header_components', base64_encode($json_string));
+    }
+    if (isset($_POST['_nucleus_footer_data_json'])) {
+        $json_string = wp_unslash($_POST['_nucleus_footer_data_json']);
+        $decoded_data = json_decode($json_string, true);
+        if (is_array($decoded_data)) update_post_meta($post_id, '_nucleus_footer_components', base64_encode($json_string));
+    }
+    if (isset($_POST['_nucleus_hf_css_json'])) {
+        $json_string = wp_unslash($_POST['_nucleus_hf_css_json']);
+        $decoded_data = json_decode($json_string, true);
+        if (is_array($decoded_data)) update_post_meta($post_id, '_nucleus_hf_css', base64_encode($json_string));
     }
 }
 add_action('save_post', 'nucleus_save_page_builder_data');
@@ -2357,3 +2860,103 @@ function nucleus_auto_setup_oxygen_page_template($post_id) {
     }
 }
 add_action('save_post', 'nucleus_auto_setup_oxygen_page_template', 20);
+
+/**
+ * Render Header or Footer set
+ */
+function nucleus_render_hf_set($post_id, $type = 'header') {
+    $data_meta = get_post_meta($post_id, '_nucleus_' . $type . '_components', true);
+    $data = is_string($data_meta) ? json_decode(base64_decode($data_meta), true) : $data_meta;
+    
+    $css_meta = get_post_meta($post_id, '_nucleus_hf_css', true);
+    $css = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
+    ob_start();
+
+    // Render CSS once if header
+    if ($type === 'header' && !empty($css) && is_array($css)) {
+        echo "<style type='text/css' id='nucleus-hf-custom-css'>\n";
+        foreach ($css as $section_id => $css_block) {
+            if (!empty($css_block)) echo "/* HF Section: " . esc_html($section_id) . " */\n" . strip_tags($css_block) . "\n";
+        }
+        echo "</style>\n";
+    }
+
+    if (!empty($data) && is_array($data)) {
+        echo '<div class="nucleus-hf-root nucleus-' . esc_attr($type) . '-root">';
+        foreach ($data as $section) {
+            $sec_id = sanitize_title(isset($section['section_id']) ? $section['section_id'] : 'sec');
+            $bg_style = '';
+            if (!empty($section['bg_value'])) {
+                $bg_style = 'background-color: ' . esc_attr($section['bg_value']) . ';';
+            }
+            echo '<section id="' . esc_attr($type) . '-' . esc_attr($sec_id) . '" class="nucleus-hf-section" style="' . $bg_style . '">';
+            echo '<div class="nucleus-container" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; flex-wrap: wrap; padding: 15px 20px;">';
+            
+            if (!empty($section['components'])) {
+                foreach ($section['components'] as $comp) {
+                    $comp_id = sanitize_title(isset($comp['id']) ? $comp['id'] : 'comp');
+                    $full_id = $type . '-' . $sec_id . '-' . $comp_id;
+                    $val = isset($comp['value']) ? $comp['value'] : '';
+                    $c_type = isset($comp['type']) ? $comp['type'] : 'text';
+
+                    if ($c_type === 'image' && !empty($val)) {
+                        echo '<img id="' . esc_attr($full_id) . '" class="nucleus-hf-comp" src="' . esc_url($val) . '" alt="" style="max-width: 200px; height: auto;" />';
+                    } elseif ($c_type === 'url' && !empty($val)) {
+                        echo '<a id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-link" href="' . esc_url($val) . '">' . esc_html($val) . '</a>';
+                    } elseif ($c_type === 'html') {
+                        echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-html">' . $val . '</div>';
+                    } elseif ($c_type === 'shortcode') {
+                        echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-shortcode">' . do_shortcode($val) . '</div>';
+                    } else {
+                        echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-text">' . esc_html($val) . '</div>';
+                    }
+                }
+            }
+            
+            echo '</div></section>';
+        }
+        echo '</div>';
+    }
+
+    return ob_get_clean();
+}
+
+/**
+ * =====================================
+ * Disable Oxygen Global Templates if a Custom H&F Set is selected
+ * =====================================
+ */
+function nucleus_disable_oxygen_hf_for_custom_sets() {
+    if (is_singular('nucleus_page')) {
+        $post_id = get_the_ID();
+        $hf_set_id = get_post_meta($post_id, '_nucleus_selected_hf_set', true);
+        
+        // If a Nucleus H&F Set is selected, tell Oxygen to NOT load its global template
+        if (!empty($hf_set_id)) {
+            // Oxygen filter to disable the catch-all template
+            add_filter('ct_use_inner_content', '__return_false');
+            add_filter('oxygen_default_template_id', '__return_zero');
+            
+            // Force Oxygen rendering to bail out to standard WP templating
+            remove_action('template_redirect', 'ct_template_redirect', 1);
+            remove_filter('template_include', 'ct_template_include', 10);
+            remove_filter('template_include', 'ct_template_include', 1);
+            remove_filter('template_include', 'oxygen_vsb_template_include', 10);
+        }
+    }
+}
+add_action('wp', 'nucleus_disable_oxygen_hf_for_custom_sets');
+
+add_filter('template_include', function($template) {
+    if (is_singular('nucleus_page')) {
+        $hf_set_id = get_post_meta(get_the_ID(), '_nucleus_selected_hf_set', true);
+        if (!empty($hf_set_id)) {
+            $custom_template = plugin_dir_path(dirname(__FILE__)) . 'templates/single-nucleus_page.php';
+            if (file_exists($custom_template)) {
+                return $custom_template;
+            }
+        }
+    }
+    return $template;
+}, 99999);
+add_action('wp', 'nucleus_disable_oxygen_hf_for_custom_sets', 9);

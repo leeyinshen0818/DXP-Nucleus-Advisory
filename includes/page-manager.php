@@ -179,6 +179,13 @@ function nucleus_page_dynamic_builder_html($post)
             allows you to stack Sections and Components to build dynamic pages. Because the builder uses standard HTML,
             you can use the <strong>CSS Manager</strong> tab to style absolutely anything you want.</p>
 
+        <div
+            style="background-color: #fff8e5; border-left: 4px solid #f0b849; padding: 12px 15px; margin-bottom: 20px;">
+            <strong>⚠️ Important Note:</strong> If you modify a section or component name, the CSS of the page might not
+            catch up automatically. You should make a simple change in the CSS Manager (like adding a space or
+            re-copying and pasting your CSS) to trigger a refresh.
+        </div>
+
         <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
         <h3 style="font-size:18px;">1. Targeting Sections & Backgrounds</h3>
@@ -1065,7 +1072,7 @@ jQuery(document).ready(function($) {
                                             ? `<div style="width: 100%; max-width: 800px; background: #fff;"><textarea id="wysiwyg_${sIndex}_${cIndex}" class="input-comp-wysiwyg" data-sindex="${sIndex}" data-cindex="${cIndex}" style="width:100%; height: 250px;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea></div>` :
                                         (comp.type === 'html' || comp.type === 'code')
                                             ? `<textarea class="input-comp-val input-comp-html" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="6" style="font-family: monospace; background: #2d2d2d; color: #ccc;" placeholder="${comp.type === 'code' ? '/* Raw Code Snippet */' : '<!-- raw HTML here -->'}">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>` :
-                                        comp.type === 'textarea' 
+                                        comp.type === 'textarea'
                                             ? `<textarea class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" rows="4">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea>`
                                             : `<input type="${comp.type === 'number' ? 'number' : 'text'}" class="input-comp-val" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}" placeholder="${comp.type === 'video' ? 'YouTube / Vimeo URL' : comp.type === 'shortcode' ? '[your_shortcode]' : 'Value / Text'}" />`
                                         }

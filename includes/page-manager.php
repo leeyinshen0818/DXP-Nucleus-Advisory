@@ -68,7 +68,7 @@ function nucleus_dxp_register_hf_cpt()
         'name'               => _x('Header & Footer Sets', 'Post Type General Name', 'text_domain'),
         'singular_name'      => _x('H&F Set', 'Post Type Singular Name', 'text_domain'),
         'menu_name'          => __('Header & Footer', 'text_domain'),
-        'all_items'          => __('All H&F Sets', 'text_domain'),
+        'all_items'          => __('H&F Manager', 'text_domain'),
         'add_new_item'       => __('Add New Set', 'text_domain'),
         'add_new'            => __('Add New', 'text_domain'),
         'new_item'           => __('New Set', 'text_domain'),
@@ -185,7 +185,18 @@ function nucleus_hf_builder_html($post)
     $css_meta = get_post_meta($post->ID, '_nucleus_hf_css', true);
     $hf_css_data = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
     if (!is_array($hf_css_data)) $hf_css_data = array();
+
+    $default_hf_set_id = get_option('nucleus_default_hf_set', '');
+    $is_default = ($default_hf_set_id == $post->ID);
     ?>
+<!-- Set as Default -->
+<div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+    <label style="font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" name="_ncl_is_default_hf" value="1" <?php checked($is_default); ?> />
+        Set as Default Header & Footer Set (Automatically applies to new pages)
+    </label>
+</div>
+
 <!-- TABS NAVIGATION -->
 <div class="ncl-tabs-nav">
     <button type="button" class="ncl-tab-btn active" data-tab="header">Header Builder</button>
@@ -223,11 +234,38 @@ function nucleus_hf_builder_html($post)
 
 <style>
 /* Reset and shared styles from page builder */
-.ncl-tabs-nav { border-bottom: 1px solid #dcdcde; margin-bottom: 20px; display: flex; gap: 5px; }
-.ncl-tab-btn { background: #f0f0f1; border: 1px solid #dcdcde; border-bottom: none; padding: 10px 20px; cursor: pointer; font-weight: 600; color: #50575e; margin-bottom: -1px; border-radius: 4px 4px 0 0; }
-.ncl-tab-btn.active { background: #fff; border-bottom: 1px solid #fff; color: #1d2327; }
-.ncl-tab-pane { display: none; }
-.ncl-tab-pane.active { display: block; }
+.ncl-tabs-nav {
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.ncl-tab-btn {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-bottom: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #50575e;
+    margin-bottom: -1px;
+    border-radius: 4px 4px 0 0;
+}
+
+.ncl-tab-btn.active {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    color: #1d2327;
+}
+
+.ncl-tab-pane {
+    display: none;
+}
+
+.ncl-tab-pane.active {
+    display: block;
+}
 
 /* --- CSS Sidebar Layout --- */
 .ncl-css-sidebar-layout {
@@ -239,6 +277,7 @@ function nucleus_hf_builder_html($post)
     border: 1px solid #c3c4c7;
     border-radius: 4px;
 }
+
 .ncl-css-sidebar {
     width: 220px;
     min-width: 220px;
@@ -247,6 +286,7 @@ function nucleus_hf_builder_html($post)
     padding: 0;
     flex-shrink: 0;
 }
+
 .ncl-css-sidebar-title {
     font-weight: 700;
     font-size: 12px;
@@ -255,11 +295,13 @@ function nucleus_hf_builder_html($post)
     color: #50575e;
     padding: 14px 16px 8px;
 }
+
 #ncl-css-sidebar-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
+
 #ncl-css-sidebar-list li {
     padding: 10px 16px;
     cursor: pointer;
@@ -269,15 +311,18 @@ function nucleus_hf_builder_html($post)
     transition: background 0.15s, border-color 0.15s;
     border-bottom: 1px solid #eee;
 }
+
 #ncl-css-sidebar-list li:hover {
     background: #e9ecf0;
 }
+
 #ncl-css-sidebar-list li.active {
     background: #fff;
     border-left-color: #2271b1;
     font-weight: 600;
     color: #2271b1;
 }
+
 .ncl-css-editor-panel {
     flex: 1;
     padding: 20px;
@@ -404,19 +449,24 @@ jQuery(document).ready(function($) {
             const originalIndex = $(this).data('sindex');
             newData.push(dataArr[originalIndex]);
         });
-        if (type === 'header') headerData = newData; else footerData = newData;
+        if (type === 'header') headerData = newData;
+        else footerData = newData;
         renderBuilder(type);
     }
 
     function buildCssSidebar() {
         $sidebarList.empty();
-        $sidebarList.append(`<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}" style="padding:10px; cursor:pointer; font-weight:bold; border-bottom:1px solid #ccc;">Global H&F CSS</li>`);
-        
+        $sidebarList.append(
+            `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}" style="padding:10px; cursor:pointer; font-weight:bold; border-bottom:1px solid #ccc;">Global H&F CSS</li>`
+        );
+
         ['header', 'footer'].forEach(type => {
             const arr = type === 'header' ? headerData : footerData;
             arr.forEach(sec => {
                 const secId = type + '-' + sec.section_id;
-                $sidebarList.append(`<li data-section="${secId}" class="${currentCssSection === secId ? 'active' : ''}" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">${secId}</li>`);
+                $sidebarList.append(
+                    `<li data-section="${secId}" class="${currentCssSection === secId ? 'active' : ''}" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">${secId}</li>`
+                );
             });
         });
         renderCssEditor();
@@ -425,7 +475,9 @@ jQuery(document).ready(function($) {
     function renderCssEditor() {
         $cssRoot.empty();
         if (!currentCssSection) {
-            $cssRoot.html('<div style="padding:40px; text-align:center; color:#666;">Select a section to edit CSS</div>');
+            $cssRoot.html(
+                '<div style="padding:40px; text-align:center; color:#666;">Select a section to edit CSS</div>'
+            );
             return;
         }
         const val = cssData[currentCssSection] || '';
@@ -437,7 +489,16 @@ jQuery(document).ready(function($) {
     function escapeHtml(unsafe) {
         if (!unsafe) return '';
         return String(unsafe).replace(/[&<"']/g, function(m) {
-            switch (m) { case '&': return '&amp;'; case '<': return '&lt;'; case '"': return '&quot;'; case "'": return '&#039;'; }
+            switch (m) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '"':
+                    return '&quot;';
+                case "'":
+                    return '&#039;';
+            }
         });
     }
 
@@ -454,12 +515,16 @@ jQuery(document).ready(function($) {
     $(document).on('click', '.ncl-hf-builder-root .btn-add-section', function() {
         const type = $(this).closest('.ncl-hf-builder-root').data('hf');
         const arr = type === 'header' ? headerData : footerData;
-        arr.push({ section_id: 'sec-' + Math.floor(Math.random()*100), bg_value: '#ffffff', components: [] });
+        arr.push({
+            section_id: 'sec-' + Math.floor(Math.random() * 100),
+            bg_value: '#ffffff',
+            components: []
+        });
         renderBuilder(type);
     });
 
     $(document).on('click', '.ncl-hf-builder-root .btn-delete-section', function() {
-        if(confirm('Delete section?')) {
+        if (confirm('Delete section?')) {
             const block = $(this).closest('.ncl-section-block');
             const type = block.data('type');
             const sIndex = block.data('sindex');
@@ -492,7 +557,11 @@ jQuery(document).ready(function($) {
         const type = block.data('type');
         const sIndex = block.data('sindex');
         const arr = type === 'header' ? headerData : footerData;
-        arr[sIndex].components.push({ id: 'comp-'+Math.floor(Math.random()*100), type: 'text', value: '' });
+        arr[sIndex].components.push({
+            id: 'comp-' + Math.floor(Math.random() * 100),
+            type: 'text',
+            value: ''
+        });
         renderBuilder(type);
     });
 
@@ -518,18 +587,20 @@ jQuery(document).ready(function($) {
         renderBuilder(type);
     });
 
-    $(document).on('input', '.ncl-hf-builder-root .input-comp-key, .ncl-hf-builder-root .input-comp-val', function() {
-        const block = $(this).closest('.ncl-section-block');
-        const item = $(this).closest('.ncl-comp-item');
-        const type = block.data('type');
-        const sIndex = block.data('sindex');
-        const cIndex = item.data('cindex');
-        const arr = type === 'header' ? headerData : footerData;
-        
-        arr[sIndex].components[cIndex].id = item.find('.input-comp-key').val().trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
-        arr[sIndex].components[cIndex].value = item.find('.input-comp-val').val();
-        syncHiddenInputs();
-    });
+    $(document).on('input', '.ncl-hf-builder-root .input-comp-key, .ncl-hf-builder-root .input-comp-val',
+        function() {
+            const block = $(this).closest('.ncl-section-block');
+            const item = $(this).closest('.ncl-comp-item');
+            const type = block.data('type');
+            const sIndex = block.data('sindex');
+            const cIndex = item.data('cindex');
+            const arr = type === 'header' ? headerData : footerData;
+
+            arr[sIndex].components[cIndex].id = item.find('.input-comp-key').val().trim().toLowerCase()
+                .replace(/[^a-z0-9_-]/g, '');
+            arr[sIndex].components[cIndex].value = item.find('.input-comp-val').val();
+            syncHiddenInputs();
+        });
 
     // Image Upload
     let mediaUploader;
@@ -542,7 +613,13 @@ jQuery(document).ready(function($) {
         const cIndex = item.data('cindex');
         const arr = type === 'header' ? headerData : footerData;
 
-        let compUploader = wp.media({ title: 'Choose Image', button: { text: 'Choose' }, multiple: false });
+        let compUploader = wp.media({
+            title: 'Choose Image',
+            button: {
+                text: 'Choose'
+            },
+            multiple: false
+        });
         compUploader.on('select', function() {
             const attachment = compUploader.state().get('selection').first().toJSON();
             arr[sIndex].components[cIndex].value = attachment.url;
@@ -556,11 +633,12 @@ jQuery(document).ready(function($) {
         currentCssSection = $(this).data('section');
         $('#ncl-css-sidebar-list li').removeClass('active');
         $(this).addClass('active');
-        if (currentCssSection && !cssData[currentCssSection]) cssData[currentCssSection] = `/* Style for ${currentCssSection} */\n`;
+        if (currentCssSection && !cssData[currentCssSection]) cssData[currentCssSection] =
+            `/* Style for ${currentCssSection} */\n`;
         renderCssEditor();
         syncHiddenInputs();
     });
-    
+
     $(document).on('input', '#ncl-active-css-editor', function() {
         if (currentCssSection) {
             cssData[currentCssSection] = $(this).val();
@@ -602,19 +680,28 @@ function nucleus_page_dynamic_builder_html($post)
         'numberposts' => -1,
         'post_status' => 'any'
     ));
+
     $selected_hf = get_post_meta($post->ID, '_nucleus_selected_hf_set', true);
+    
+    // Auto-select Default HF Set for brand new unused draft pages
+    if (empty($selected_hf) && in_array($post->post_status, array('auto-draft', 'draft')) && empty($page_data)) {
+        $selected_hf = get_option('nucleus_default_hf_set', '');
+    }
     ?>
 
 <!-- HF SET SELECTION -->
-<div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; align-items: center; gap: 15px;">
+<div
+    style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; align-items: center; gap: 15px;">
     <strong><span class="dashicons dashicons-layout"></span> Header & Footer Template:</strong>
     <select name="_nucleus_selected_hf_set" style="min-width: 250px;">
         <option value="">Use Theme Default (Oxygen)</option>
         <?php foreach($hf_sets as $set): ?>
-            <option value="<?php echo esc_attr($set->ID); ?>" <?php selected($selected_hf, $set->ID); ?>><?php echo esc_html($set->post_title); ?></option>
+        <option value="<?php echo esc_attr($set->ID); ?>" <?php selected($selected_hf, $set->ID); ?>>
+            <?php echo esc_html($set->post_title); ?></option>
         <?php endforeach; ?>
     </select>
-    <a href="<?php echo admin_url('edit.php?post_type=nucleus_hf_set'); ?>" target="_blank" style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
+    <a href="<?php echo admin_url('edit.php?post_type=nucleus_hf_set'); ?>" target="_blank"
+        style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
 </div>
 
 <!-- TABS NAVIGATION -->
@@ -2244,6 +2331,18 @@ function nucleus_save_page_builder_data($post_id)
         if (!current_user_can('edit_page', $post_id)) return;
     } else {
         if (!current_user_can('edit_post', $post_id)) return;
+    }
+
+    // Save Default HF Set configuration
+    if (isset($_POST['post_type']) && 'nucleus_hf_set' == $_POST['post_type']) {
+        if (isset($_POST['_ncl_is_default_hf']) && $_POST['_ncl_is_default_hf'] == '1') {
+            update_option('nucleus_default_hf_set', $post_id);
+        } else {
+            // Only remove if this specific one was the default
+            if (get_option('nucleus_default_hf_set') == $post_id) {
+                delete_option('nucleus_default_hf_set');
+            }
+        }
     }
 
     // Save Page Data

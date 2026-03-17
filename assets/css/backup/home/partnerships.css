@@ -1,0 +1,83 @@
+/* =============================================
+   Partnerships Section
+   Background: #11183f (set inline, no need to redeclare)
+   ============================================= */
+
+/* ── Layout: center everything ── */
+#nucleus-section-partnerships .nucleus-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+/* ── Badge ── */
+#partnerships-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #2C335B !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  border: 1px solid #2868E6;
+  border-radius: 24px;
+  padding: 12px 24px;
+  color: #99C5FF !important;
+  font-size: 10.33px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-align: center;
+  width: fit-content;
+  margin-bottom: 24px;
+}
+
+/* ── Title ── */
+#partnerships-header {
+  color: #ffffff !important;
+  text-align: center;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+
+/* ── Cards wrapper ──
+   NOTE: All three cards share the same ID "partnerships-card"
+   which is invalid HTML — only the first will be targeted by ID.
+   Rename them to card-1, card-2, card-3 in the page manager
+   so they group under #partnerships-card as a flex column.
+   The CSS below uses a class fallback in the meantime.
+── */
+
+/* Temporary fallback — targets by class within the section */
+#nucleus-section-partnerships .nucleus-text:not(#partnerships-badge) {
+  width: 60%;
+  background: #2C335B;
+  border: 1px solid #2868E6;
+  border-radius: 12px;
+  padding: 20px 24px;
+  color: #ffffff;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* Card group wrapper — centers the column */
+#partnerships-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Every card inside the group — add card-4 etc. without touching this */
+#partnerships-card>.nucleus-component {
+  width: 60%;
+  background: #2C335B;
+  border: 1px solid #2868E6;
+  border-radius: 12px;
+  padding: 20px 24px;
+  color: #ffffff;
+  line-height: 1.6;
+}

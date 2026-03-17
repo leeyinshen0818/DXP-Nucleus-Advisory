@@ -1,0 +1,147 @@
+/* =============================================
+   Remark Section
+   ============================================= */
+
+#nucleus-section-remark {
+  padding: 100px 20px;
+  position: relative;
+  overflow: hidden;
+  /* contain the glow within the section */
+}
+
+/* ── Glow — same as hero ── */
+#nucleus-section-remark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 150% 150% at 100% 100%,
+      rgba(40, 104, 230, 0.70) 0%,
+      rgba(40, 104, 230, 0.40) 40%,
+      rgba(40, 104, 230, 0.20) 55%,
+      rgba(40, 104, 230, 0.08) 80%,
+      rgba(40, 104, 230, 0.04) 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Push container above glow */
+#nucleus-section-remark .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Badge ── */
+#remark-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  border-radius: 24px;
+  border: 1px solid rgba(40, 104, 230, 0.25);
+  padding: 10px 24px;
+  color: #2868E6 !important;
+  font-size: 10.33px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-align: center;
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+/* ── Title ── */
+#remark-title {
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 16px;
+  max-width: 700px;
+}
+
+/* ── Subtitle ── */
+#remark-subtitle {
+  text-align: center;
+  margin-bottom: 48px;
+  /* opacity: 0.7; */
+}
+
+/* ── Testimonial block ── */
+#remark-testimonial {
+  position: relative;
+  width: 671px;
+  max-width: 100%;
+  padding: 32px 40px;
+  border-radius: 10px;
+  border: 2.09px solid #2868E6;
+  background-color: rgba(255, 255, 255, 0.52);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  /* 17px in rem */
+  line-height: 1.7;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* ── Opening quote — top left, sits on the border ── */
+#remark-testimonial::before {
+  content: '❝';
+  /* U+275D — heavy double turned comma */
+  /* font-family: Georgia, serif; */
+  /* serif fonts render curly quotes much larger and more ornate */
+  font-size: 6rem;
+  /* " */
+  position: absolute;
+  top: -0.32em;
+  /* vertically centers on the border */
+  left: 20px;
+  font-size: 2.8rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  /* gradient fill on the quote mark */
+  background: linear-gradient(135deg, #3172FE, #743DF0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* white bg patch so the border appears interrupted */
+  padding: 0 6px;
+  background-color: transparent;
+}
+
+/* ── Closing quote — bottom right, sits on the border ── */
+#remark-testimonial::after {
+  content: '❞';
+  /* U+275E — heavy double comma */
+  /* font-family: Georgia, serif; */
+  font-size: 6rem;
+  /* " */
+  position: absolute;
+  bottom: -0.7em;
+  right: 24px;
+  font-size: 2.8rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #3172FE, #743DF0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  padding: 0 6px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  #remark-testimonial {
+    width: 100%;
+    padding: 28px 24px;
+  }
+}

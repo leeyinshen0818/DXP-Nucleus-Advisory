@@ -1,0 +1,8 @@
+/* Global Styles */
+.text-gradient {
+  background: linear-gradient(135deg, #35308F, #933DF0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}

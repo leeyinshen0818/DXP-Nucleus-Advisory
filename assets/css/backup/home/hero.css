@@ -1,0 +1,287 @@
+/* ── Hero Section ────────────────────────────   */
+#nucleus-section-hero {
+  position: relative;
+  padding: 100px 20px;
+  /* NO overflow:hidden — lets the glow breathe */
+}
+
+/* ── Glow layer 1: massive ellipse, spills well beyond section bounds ── */
+#nucleus-section-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* covers the full section */
+  background: radial-gradient(ellipse 150% 150% at 100% 100%,
+      rgba(40, 104, 230, 0.70) 0%,
+      rgba(40, 104, 230, 0.40) 40%,
+      rgba(40, 104, 230, 0.20) 55%,
+      rgba(40, 104, 230, 0.08) 80%);
+  filter: blur(40px);
+  /* lower blur = colour stays richer, less grey wash */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Glow layer 2: concentrated bright core anchored at bottom-right ── */
+#nucleus-section-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -150px;
+  right: -150px;
+  width: 1000px;
+  height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+      rgba(40, 104, 230, 0.40) 0%,
+      rgba(40, 104, 230, 0.18) 35%,
+      rgba(40, 104, 230, 0.05) 60%,
+      rgba(40, 104, 230, 0) 80%);
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Push container above both glow layers */
+#nucleus-section-hero .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  grid-template-rows: auto;
+  align-items: start;
+  column-gap: 60px;
+  row-gap: 0;
+}
+
+/* ── Left column placement ── */
+#hero-badge {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#hero-title {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#hero-description {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+#hero-cta {
+  grid-column: 1;
+  grid-row: 4;
+}
+
+#hero-card {
+  grid-column: 2;
+  grid-row: 1 / 5;
+}
+
+/* ── Left column margins ── */
+#hero-badge {
+  margin-bottom: 12px;
+}
+
+#hero-title {
+  margin-bottom: 20px;
+}
+
+#hero-description {
+  margin-bottom: 28px;
+}
+
+#hero-cta {
+  margin-bottom: 0;
+}
+
+/* ── Badge ── */
+#hero-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  border-radius: 24px;
+  /* border: 1px solid rgba(40, 104, 230, 0.25); */
+  padding: 8px 16px 8px 16px;
+  color: #2868E6 !important;
+  font-size: 10.33px;
+  font-weight: bold;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  width: fit-content;
+}
+
+/* Pulsing green dot */
+#hero-badge::before {
+  content: '';
+  display: inline-block;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #37D097;
+  box-shadow: 0 0 0 0 rgba(55, 208, 151, 0.5);
+  animation: badge-pulse 1.8s ease-out infinite;
+}
+
+@keyframes badge-pulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(55, 208, 151, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 7px rgba(55, 208, 151, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0px rgba(55, 208, 151, 0);
+  }
+}
+
+/* ── CTA buttons side by side ── */
+#hero-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Primary button — gradient background, white text ── */
+#hero-cta-primary,
+#hero-card-cta {
+  display: inline-block;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #35308F, #933DF0);
+  color: #ffffff !important;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+#hero-cta-primary:hover,
+#hero-card-cta:hover {
+  opacity: 0.88;
+}
+
+/* ── Secondary button ── */
+#hero-cta-secondary {
+  display: inline-block;
+  position: relative;
+  padding: 12px 28px;
+  border-radius: 8px;
+  /* border: 1px solid rgba(40, 104, 230, 0.30); */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: opacity 0.2s ease;
+  background: linear-gradient(135deg, #35308F, #933DF0) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+#hero-cta-secondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6) !important;
+  z-index: -1;
+}
+
+#hero-cta-secondary:hover::before {
+  background: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* ── Card styling ── */
+#hero-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#hero-card .nucleus-component {
+  margin-bottom: 0;
+}
+
+#hero-card-heading {
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+#hero-card-subheading {
+  font-size: 0.9rem;
+}
+
+/* ── Checklist ── */
+#hero-card-list {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#hero-card-list .nucleus-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#hero-card-list .nucleus-checklist-item::before {
+  content: '';
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #37D097;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+
+/* ── Card CTA ── */
+#hero-card-cta {
+  text-align: center;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+/* ── Mobile: stack vertically ── */
+@media (max-width: 768px) {
+  #nucleus-section-hero .nucleus-container {
+    grid-template-columns: 1fr;
+    row-gap: 0;
+  }
+
+  #hero-badge,
+  #hero-title,
+  #hero-description,
+  #hero-cta,
+  #hero-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  #hero-card {
+    margin-top: 40px;
+  }
+}

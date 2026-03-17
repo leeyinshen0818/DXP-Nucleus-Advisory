@@ -1561,6 +1561,7 @@ jQuery(document).ready(function($) {
                                             <optgroup label="Content Blocks">
                                                 <option value="testimonial" ${comp.type === 'testimonial' ? 'selected' : ''}>Testimonial / Quote</option>
                                                 <option value="stats" ${comp.type === 'stats' ? 'selected' : ''}>Stats / KPI Block</option>
+                                                <option value="checklist" ${comp.type === 'checklist' ? 'selected' : ''}>Checklist / Feature List</option>
                                             </optgroup>
                                             <optgroup label="Advanced">
                                                 <option value="wysiwyg" ${comp.type === 'wysiwyg' ? 'selected' : ''}>Rich Text Editor (WYSIWYG)</option>
@@ -1607,6 +1608,19 @@ jQuery(document).ready(function($) {
                                             <button type="button" class="ncl-btn ncl-btn-secondary btn-add-carousel-slide" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Slide</button>
                                         </div>
                                     ` : ''}
+                                    ${comp.type === 'checklist' ? `
+                                    <div class="ncl-checklist-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                    <div class="ncl-checklist-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;">
+                                    ${Array.isArray(comp.value) ? comp.value.map((item, tIndex) => `
+                                    <div class="ncl-checklist-item" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}" style="background:#fff; border:1px solid #dcdcde; border-left:3px solid #38a169; padding:10px 12px; border-radius:3px; display:flex; gap:10px; align-items:center;">
+                                    <input type="text" class="input-checklist-item" placeholder="List item text" value="${escapeHtml(item || '')}" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                    <button type="button" class="ncl-btn ncl-btn-danger btn-delete-checklist" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Remove</button>
+                                    </div>
+                                    `).join('') : ''}
+                                    </div>
+                                    <button type="button" class="ncl-btn ncl-btn-secondary btn-add-checklist" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Item</button>
+                                    </div>
+                                    ` : ''}
                                     ${comp.type === 'accordion' ? `
                                         <div class="ncl-accordion-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
                                             <div class="ncl-accordion-list" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
@@ -1635,7 +1649,7 @@ jQuery(document).ready(function($) {
                                     ` : ''}
                                     <div class="ncl-form-row" style="align-items: flex-start;">
                                         <label style="padding-top:6px;">Content</label>
-                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial') ? '' : 
+                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial' || comp.type === 'checklist') ? '' :
                                         comp.type === 'wysiwyg'
                                             ? `<div style="width: 100%; max-width: 800px; background: #fff;"><textarea id="wysiwyg_${sIndex}_${cIndex}" class="input-comp-wysiwyg" data-sindex="${sIndex}" data-cindex="${cIndex}" style="width:100%; height: 250px;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea></div>` :
                                         (comp.type === 'html' || comp.type === 'code')
@@ -1984,6 +1998,11 @@ jQuery(document).ready(function($) {
             }];
         }
 
+        // Initialize checklist array
+        if (newType === 'checklist' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
+          pageData[sIndex].components[cIndex].value = [];
+        }
+
         // Initialize testimonial object
         if (newType === 'testimonial' && typeof pageData[sIndex].components[cIndex].value !==
             'object') {
@@ -2124,6 +2143,38 @@ jQuery(document).ready(function($) {
             }
         });
         compUploader.open();
+    });
+
+    // --- Checklist: Add item ---
+    $root.on('click', '.btn-add-checklist', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
+          pageData[sIndex].components[cIndex].value = [];
+        }
+        pageData[sIndex].components[cIndex].value.push('');
+        renderBuilder();
+    });
+      
+    // --- Checklist: Remove item ---
+    $root.on('click', '.btn-delete-checklist', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+        pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+        renderBuilder();
+    });
+
+    // --- Checklist: Update item text on change ---
+    $root.on('input', '.input-checklist-item', function() {
+        const $item = $(this).closest('.ncl-checklist-item'); 
+        const sIndex = $item.data('sindex');
+        const cIndex = $item.data('cindex');
+        const tIndex = $item.data('tindex');
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value[tIndex] = $(this).val();
+            syncHiddenInput();
+        }
     });
 
     // Accordion: Add Item
@@ -2770,6 +2821,16 @@ function nucleus_page_content_shortcode($atts) {
                             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-shortcode">';
                             echo do_shortcode($val);
                             echo '</div>';
+                        } elseif ($type === 'checklist') {
+                          if (is_array($val) && !empty($val)) {
+                            echo '<ul id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-checklist">';
+                            foreach ($val as $item_text) {
+                              if (!empty(trim($item_text))) {
+                                echo '<li class="nucleus-checklist-item">' . esc_html($item_text) . '</li>';
+                              }
+                            }
+                            echo '</ul>';
+                          }
                         } elseif ($type === 'stats') {
                             $label = !empty($comp['meta']) ? $comp['meta'] : '';
                             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-stats">';
@@ -2787,7 +2848,7 @@ function nucleus_page_content_shortcode($atts) {
                             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-html">' . $val . '</div>';
                         } else {
                             if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
-                                echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . esc_html($val) . '</h2>';
+                                echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . wp_kses_post($val) . '</h2>';
                             } elseif (strpos($comp_id, 'subtitle') !== false) {
                                 echo '<h4 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-subtitle">' . esc_html($val) . '</h4>';
                             } else {

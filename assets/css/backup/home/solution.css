@@ -243,3 +243,55 @@
     width: 100%;
   }
 }
+
+/* ── Mobile: accordion-style tabs ── */
+@media (max-width: 768px) {
+
+  /* Stack the whole tabs component vertically */
+  #solution-service-tabs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Sidebar becomes a flat list of buttons */
+  #solution-service-tabs .nucleus-tabs-sidebar {
+    width: 100%;
+    gap: 0;
+  }
+
+  /* Each button takes full width */
+  #solution-service-tabs .nucleus-tabs-button,
+  #solution-service-tabs .nucleus-tabs-button.active {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* Content wrapper hidden by default on mobile —
+     only shown once JS moves it and adds .is-mobile-moved */
+  #solution-service-tabs .nucleus-tabs-content {
+    display: none;
+  }
+
+  /* Show it once JS has moved it after the active button */
+  #solution-service-tabs .nucleus-tabs-content.is-mobile-moved {
+    display: block;
+    width: 100%;
+  }
+
+  /* Active button connects visually to content below */
+  #solution-service-tabs .nucleus-tabs-button.active {
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+    width: 100%;
+  }
+
+  /* Active pane connects to button above */
+  #solution-service-tabs .nucleus-tab-pane.active {
+    border-radius: 0 0 8px 8px;
+    border-top: none;
+    padding: 28px 24px;
+    min-height: unset;
+  }
+}

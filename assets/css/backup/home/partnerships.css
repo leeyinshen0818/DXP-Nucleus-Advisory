@@ -81,3 +81,12 @@
   color: #ffffff;
   line-height: 1.6;
 }
+
+/* ── Mobile: full width cards ── */
+@media (max-width: 768px) {
+
+  #nucleus-section-partnerships .nucleus-text:not(#partnerships-badge),
+  #partnerships-card>.nucleus-component {
+    width: 100%;
+  }
+}

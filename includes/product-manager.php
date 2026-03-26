@@ -152,8 +152,30 @@ function nucleus_product_meta_box_html($post)
     $sec3_title = get_post_meta($post->ID, '_nucleus_product_section_3_title', true);
     $sec3_items = get_post_meta($post->ID, '_nucleus_product_section_3_items', true) ?: array();
 
+    // Retrieve HF Sets
+    $hf_sets = get_posts(array(
+        'post_type' => 'nucleus_hf_set',
+        'numberposts' => -1,
+        'post_status' => 'any'
+    ));
+    $selected_hf = get_post_meta($post->ID, '_nucleus_selected_hf_set', true);
+
     wp_nonce_field('nucleus_product_meta_box_nonce', 'nucleus_product_nonce');
     ?>
+
+    <!-- HF SET SELECTION -->
+    <div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; align-items: center; gap: 15px;">
+        <strong><span class="dashicons dashicons-layout"></span> Header & Footer Template:</strong>
+        <select name="_nucleus_selected_hf_set" style="min-width: 250px;">
+            <option value="">Use Theme Default (Oxygen)</option>
+            <?php foreach ($hf_sets as $set): ?>
+                <option value="<?php echo esc_attr($set->ID); ?>" <?php selected($selected_hf, $set->ID); ?>>
+                    <?php echo esc_html($set->post_title); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <a href="<?php echo admin_url('edit.php?post_type=nucleus_hf_set'); ?>" target="_blank" style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
+    </div>
 
     <style>
         /* Tabs CSS */
@@ -748,6 +770,8 @@ function nucleus_save_product_meta($post_id)
         return;
 
     // Basic meta
+    if (isset($_POST['_nucleus_selected_hf_set']))
+        update_post_meta($post_id, '_nucleus_selected_hf_set', sanitize_text_field($_POST['_nucleus_selected_hf_set']));
     if (isset($_POST['nucleus_product_subtitle']))
         update_post_meta($post_id, '_nucleus_product_subtitle', sanitize_text_field($_POST['nucleus_product_subtitle']));
     if (isset($_POST['nucleus_product_hero_summary']))
@@ -941,14 +965,21 @@ function nucleus_auto_setup_oxygen_template($post_id)
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
         return;
 
-    // Auto-assign Header Footer template (only if not already set)
-    if (!get_post_meta($post_id, 'ct_other_template', true)) {
-        update_post_meta($post_id, 'ct_other_template', '36');
-    }
-
     // Auto-set Oxygen content with our shortcode (only if not edited in Oxygen yet)
     if (!get_post_meta($post_id, 'ct_builder_shortcodes', true)) {
         update_post_meta($post_id, 'ct_builder_shortcodes', '[nucleus_single_product]');
+    }
+
+    // Force Oxygen template assignment dynamically based on HF override
+    $hf_set_id = get_post_meta($post_id, '_nucleus_selected_hf_set', true);
+    if (!empty($hf_set_id)) {
+        // If Custom HF is selected, strip Oxygen's explicit global template binding
+        update_post_meta($post_id, 'ct_other_template', '0');
+    } else {
+        // Auto-assign Header Footer template (only if not already set)
+        if (!get_post_meta($post_id, 'ct_other_template', true)) {
+            update_post_meta($post_id, 'ct_other_template', '36');
+        }
     }
 }
 add_action('save_post', 'nucleus_auto_setup_oxygen_template', 20);
@@ -984,3 +1015,28 @@ function nucleus_products_landing_shortcode($atts)
     return ob_get_clean();
 }
 add_shortcode('nucleus_products_landing', 'nucleus_products_landing_shortcode');
+
+/**
+ * =====================================
+ * Custom Product Template Router
+ * =====================================
+ * If a custom Header & Footer set is assigned to this product, route it through
+ * the standalone template instead of relying purely on Oxygen.
+ */
+add_filter('template_include', function ($template) {
+    if (is_singular('nucleus_product')) {
+        $hf_set_id = get_post_meta(get_the_ID(), '_nucleus_selected_hf_set', true);
+        error_log('DEBUG: hf_set_id for product ' . get_the_ID() . ' is ' . $hf_set_id);
+        if (!empty($hf_set_id)) {
+            $custom_template = plugin_dir_path(dirname(__FILE__)) . 'templates/single-nucleus_product.php';
+            error_log('DEBUG: custom_template is ' . $custom_template);
+            if (file_exists($custom_template)) {
+                error_log('DEBUG: file exists! returning template.');
+                return $custom_template;
+            } else {
+                error_log('DEBUG: file DOES NOT exist!');
+            }
+        }
+    }
+    return $template;
+}, 99999);

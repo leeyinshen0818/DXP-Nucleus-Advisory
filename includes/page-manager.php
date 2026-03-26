@@ -3118,7 +3118,7 @@ function nucleus_render_hf_set($post_id, $type = 'header')
  */
 function nucleus_disable_oxygen_hf_for_custom_sets()
 {
-  if (is_singular('nucleus_page')) {
+  if (is_singular('nucleus_page') || is_singular('nucleus_product')) {
     $post_id = get_the_ID();
     $hf_set_id = get_post_meta($post_id, '_nucleus_selected_hf_set', true);
 
@@ -3127,6 +3127,14 @@ function nucleus_disable_oxygen_hf_for_custom_sets()
       // Oxygen filter to disable the catch-all template
       add_filter('ct_use_inner_content', '__return_false');
       add_filter('oxygen_default_template_id', '__return_zero');
+
+      // Override Oxygen's explicit template assignment
+      add_filter('get_post_metadata', function($value, $object_id, $meta_key, $single) use ($post_id) {
+          if ($meta_key === 'ct_other_template' && $object_id == $post_id) {
+              return '0';
+          }
+          return $value;
+      }, 10, 4);
 
       // Force Oxygen rendering to bail out to standard WP templating
       remove_action('template_redirect', 'ct_template_redirect', 1);

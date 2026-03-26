@@ -31,6 +31,40 @@
     font-family: var(--nl-font);
     color: var(--nl-slate-dark);
     -webkit-font-smoothing: antialiased;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* ========== BREAK OUT OF PAGE MANAGER CONSTRAINTS ========== */
+/* When the shortcode is used inside Page Manager, we must override
+   the parent section padding, container max-width, and component margin
+   so the landing page can go full-width edge-to-edge. */
+
+/* Strip padding from the section that wraps the shortcode */
+.nucleus-section:has(.nl-landing-wrapper) {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Strip max-width from the container that wraps the shortcode */
+.nucleus-container:has(.nl-landing-wrapper) {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Strip margin from the shortcode component wrapper */
+.nucleus-component:has(.nl-landing-wrapper),
+.nucleus-shortcode:has(.nl-landing-wrapper) {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+/* Also strip the page container constraint */
+.nucleus-page-container:has(.nl-landing-wrapper) {
+    padding: 0 !important;
+    max-width: 100% !important;
 }
 
 /* ========== GRADIENT TEXT HELPER ========== */

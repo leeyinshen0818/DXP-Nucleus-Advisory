@@ -38,17 +38,26 @@ if ($hf_set_id) {
 // ----------------------------------------------------
 ?>
 <style>
-/* -- Page Structure & Safeties (Matched from Product Template) -- */
-body {
+/* -- Global Overflow Fix -- */
+html {
+    overflow-x: hidden;
+}
+html, body {
     margin: 0 !important;
     padding: 0 !important;
-    /* Revert display flex to avoid breaking child row floats or flex assumptions */
-    display: block !important; 
+    display: block !important;
+    max-width: 100% !important;
 }
 
-/* Keep Header safely at the top without overlapping content */
+.n-act-wrapper,
+.nucleus-hf-root,
+.nucleus-hf-section {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .nucleus-header-root {
-    position: relative !important; 
+    position: relative !important;
     z-index: 9999;
     width: 100%;
     display: block;
@@ -66,13 +75,19 @@ body {
 /* Keep Header Flexbox nicely spaced out */
 .nucleus-header-root .nucleus-container {
     justify-content: space-between !important;
-    gap: 40px !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
 }
 
 /* Push navigation to the right and prevent overlap */
 .nucleus-header-root .nucleus-hf-comp:first-child {
     flex-shrink: 0;
     margin-right: auto;
+}
+
+.nucleus-header-root .nucleus-hf-comp {
+    font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+    white-space: nowrap;
 }
 
 /* Keep footer logos contained safely */
@@ -93,11 +108,57 @@ body {
     display: block;
 }
 
+/* ===== MOBILE RESPONSIVE HEADER/FOOTER ===== */
+@media (max-width: 768px) {
+    .nucleus-header-root .nucleus-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 12px 16px !important;
+        gap: 6px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+    .nucleus-header-root .nucleus-hf-comp:first-child {
+        width: 100%;
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 6px;
+        flex-shrink: 0;
+    }
+    .nucleus-header-root .nucleus-hf-comp {
+        font-size: 0.68rem !important;
+        padding: 4px 8px;
+        white-space: nowrap;
+    }
+    .nucleus-header-root img {
+        max-width: 90px !important;
+        max-height: 32px !important;
+    }
+    .nucleus-footer-root .nucleus-container {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 12px !important;
+        padding: 20px 16px !important;
+    }
+    .nucleus-footer-root .nucleus-hf-comp {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .nucleus-header-root .nucleus-hf-comp {
+        font-size: 0.6rem !important;
+        padding: 3px 5px;
+        letter-spacing: -0.01em;
+    }
+}
+
 /* Reset */
 .n-act-wrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #ffffff; /* pure white modern feel */
-    color: #111827;
+    background-color: #ffffff;
+    color: #0f172a;
     min-height: 80vh;
     padding-bottom: 120px;
     -webkit-font-smoothing: antialiased;
@@ -107,16 +168,25 @@ body {
 .n-act-hero {
     position: relative;
     max-width: 1200px;
-    margin: 100px auto 60px;
-    padding: 0 32px;
-    text-align: left; /* Shift away from center to authoritative left-align */
+    margin: 0 auto 60px;
+    padding: 80px 32px 60px;
+    text-align: left;
+    background: linear-gradient(160deg, #0a1628 0%, #1a2d4a 50%, #0f2044 100%);
+    max-width: 100%;
+    color: #ffffff;
+}
+
+.n-act-hero .nucleus-container-inner {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .n-act-badge {
     display: inline-block;
-    padding: 6px 14px;
-    background: #f3f4f6; /* Subtle pill */
-    color: #4b5563;
+    padding: 6px 16px;
+    background: rgba(37,99,235,0.15);
+    border: 1px solid rgba(37,99,235,0.3);
+    color: #60a5fa;
     border-radius: 99px;
     font-size: 0.75rem;
     font-weight: 700;
@@ -126,26 +196,26 @@ body {
 }
 
 .n-act-title {
-    font-size: 3.8rem;
+    font-size: 3.2rem;
     font-weight: 800;
     margin: 0 0 24px;
     max-width: 900px;
-    color: #030712;
+    color: #ffffff;
     letter-spacing: -0.04em;
     line-height: 1.1;
 }
 
 /* Minimalist corporate accent highlight */
 .n-act-title span {
-    color: #2563eb; 
+    color: #60a5fa; 
 }
 
 .n-act-desc {
     max-width: 800px;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     line-height: 1.7;
-    color: #4b5563;
-    border-left: 3px solid #e5e7eb;
+    color: rgba(255,255,255,0.65);
+    border-left: 3px solid rgba(255,255,255,0.2);
     padding-left: 24px;
 }
 
@@ -166,7 +236,7 @@ body {
 .n-act-gallery-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: #0f172a;
     margin: 0;
 }
 

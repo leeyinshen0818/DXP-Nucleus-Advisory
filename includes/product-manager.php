@@ -1018,6 +1018,140 @@ add_shortcode('nucleus_products_landing', 'nucleus_products_landing_shortcode');
 
 /**
  * =====================================
+ * Shortcode: [nucleus_products_carousel]
+ * =====================================
+ * Renders ONLY the product carousel (no hero, no how-it-works, no CTA).
+ * Designed for use inside Page Manager sections.
+ */
+function nucleus_products_carousel_shortcode($atts)
+{
+    // Enqueue CSS
+    wp_enqueue_style('nucleus-products-landing', NUCLEUS_DXP_URL . 'assets/css/products-landing.css', array(), '3.4');
+
+    // Get all products
+    $products = get_posts(array(
+        'post_type'      => 'nucleus_product',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'orderby'        => 'date',
+        'order'          => 'ASC',
+    ));
+
+    if (empty($products)) return '<p style="text-align:center; padding: 40px;">No products found.</p>';
+
+    ob_start();
+    ?>
+    <div class="nl-spotlight-section" style="padding: 0;">
+        <div class="nl-spotlight-inner">
+            <div class="nl-carousel" id="nl-carousel">
+                <?php foreach ($products as $index => $product):
+                    $p_title    = get_the_title($product->ID);
+                    $p_subtitle = get_post_meta($product->ID, '_nucleus_product_subtitle', true);
+                    $p_price    = get_post_meta($product->ID, '_nucleus_product_price', true);
+                    $p_summary  = get_post_meta($product->ID, '_nucleus_product_hero_summary', true);
+                    $p_thumb    = get_the_post_thumbnail_url($product->ID, 'large');
+                    $p_link     = get_permalink($product->ID);
+                ?>
+                <div class="nl-slide <?php echo $index === 0 ? 'nl-slide-active' : ''; ?>" data-index="<?php echo $index; ?>">
+                    <div class="nl-slide-image-col">
+                        <?php if ($p_thumb): ?>
+                            <img src="<?php echo esc_url($p_thumb); ?>" alt="<?php echo esc_attr($p_title); ?>" class="nl-slide-image">
+                        <?php else: ?>
+                            <div class="nl-slide-image-placeholder">📦</div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="nl-slide-info-col">
+                        <span class="nl-slide-counter"><?php echo str_pad($index + 1, 2, '0', STR_PAD_LEFT); ?> / <?php echo str_pad(count($products), 2, '0', STR_PAD_LEFT); ?></span>
+                        <h2 class="nl-slide-title"><?php echo esc_html($p_title); ?></h2>
+                        <?php if ($p_subtitle): ?>
+                            <p class="nl-slide-subtitle"><?php echo esc_html($p_subtitle); ?></p>
+                        <?php endif; ?>
+                        <?php if ($p_summary): ?>
+                            <p class="nl-slide-desc"><?php echo esc_html($p_summary); ?></p>
+                        <?php endif; ?>
+                        <div class="nl-slide-footer">
+                            <?php if ($p_price): ?>
+                                <span class="nl-slide-price"><?php echo esc_html($p_price); ?></span>
+                            <?php endif; ?>
+                            <a href="<?php echo esc_url($p_link); ?>" class="nl-slide-btn">View Assessment →</a>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="nl-carousel-controls">
+                <div class="nl-dots" id="nl-dots">
+                    <?php foreach ($products as $index => $product): ?>
+                        <button class="nl-dot <?php echo $index === 0 ? 'nl-dot-active' : ''; ?>"
+                            data-index="<?php echo $index; ?>" aria-label="Go to slide <?php echo $index + 1; ?>"></button>
+                    <?php endforeach; ?>
+                </div>
+                <div class="nl-arrows">
+                    <button class="nl-arrow nl-arrow-prev" id="nl-prev" aria-label="Previous">←</button>
+                    <button class="nl-arrow nl-arrow-next" id="nl-next" aria-label="Next">→</button>
+                </div>
+            </div>
+
+            <div class="nl-progress-track">
+                <div class="nl-progress-bar" id="nl-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        var currentSlide = 0;
+        var slides = document.querySelectorAll('.nl-slide');
+        var dots = document.querySelectorAll('.nl-dot');
+        var progress = document.getElementById('nl-progress');
+        var totalSlides = slides.length;
+        var interval = 6000;
+        var timer;
+        if (totalSlides === 0) return;
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('nl-slide-active');
+            dots[currentSlide].classList.remove('nl-dot-active');
+            currentSlide = (index + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('nl-slide-active');
+            dots[currentSlide].classList.add('nl-dot-active');
+            if (progress) {
+                progress.style.transition = 'none';
+                progress.style.width = '0%';
+                setTimeout(function () {
+                    progress.style.transition = 'width ' + interval + 'ms linear';
+                    progress.style.width = '100%';
+                }, 50);
+            }
+        }
+        function nextSlide() { goToSlide(currentSlide + 1); }
+        function prevSlide() { goToSlide(currentSlide - 1); }
+        function startAutoPlay() {
+            stopAutoPlay();
+            if (progress) { progress.style.transition = 'width ' + interval + 'ms linear'; progress.style.width = '100%'; }
+            timer = setInterval(nextSlide, interval);
+        }
+        function stopAutoPlay() {
+            clearInterval(timer);
+            if (progress) { progress.style.transition = 'none'; progress.style.width = '0%'; }
+        }
+        dots.forEach(function (dot) {
+            dot.addEventListener('click', function () { goToSlide(parseInt(this.getAttribute('data-index'))); startAutoPlay(); });
+        });
+        var prevBtn = document.getElementById('nl-prev');
+        var nextBtn = document.getElementById('nl-next');
+        if (prevBtn) prevBtn.addEventListener('click', function () { prevSlide(); startAutoPlay(); });
+        if (nextBtn) nextBtn.addEventListener('click', function () { nextSlide(); startAutoPlay(); });
+        startAutoPlay();
+    })();
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('nucleus_products_carousel', 'nucleus_products_carousel_shortcode');
+
+/**
+ * =====================================
  * Custom Product Template Router
  * =====================================
  * If a custom Header & Footer set is assigned to this product, route it through

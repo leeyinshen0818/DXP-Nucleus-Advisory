@@ -27,23 +27,31 @@ if ($hf_set_id) {
 // -- 1. Render Custom CSS --
 // Set strong default styles to ensure visibility against any theme overrides
 echo "<style type='text/css'>
-    /* -- Page Structure & Safeties -- */
-    body {
+    /* -- Global Overflow Fix -- */
+    html {
+        overflow-x: hidden;
+    }
+    html, body {
         margin: 0 !important;
         padding: 0 !important;
-        /* Revert display flex to avoid breaking child row floats or flex assumptions */
-        display: block !important; 
+        display: block !important;
+        max-width: 100% !important;
     }
 
-    /* Keep Header safely at the top without overlapping content */
+    .nucleus-page-container,
+    .nucleus-hf-root,
+    .nucleus-hf-section {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
     .nucleus-header-root {
-        position: relative !important; 
+        position: relative !important;
         z-index: 9999;
         width: 100%;
         display: block;
     }
 
-    /* Force sensible max sizes for custom logos in Header */
     .nucleus-header-root img {
         max-width: 130px !important;
         max-height: 45px !important;
@@ -52,19 +60,22 @@ echo "<style type='text/css'>
         object-fit: contain;
     }
 
-    /* Keep Header Flexbox nicely spaced out */
     .nucleus-header-root .nucleus-container {
         justify-content: space-between !important;
-        gap: 40px !important;
+        gap: 20px !important;
+        flex-wrap: wrap !important;
     }
     
-    /* Push navigation to the right and prevent overlap */
     .nucleus-header-root .nucleus-hf-comp:first-child {
         flex-shrink: 0;
         margin-right: auto;
     }
 
-    /* Keep footer logos contained safely */
+    .nucleus-header-root .nucleus-hf-comp {
+        font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+        white-space: nowrap;
+    }
+
     .nucleus-footer-root img {
         max-width: 200px !important;
         max-height: 80px !important;
@@ -73,7 +84,6 @@ echo "<style type='text/css'>
         object-fit: contain;
     }
 
-    /* Force visibility defaults and push footer to the bottom */
     .nucleus-page-container {
         width: 100%;
         background: transparent;
@@ -81,17 +91,61 @@ echo "<style type='text/css'>
         position: relative;
         z-index: 1;
         box-sizing: border-box;
-        min-height: 60vh; /* Ensure there is space for content between header and footer */
+        min-height: 60vh;
         display: block;
     }
 
-    /* Prevent footer from collapsing over page content */
     .nucleus-footer-root {
         position: relative !important; 
         z-index: 999;
         width: 100%;
         clear: both;
         display: block;
+    }
+
+    @media (max-width: 768px) {
+        .nucleus-header-root .nucleus-container {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 12px 16px !important;
+            gap: 6px !important;
+            justify-content: center !important;
+            flex-wrap: wrap !important;
+        }
+        .nucleus-header-root .nucleus-hf-comp:first-child {
+            width: 100%;
+            text-align: center;
+            margin-right: 0;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+        .nucleus-header-root .nucleus-hf-comp {
+            font-size: 0.68rem !important;
+            padding: 4px 8px;
+            white-space: nowrap;
+        }
+        .nucleus-header-root img {
+            max-width: 90px !important;
+            max-height: 32px !important;
+        }
+        .nucleus-footer-root .nucleus-container {
+            flex-direction: column !important;
+            text-align: center;
+            gap: 12px !important;
+            padding: 20px 16px !important;
+        }
+        .nucleus-footer-root .nucleus-hf-comp {
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .nucleus-header-root .nucleus-hf-comp {
+            font-size: 0.6rem !important;
+            padding: 3px 5px;
+            letter-spacing: -0.01em;
+        }
     }
 </style>";
 

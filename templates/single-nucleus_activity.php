@@ -167,13 +167,18 @@ html, body {
 /* ========= HERO SECTION ========= */
 .n-act-hero {
     position: relative;
-    max-width: 1200px;
-    margin: 0 auto 60px;
+    width: 100%;
     padding: 80px 32px 60px;
     text-align: left;
-    background: linear-gradient(160deg, #0a1628 0%, #1a2d4a 50%, #0f2044 100%);
-    max-width: 100%;
-    color: #ffffff;
+    background: #ffffff;
+    color: #0f172a;
+    box-sizing: border-box;
+}
+
+/* Center the hero content within 1200px */
+.n-act-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .n-act-hero .nucleus-container-inner {
@@ -184,9 +189,9 @@ html, body {
 .n-act-badge {
     display: inline-block;
     padding: 6px 16px;
-    background: rgba(37,99,235,0.15);
-    border: 1px solid rgba(37,99,235,0.3);
-    color: #60a5fa;
+    background: rgba(37,99,235,0.1);
+    border: 1px solid rgba(37,99,235,0.2);
+    color: #2563eb;
     border-radius: 99px;
     font-size: 0.75rem;
     font-weight: 700;
@@ -200,22 +205,22 @@ html, body {
     font-weight: 800;
     margin: 0 0 24px;
     max-width: 900px;
-    color: #ffffff;
+    color: #0f172a;
     letter-spacing: -0.04em;
     line-height: 1.1;
 }
 
 /* Minimalist corporate accent highlight */
 .n-act-title span {
-    color: #60a5fa; 
+    color: #2563eb; 
 }
 
 .n-act-desc {
     max-width: 800px;
     font-size: 1.15rem;
     line-height: 1.7;
-    color: rgba(255,255,255,0.65);
-    border-left: 3px solid rgba(255,255,255,0.2);
+    color: #64748b;
+    border-left: 3px solid #e2e8f0;
     padding-left: 24px;
 }
 
@@ -333,25 +338,27 @@ html, body {
 
 <div class="n-act-wrapper">
     <div class="n-act-hero">
-        <div class="n-act-badge">Activity Report</div>
-        <!-- Smart split text feature if you type something like "Awesome Activity" -->
-        <h1 class="n-act-title">
-            <?php 
-            $title = get_the_title();
-            $words = explode(' ', $title);
-            if(count($words) > 1) {
-                $last_word = array_pop($words);
-                echo esc_html(implode(' ', $words)) . ' <span>' . esc_html($last_word) . '</span>';
-            } else {
-                echo esc_html($title);
-            }
-            ?>
-        </h1>
-        <?php if (!empty($activity_desc)): ?>
-            <div class="n-act-desc">
-                <?php echo wp_kses_post($activity_desc); ?>
-            </div>
-        <?php endif; ?>
+        <div class="n-act-hero-inner">
+            <div class="n-act-badge">Activity Report</div>
+            <!-- Smart split text feature if you type something like "Awesome Activity" -->
+            <h1 class="n-act-title">
+                <?php 
+                $title = get_the_title();
+                $words = explode(' ', $title);
+                if(count($words) > 1) {
+                    $last_word = array_pop($words);
+                    echo esc_html(implode(' ', $words)) . ' <span>' . esc_html($last_word) . '</span>';
+                } else {
+                    echo esc_html($title);
+                }
+                ?>
+            </h1>
+            <?php if (!empty($activity_desc)): ?>
+                <div class="n-act-desc">
+                    <?php echo wp_kses_post($activity_desc); ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 
     <?php

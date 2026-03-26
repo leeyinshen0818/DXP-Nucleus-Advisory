@@ -2691,12 +2691,12 @@ function nucleus_page_content_shortcode($atts)
               }
             } elseif ($type === 'url') {
               if (!empty($val)) {
-                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-link" href="' . esc_url($val) . '">' . esc_html($val) . '</a>';
+                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-link" href="' . esc_url($val) . '">' . wp_kses_post($val) . '</a>';
               }
             } elseif ($type === 'link_text') {
               $link_url = isset($comp['meta']) ? $comp['meta'] : '#';
               if (!empty($val)) {
-                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-btn-primary" href="' . esc_url($link_url) . '">' . esc_html($val) . '</a>';
+                echo '<a id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-btn-primary" href="' . esc_url($link_url) . '">' . wp_kses_post($val) . '</a>';
               }
             } elseif ($type === 'textarea') {
               echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . wpautop(esc_html($val)) . '</div>';
@@ -2839,14 +2839,14 @@ function nucleus_page_content_shortcode($atts)
             } elseif ($type === 'stats') {
               $label = !empty($comp['meta']) ? $comp['meta'] : '';
               echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-stats">';
-              echo '<div class="nucleus-stats-number">' . esc_html($val) . '</div>';
+              echo '<div class="nucleus-stats-number">' . wp_kses_post($val) . '</div>';
               if (!empty($label)) {
-                echo '<div class="nucleus-stats-label">' . esc_html($label) . '</div>';
+                echo '<div class="nucleus-stats-label">' . wp_kses_post($label) . '</div>';
               }
               echo '</div>';
             } elseif ($type === 'heading') {
               $level = !empty($comp['meta']) ? $comp['meta'] : 'h2';
-              echo '<' . esc_attr($level) . ' id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-heading">' . esc_html($val) . '</' . esc_attr($level) . '>';
+              echo '<' . esc_attr($level) . ' id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-heading">' . wp_kses_post($val) . '</' . esc_attr($level) . '>';
             } elseif ($type === 'wysiwyg') {
               echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text nucleus-wysiwyg">' . wp_kses_post($val) . '</div>';
             } elseif ($type === 'html') {
@@ -2855,9 +2855,9 @@ function nucleus_page_content_shortcode($atts)
               if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
                 echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . wp_kses_post($val) . '</h2>';
               } elseif (strpos($comp_id, 'subtitle') !== false) {
-                echo '<h4 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-subtitle">' . esc_html($val) . '</h4>';
+                echo '<h4 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-subtitle">' . wp_kses_post($val) . '</h4>';
               } else {
-                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . esc_html($val) . '</div>';
+                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text">' . wp_kses_post($val) . '</div>';
               }
             }
           }
@@ -3092,13 +3092,13 @@ function nucleus_render_hf_set($post_id, $type = 'header')
           if ($c_type === 'image' && !empty($val)) {
             echo '<img id="' . esc_attr($full_id) . '" class="nucleus-hf-comp" src="' . esc_url($val) . '" alt="" style="max-width: 200px; height: auto;" />';
           } elseif ($c_type === 'url' && !empty($val)) {
-            echo '<a id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-link" href="' . esc_url($val) . '">' . esc_html($val) . '</a>';
+            echo '<a id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-link" href="' . esc_url($val) . '">' . wp_kses_post($val) . '</a>';
           } elseif ($c_type === 'html') {
             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-html">' . $val . '</div>';
           } elseif ($c_type === 'shortcode') {
             echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-shortcode">' . do_shortcode($val) . '</div>';
           } else {
-            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-text">' . esc_html($val) . '</div>';
+            echo '<div id="' . esc_attr($full_id) . '" class="nucleus-hf-comp nucleus-text">' . wp_kses_post($val) . '</div>';
           }
         }
       }

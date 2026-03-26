@@ -17,8 +17,8 @@
         </div>
         <div class="nl-hero-inner">
             <span class="nl-hero-badge">Nucleus Advisory</span>
-            <h1 class="nl-hero-title"><?php echo esc_html($atts['title']); ?></h1>
-            <p class="nl-hero-subtitle"><?php echo esc_html($atts['subtitle']); ?></p>
+            <h1 class="nl-hero-title"><?php echo wp_kses_post($atts['title']); ?></h1>
+            <p class="nl-hero-subtitle"><?php echo wp_kses_post($atts['subtitle']); ?></p>
             <div class="nl-hero-divider"></div>
         </div>
     </div>

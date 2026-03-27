@@ -25,8 +25,11 @@ if ($hf_set_id) {
     get_header();
 }
 
-$page_data = get_post_meta($post_id, '_nucleus_page_components', true);
-$page_css = get_post_meta($post_id, '_nucleus_page_css', true);
+$page_meta = get_post_meta($post_id, '_nucleus_page_components', true);
+$page_data = is_string($page_meta) ? json_decode(base64_decode($page_meta), true) : $page_meta;
+
+$css_meta = get_post_meta($post_id, '_nucleus_page_css', true);
+$page_css = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
 
 // -- 1. Render Custom CSS --
 // Set strong default styles to ensure visibility against any theme overrides

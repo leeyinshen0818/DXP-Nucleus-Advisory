@@ -666,14 +666,16 @@ function nucleus_page_dynamic_builder_html($post)
   wp_enqueue_media();
   wp_enqueue_editor();
 
-  // Retrieve Component Data
-  $page_data = get_post_meta($post->ID, '_nucleus_page_components', true);
+  // Retrieve Component Data (backward compatible with non-base64 array values)
+  $page_meta = get_post_meta($post->ID, '_nucleus_page_components', true);
+  $page_data = is_string($page_meta) ? json_decode(base64_decode($page_meta), true) : $page_meta;
   if (!is_array($page_data)) {
     $page_data = array();
   }
 
-  // Retrieve CSS Data
-  $page_css_data = get_post_meta($post->ID, '_nucleus_page_css', true);
+  // Retrieve CSS Data (backward compatible with non-base64 array values)
+  $css_meta = get_post_meta($post->ID, '_nucleus_page_css', true);
+  $page_css_data = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
   if (!is_array($page_css_data)) {
     $page_css_data = array();
   }
@@ -2400,23 +2402,23 @@ function nucleus_save_page_builder_data($post_id)
     }
   }
 
-  // Save Page Data
+  // Save Page Data - using base64 to prevent WordPress/MySQL Emoji truncation bugs
   if (isset($_POST['_nucleus_page_data_json'])) {
-    $json_string = stripslashes($_POST['_nucleus_page_data_json']);
+    $json_string = wp_unslash($_POST['_nucleus_page_data_json']);
     $decoded_data = json_decode($json_string, true);
     if (is_array($decoded_data)) {
-      update_post_meta($post_id, '_nucleus_page_components', $decoded_data);
+      update_post_meta($post_id, '_nucleus_page_components', base64_encode($json_string));
     } else {
       delete_post_meta($post_id, '_nucleus_page_components');
     }
   }
 
-  // Save Page CSS
+  // Save Page CSS - using base64 to prevent WordPress/MySQL Emoji truncation bugs
   if (isset($_POST['_nucleus_page_css_json'])) {
-    $json_string = stripslashes($_POST['_nucleus_page_css_json']);
+    $json_string = wp_unslash($_POST['_nucleus_page_css_json']);
     $decoded_data = json_decode($json_string, true);
     if (is_array($decoded_data)) {
-      update_post_meta($post_id, '_nucleus_page_css', $decoded_data);
+      update_post_meta($post_id, '_nucleus_page_css', base64_encode($json_string));
     } else {
       delete_post_meta($post_id, '_nucleus_page_css');
     }
@@ -2461,8 +2463,12 @@ function nucleus_page_content_shortcode($atts)
 
   if (!$post_id) return '';
 
-  $page_data = get_post_meta($post_id, '_nucleus_page_components', true);
-  $page_css  = get_post_meta($post_id, '_nucleus_page_css', true);
+  // Backward compatible: support both base64-encoded strings and raw arrays
+  $page_meta = get_post_meta($post_id, '_nucleus_page_components', true);
+  $page_data = is_string($page_meta) ? json_decode(base64_decode($page_meta), true) : $page_meta;
+
+  $css_meta = get_post_meta($post_id, '_nucleus_page_css', true);
+  $page_css = is_string($css_meta) ? json_decode(base64_decode($css_meta), true) : $css_meta;
 
   ob_start();
 
@@ -2629,6 +2635,10 @@ function nucleus_page_content_shortcode($atts)
   }
 
   echo '<div id="nucleus-page-container" class="nucleus-page-container">';
+
+  // Debug: show section count and timestamp in HTML comment (View Source only)
+  $section_count = is_array($page_data) ? count($page_data) : 0;
+  echo '<!-- Nucleus Debug: ' . $section_count . ' sections | ' . date('H:i:s') . ' -->';
 
   if (!empty($page_data) && is_array($page_data)) {
     echo '<div class="nucleus-sections-root">';

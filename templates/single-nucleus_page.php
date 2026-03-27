@@ -85,15 +85,10 @@ echo "<style type='text/css'>
         margin: 0 !important;
     }
 
-    /* Each section must be full viewport width */
+    /* Each section: full width of parent (parent is already forced to 100%) */
     .nucleus-section {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        position: relative;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw !important;
-        margin-right: -50vw !important;
+        width: 100% !important;
+        max-width: 100% !important;
         box-sizing: border-box;
     }
 

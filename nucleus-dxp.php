@@ -85,7 +85,7 @@ function nucleus_dxp_enqueue_assets()
 
     // Enqueue styles for Nucleus Page Template
     if (is_page_template('templates/single-nucleus_page.php') || is_page_template('single-nucleus_page.php')) {
-        wp_enqueue_style('nucleus-page-style', NUCLEUS_DXP_URL . 'assets/css/nucleus-page.css', array(), '1.0');
+        wp_enqueue_style('nucleus-page-style', NUCLEUS_DXP_URL . 'assets/css/nucleus-page.css', array(), '1.1');
     }
 
     if ($is_testing_lab || $is_product_page || $is_products_page) {

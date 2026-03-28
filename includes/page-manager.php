@@ -1568,6 +1568,7 @@ function nucleus_page_dynamic_builder_html($post)
                                                 <option value="testimonial" ${comp.type === 'testimonial' ? 'selected' : ''}>Testimonial / Quote</option>
                                                 <option value="stats" ${comp.type === 'stats' ? 'selected' : ''}>Stats / KPI Block</option>
                                                 <option value="checklist" ${comp.type === 'checklist' ? 'selected' : ''}>Checklist / Feature List</option>
+                                                <option value="card" ${comp.type === 'card' ? 'selected' : ''}>Card (Image + Title + Desc + Text)</option>
                                             </optgroup>
                                             <optgroup label="Advanced">
                                                 <option value="wysiwyg" ${comp.type === 'wysiwyg' ? 'selected' : ''}>Rich Text Editor (WYSIWYG)</option>
@@ -1641,6 +1642,19 @@ function nucleus_page_dynamic_builder_html($post)
                                             <button type="button" class="ncl-btn ncl-btn-secondary btn-add-accordion" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Accordion Item</button>
                                         </div>
                                     ` : ''}
+                                    ${comp.type === 'card' ? `
+                                    <div class="ncl-card-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                    <div style="display:flex; flex-direction:column; gap:12px;">
+                                    <div style="display:flex; gap:10px; align-items:center;">
+                                    <input type="text" class="input-card-image" placeholder="Image URL" value="${escapeHtml(comp.value?.image || '')}" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                    <button type="button" class="ncl-btn ncl-btn-secondary btn-upload-card-image" data-sindex="${sIndex}" data-cindex="${cIndex}">Upload</button>
+                                    </div>
+                                    <input type="text" class="input-card-title" placeholder="Card Title" value="${escapeHtml(comp.value?.title || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                    <input type="text" class="input-card-desc" placeholder="Short Description" value="${escapeHtml(comp.value?.desc || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                    <textarea class="input-card-content" placeholder="Text Content" rows="4" style="display:block; width:100%; padding:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(comp.value?.content || '')}</textarea>
+                                    </div>
+                                    </div>
+                                    ` : ''}
                                     ${comp.type === 'testimonial' ? `
                                         <div class="ncl-testimonial-editor" data-sindex="${sIndex}" data-cindex="${cIndex}" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
                                             <textarea class="input-testimonial-quote" placeholder="Testimonial Quote" rows="3" style="display:block; width:100%; padding:8px; margin-bottom:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(comp.value?.quote || '')}</textarea>
@@ -1655,7 +1669,7 @@ function nucleus_page_dynamic_builder_html($post)
                                     ` : ''}
                                     <div class="ncl-form-row" style="align-items: flex-start;">
                                         <label style="padding-top:6px;">Content</label>
-                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial' || comp.type === 'checklist') ? '' :
+                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial' || comp.type === 'checklist' || comp.type === 'card') ? '' :
                                         comp.type === 'wysiwyg'
                                             ? `<div style="width: 100%; max-width: 800px; background: #fff;"><textarea id="wysiwyg_${sIndex}_${cIndex}" class="input-comp-wysiwyg" data-sindex="${sIndex}" data-cindex="${cIndex}" style="width:100%; height: 250px;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea></div>` :
                                         (comp.type === 'html' || comp.type === 'code')
@@ -2004,6 +2018,11 @@ function nucleus_page_dynamic_builder_html($post)
           }];
         }
 
+        // Initialize card array
+        if (newType === 'card' && typeof pageData[sIndex].components[cIndex].value !== 'object') {
+          pageData[sIndex].components[cIndex].value = { image: '', title: '', desc: '', content: '' };
+        }
+
         // Initialize checklist array
         if (newType === 'checklist' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
           pageData[sIndex].components[cIndex].value = [];
@@ -2266,6 +2285,38 @@ function nucleus_page_dynamic_builder_html($post)
           renderBuilder();
         });
         compUploader.open();
+      });
+
+      // Card: update fields on change
+      $root.on('input change', '.input-card-image, .input-card-title, .input-card-desc, .input-card-content', function() {
+        const $editor = $(this).closest('.ncl-card-editor');
+        const sIndex = $editor.closest('.ncl-comp-item').find('[data-sindex]').first().data('sindex') ||
+          $(this).closest('[data-sindex]').data('sindex');
+        const cIndex = $editor.closest('.ncl-comp-item').find('[data-cindex]').first().data('cindex') ||
+          $(this).closest('[data-cindex]').data('cindex');
+        pageData[sIndex].components[cIndex].value = {
+          image: $editor.find('.input-card-image').val(),
+          title: $editor.find('.input-card-title').val(),
+          desc: $editor.find('.input-card-desc').val(),
+          content: $editor.find('.input-card-content').val()
+        };
+        syncHiddenInput();
+      });
+
+      // Card: image upload button
+      $root.on('click', '.btn-upload-card-image', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const $btn = $(this);
+        const frame = wp.media({
+          title: 'Select Card Image',
+          multiple: false
+        });
+        frame.on('select', function() {
+          const attachment = frame.state().get('selection').first().toJSON();
+          $btn.siblings('.input-card-image').val(attachment.url).trigger('input');
+        });
+        frame.open();
       });
 
       // Sanitize Section ID on change
@@ -2846,6 +2897,36 @@ function nucleus_page_content_shortcode($atts)
                 }
                 echo '</ul>';
               }
+            } elseif ($type === 'card') {
+              if (is_array($val)) {
+                $card_image   = isset($val['image'])   ? $val['image']   : '';
+                $card_title   = isset($val['title'])   ? $val['title']   : '';
+                $card_desc    = isset($val['desc'])    ? $val['desc']    : '';
+                $card_content = isset($val['content']) ? $val['content'] : '';
+
+                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-card">';
+
+                if (!empty($card_image)) {
+                  echo '<div class="nucleus-card-image-wrap">';
+                  echo '<img src="' . esc_url($card_image) . '" alt="' . esc_attr($card_title) . '" class="nucleus-card-image" loading="lazy" />';
+                  echo '</div>';
+                }
+
+                echo '<div class="nucleus-card-body">';
+
+                if (!empty($card_title)) {
+                  echo '<h3 class="nucleus-card-title">' . esc_html($card_title) . '</h3>';
+                }
+                if (!empty($card_desc)) {
+                  echo '<div class="nucleus-card-desc">' . esc_html($card_desc) . '</div>';
+                }
+                if (!empty($card_content)) {
+                  echo '<div class="nucleus-card-content">' . wpautop(esc_html($card_content)) . '</div>';
+                }
+
+                echo '</div>'; // .nucleus-card-body
+                echo '</div>'; // .nucleus-card
+              }
             } elseif ($type === 'stats') {
               $label = !empty($comp['meta']) ? $comp['meta'] : '';
               echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-stats">';
@@ -3139,11 +3220,11 @@ function nucleus_disable_oxygen_hf_for_custom_sets()
       add_filter('oxygen_default_template_id', '__return_zero');
 
       // Override Oxygen's explicit template assignment
-      add_filter('get_post_metadata', function($value, $object_id, $meta_key, $single) use ($post_id) {
-          if ($meta_key === 'ct_other_template' && $object_id == $post_id) {
-              return '0';
-          }
-          return $value;
+      add_filter('get_post_metadata', function ($value, $object_id, $meta_key, $single) use ($post_id) {
+        if ($meta_key === 'ct_other_template' && $object_id == $post_id) {
+          return '0';
+        }
+        return $value;
       }, 10, 4);
 
       // Force Oxygen rendering to bail out to standard WP templating

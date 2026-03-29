@@ -1652,6 +1652,8 @@ function nucleus_page_dynamic_builder_html($post)
                                     <input type="text" class="input-card-title" placeholder="Card Title" value="${escapeHtml(comp.value?.title || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
                                     <input type="text" class="input-card-desc" placeholder="Short Description" value="${escapeHtml(comp.value?.desc || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
                                     <textarea class="input-card-content" placeholder="Text Content" rows="4" style="display:block; width:100%; padding:8px; border:1px solid #8c8f94; border-radius:3px;">${escapeHtml(comp.value?.content || '')}</textarea>
+                                    <input type="url" class="input-card-url" placeholder="View More URL (optional, e.g. https://...)" value="${escapeHtml(comp.value?.url || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
+                                    <input type="text" class="input-card-link-text" placeholder="Link Label (optional, defaults to 'View More')" value="${escapeHtml(comp.value?.link_text || '')}" style="display:block; width:100%; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
                                     </div>
                                     </div>
                                     ` : ''}
@@ -2020,7 +2022,12 @@ function nucleus_page_dynamic_builder_html($post)
 
         // Initialize card array
         if (newType === 'card' && typeof pageData[sIndex].components[cIndex].value !== 'object') {
-          pageData[sIndex].components[cIndex].value = { image: '', title: '', desc: '', content: '' };
+          pageData[sIndex].components[cIndex].value = {
+            image: '',
+            title: '',
+            desc: '',
+            content: ''
+          };
         }
 
         // Initialize checklist array
@@ -2288,7 +2295,7 @@ function nucleus_page_dynamic_builder_html($post)
       });
 
       // Card: update fields on change
-      $root.on('input change', '.input-card-image, .input-card-title, .input-card-desc, .input-card-content', function() {
+      $root.on('input change', '.input-card-image, .input-card-title, .input-card-desc, .input-card-content, .input-card-url, .input-card-link-text', function() {
         const $editor = $(this).closest('.ncl-card-editor');
         const sIndex = $editor.closest('.ncl-comp-item').find('[data-sindex]').first().data('sindex') ||
           $(this).closest('[data-sindex]').data('sindex');
@@ -2298,7 +2305,9 @@ function nucleus_page_dynamic_builder_html($post)
           image: $editor.find('.input-card-image').val(),
           title: $editor.find('.input-card-title').val(),
           desc: $editor.find('.input-card-desc').val(),
-          content: $editor.find('.input-card-content').val()
+          content: $editor.find('.input-card-content').val(),
+          url: $editor.find('.input-card-url').val(),
+          link_text: $editor.find('.input-card-link-text').val()
         };
         syncHiddenInput();
       });
@@ -2903,6 +2912,8 @@ function nucleus_page_content_shortcode($atts)
                 $card_title   = isset($val['title'])   ? $val['title']   : '';
                 $card_desc    = isset($val['desc'])    ? $val['desc']    : '';
                 $card_content = isset($val['content']) ? $val['content'] : '';
+                $card_url     = isset($val['url'])     ? $val['url']     : '';
+                $card_link_text = isset($val['link_text']) ? $val['link_text'] : '';
 
                 echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-card">';
 
@@ -2922,6 +2933,11 @@ function nucleus_page_content_shortcode($atts)
                 }
                 if (!empty($card_content)) {
                   echo '<div class="nucleus-card-content">' . wpautop(esc_html($card_content)) . '</div>';
+                }
+
+                if (!empty($card_url)) {
+                  $label = !empty($card_link_text) ? $card_link_text : 'View More';
+                  echo '<a href="' . esc_url($card_url) . '" class="nucleus-card-link" target="_blank" rel="noopener noreferrer">' . esc_html($label) . '</a>';
                 }
 
                 echo '</div>'; // .nucleus-card-body

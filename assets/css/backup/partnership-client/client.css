@@ -1,0 +1,83 @@
+/* =============================================
+   Clients Section
+   ============================================= */
+
+#nucleus-section-clients {
+  position: relative;
+  padding: 80px 20px 100px;
+}
+
+/* ── Softer continuation of the glow from partnerships ── */
+#nucleus-section-clients::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 150% 150% at 120% 0%,
+      rgba(40, 104, 230, 0.35) 0%,
+      rgba(40, 104, 230, 0.15) 40%,
+      rgba(40, 104, 230, 0.05) 70%,
+      rgba(40, 104, 230, 0) 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#nucleus-section-clients .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Title & Subtitle ── */
+#clients-title {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#clients-subtitle {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* ── Client logos card ── */
+#clients-logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 28px 40px;
+  max-width: 900px;
+  padding: 32px 40px;
+  border-radius: 17.85px;
+  border: 2.23px solid #2868E6;
+  box-shadow: 0px 3.57px 8.92px 1.78px rgba(40, 104, 230, 0.32);
+  background: #2868E61A;
+  box-sizing: border-box;
+}
+
+/* Override inline max-width:100% height:auto — constrain to presentable logo size */
+#clients-logo img {
+  height: auto !important;
+  max-height: 80px !important;
+  width: auto !important;
+  max-width: 100px !important;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  #clients-logo {
+    padding: 24px 20px;
+    gap: 20px 24px;
+  }
+
+  #clients-logo img {
+    height: 40px !important;
+    max-width: 90px !important;
+  }
+}

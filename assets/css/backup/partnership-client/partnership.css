@@ -1,0 +1,167 @@
+/* =============================================
+   Partnerships Section
+   ============================================= */
+
+#nucleus-section-partnership {
+  position: relative;
+  padding: 100px 20px;
+}
+
+/* ── Radial glow ── */
+#nucleus-section-partnership::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 150% 150% at 120% 0%,
+      rgba(40, 104, 230, 0.70) 0%,
+      rgba(40, 104, 230, 0.40) 30%,
+      rgba(40, 104, 230, 0.20) 45%,
+      rgba(40, 104, 230, 0.08) 65%,
+      rgba(40, 104, 230, 0.04) 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#nucleus-section-partnership .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Title & Subtitle ── */
+#partnership-title {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#partnership-subtitle {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* ── Partner logos card ── */
+#partnership-logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  /* centers logos within card */
+  gap: 40px;
+  width: 478px;
+  max-width: 100%;
+  min-height: 78px;
+  border-radius: 17.85px;
+  border: 2.23px solid #2868E6;
+  box-shadow: 0px 3.57px 8.92px 1.78px rgba(40, 104, 230, 0.32);
+  padding: 16px 40px;
+  box-sizing: border-box;
+  background: #2868E61A;
+  margin-bottom: 56px;
+}
+
+/* Override inline style — constrain logos to presentable size */
+#partnership-logo-1,
+#partnership-logo-2 {
+  height: 56px !important;
+  width: auto !important;
+  max-width: 180px !important;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  /* center each logo within its space */
+}
+
+/* ── List titles — 3 column grid ── */
+#partnership-list-title {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 960px;
+  margin-bottom: 12px;
+}
+
+#partnership-list-title-1,
+#partnership-list-title-2,
+#partnership-list-title-3 {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Lists — no grid, centered block ── */
+#partnership-list {
+  width: 100%;
+  max-width: 600px;
+  /* constrained width to feel centered */
+  margin: 0 auto;
+  /* center on page */
+}
+
+/* Each list — plain block flow, standard bullets */
+#partnership-list-1,
+#partnership-list-2,
+#partnership-list-3 {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0 0 24px 0;
+}
+
+#partnership-list-3 {
+  margin-bottom: 0;
+}
+
+#partnership-list-1 .nucleus-checklist-item,
+#partnership-list-2 .nucleus-checklist-item,
+#partnership-list-3 .nucleus-checklist-item {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 6px;
+  display: list-item;
+}
+
+#partnership-list-1 .nucleus-checklist-item::before,
+#partnership-list-2 .nucleus-checklist-item::before,
+#partnership-list-3 .nucleus-checklist-item::before {
+  display: none;
+}
+
+/* ── Section divider at bottom ── */
+#nucleus-section-partnership::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 80px);
+  max-width: 960px;
+  height: 2px;
+  background: rgba(40, 104, 230, 0.50);
+  border-radius: 1px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+
+  #partnership-list-title,
+  #partnership-list {
+    grid-template-columns: 1fr;
+  }
+
+  #partnership-logo {
+    width: 100%;
+    padding: 16px 24px;
+    gap: 24px;
+  }
+
+  #partnership-logo-1,
+  #partnership-logo-2 {
+    height: 44px !important;
+    max-width: 140px !important;
+  }
+}

@@ -1,0 +1,186 @@
+/* =============================================
+   Consulting Services Section
+   ============================================= */
+
+#nucleus-section-service {
+  position: relative;
+  padding: 100px 20px;
+}
+
+/* ── Radial glow — same as hero ── */
+#nucleus-section-service::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 150% 150% at 120% 0%,
+      rgba(40, 104, 230, 0.70) 0%,
+      rgba(40, 104, 230, 0.40) 30%,
+      rgba(40, 104, 230, 0.20) 45%,
+      rgba(40, 104, 230, 0.08) 65%,
+      rgba(40, 104, 230, 0.04) 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#nucleus-section-service .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#service-title {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#service-subtitle {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+/* ── Cards grid ── */
+#service-solution {
+  display: grid;
+  grid-template-columns: repeat(3, 301.68px);
+  gap: 24px;
+  justify-content: center;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* ── Card ── */
+#service-solution-card-1,
+#service-solution-card-2,
+#service-solution-card-3,
+#service-solution-card-4,
+#service-solution-card-5 {
+  position: relative;
+  width: 301.68px;
+  border-radius: 13.32px;
+  background: #ffffff;
+  box-shadow: 0px 2.66px 19.98px 2px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── TEXT (force to top) ── */
+#service-solution-card-1 .nucleus-card-body,
+#service-solution-card-2 .nucleus-card-body,
+#service-solution-card-3 .nucleus-card-body,
+#service-solution-card-4 .nucleus-card-body,
+#service-solution-card-5 .nucleus-card-body {
+  order: 1;
+  /* 🔥 force above image */
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── IMAGE (force below text) ── */
+#service-solution-card-1 .nucleus-card-image-wrap,
+#service-solution-card-2 .nucleus-card-image-wrap,
+#service-solution-card-3 .nucleus-card-image-wrap,
+#service-solution-card-4 .nucleus-card-image-wrap,
+#service-solution-card-5 .nucleus-card-image-wrap {
+  order: 2;
+  /* 🔥 move below text */
+  margin: 8px 12px 40px;
+  /* space for absolute link */
+  border-radius: 8px;
+  overflow: hidden;
+  height: 150px;
+  flex-shrink: 0;
+}
+
+#service-solution-card-1 .nucleus-card-image,
+#service-solution-card-2 .nucleus-card-image,
+#service-solution-card-3 .nucleus-card-image,
+#service-solution-card-4 .nucleus-card-image,
+#service-solution-card-5 .nucleus-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Title */
+#service-solution-card-1 .nucleus-card-title,
+#service-solution-card-2 .nucleus-card-title,
+#service-solution-card-3 .nucleus-card-title,
+#service-solution-card-4 .nucleus-card-title,
+#service-solution-card-5 .nucleus-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(90deg, #35308F 0%, #933DF0 172.69%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Description */
+#service-solution-card-1 .nucleus-card-desc,
+#service-solution-card-2 .nucleus-card-desc,
+#service-solution-card-3 .nucleus-card-desc,
+#service-solution-card-4 .nucleus-card-desc,
+#service-solution-card-5 .nucleus-card-desc {
+  font-size: 0.82rem;
+  color: #2868E6;
+  margin: 0;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── View More (absolute bottom-right) ── */
+#service-solution-card-1 .nucleus-card-link,
+#service-solution-card-2 .nucleus-card-link,
+#service-solution-card-3 .nucleus-card-link,
+#service-solution-card-4 .nucleus-card-link,
+#service-solution-card-5 .nucleus-card-link {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2868E6;
+  text-decoration: none;
+}
+
+#service-solution-card-1 .nucleus-card-link:hover,
+#service-solution-card-2 .nucleus-card-link:hover,
+#service-solution-card-3 .nucleus-card-link:hover,
+#service-solution-card-4 .nucleus-card-link:hover,
+#service-solution-card-5 .nucleus-card-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Mobile ── */
+@media (max-width: 960px) {
+  #service-solution {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #service-solution-card-1,
+  #service-solution-card-2,
+  #service-solution-card-3,
+  #service-solution-card-4,
+  #service-solution-card-5 {
+    width: 100%;
+  }
+}
+
+@media (max-width: 580px) {
+  #service-solution {
+    grid-template-columns: 1fr;
+  }
+}

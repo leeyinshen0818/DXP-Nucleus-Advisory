@@ -1,0 +1,244 @@
+/* =============================================
+   Team Section
+   ============================================= */
+
+#nucleus-section-team {
+  position: relative;
+  padding: 100px 20px;
+}
+
+/* ── Radial glow — top right origin ── */
+#nucleus-section-team::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 150% 150% at 120% 0%,
+      rgba(40, 104, 230, 0.70) 0%,
+      rgba(40, 104, 230, 0.40) 30%,
+      rgba(40, 104, 230, 0.20) 45%,
+      rgba(40, 104, 230, 0.08) 65%,
+      rgba(40, 104, 230, 0.04) 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Push container above glow */
+#nucleus-section-team .nucleus-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Title ── */
+#team-title {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ── Subtitle ── */
+#team-subtitle {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* ── Intro card ── */
+#team-intro {
+  width: 933px;
+  max-width: 100%;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0px 4px 30px 3px rgba(0, 0, 0, 0.25);
+  padding: 36px 40px;
+  margin-bottom: 56px;
+  box-sizing: border-box;
+}
+
+#team-intro p {
+  font-size: 1.188rem;
+  line-height: 1.7;
+  color: #50575e;
+  margin-bottom: 16px;
+  margin-block-start: 0px;
+}
+
+#team-intro p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Card group wrapper ── */
+#team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+/* ── Row 1: Chairman — centered single card ── */
+#team-card-chairman {
+  width: 261px;
+}
+
+/* ── Row 2: 3 managing partners side by side ──
+   Since all 4 cards are flat siblings in #team-card,
+   we use order to group them visually, and a grid
+   on the parent to create the two-row layout.
+── */
+#team-card {
+  display: grid;
+  grid-template-columns: repeat(3, 261px);
+  grid-template-rows: auto auto;
+  gap: 24px;
+  justify-content: center;
+}
+
+/* Chairman spans all 3 columns, centered */
+#team-card-chairman {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+/* Partners fill row 2 naturally */
+#team-card-partner-1 {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#team-card-partner-2 {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#team-card-partner-3 {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+/* ── Each card ── */
+#team-card-chairman,
+#team-card-partner-1,
+#team-card-partner-2,
+#team-card-partner-3 {
+  width: 261px;
+  height: 380px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0px 4px 16px rgba(40, 104, 230, 0.10);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 22px 0 20px;
+}
+
+/* ── Card image ── */
+#team-card-chairman .nucleus-card-image-wrap,
+#team-card-partner-1 .nucleus-card-image-wrap,
+#team-card-partner-2 .nucleus-card-image-wrap,
+#team-card-partner-3 .nucleus-card-image-wrap {
+  width: 208px;
+  height: 273px;
+  border-radius: 5.9px;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+#team-card-chairman .nucleus-card-image,
+#team-card-partner-1 .nucleus-card-image,
+#team-card-partner-2 .nucleus-card-image,
+#team-card-partner-3 .nucleus-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+/* ── Card body ── */
+#team-card-chairman .nucleus-card-body,
+#team-card-partner-1 .nucleus-card-body,
+#team-card-partner-2 .nucleus-card-body,
+#team-card-partner-3 .nucleus-card-body {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── Name — #2868E6, 16.53px ── */
+#team-card-chairman .nucleus-card-title,
+#team-card-partner-1 .nucleus-card-title,
+#team-card-partner-2 .nucleus-card-title,
+#team-card-partner-3 .nucleus-card-title {
+  font-size: 16.53px;
+  font-weight: 600;
+  color: #2868E6;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── Designation — bold, 18.53px, #11183F ── */
+#team-card-chairman .nucleus-card-desc,
+#team-card-partner-1 .nucleus-card-desc,
+#team-card-partner-2 .nucleus-card-desc,
+#team-card-partner-3 .nucleus-card-desc {
+  font-size: 18.53px;
+  font-weight: 700;
+  color: #11183F;
+  text-align: center;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ── Mobile ── */
+@media (max-width: 860px) {
+  #team-card {
+    grid-template-columns: repeat(2, 261px);
+  }
+
+  #team-card-chairman {
+    grid-column: 1 / -1;
+  }
+
+  #team-card-partner-1 {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  #team-card-partner-2 {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  #team-card-partner-3 {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 580px) {
+  #team-card {
+    grid-template-columns: 261px;
+  }
+
+  #team-card-chairman,
+  #team-card-partner-1,
+  #team-card-partner-2,
+  #team-card-partner-3 {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  #team-intro {
+    padding: 24px 20px;
+  }
+}

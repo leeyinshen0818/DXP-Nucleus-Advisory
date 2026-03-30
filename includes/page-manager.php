@@ -193,168 +193,168 @@ function nucleus_hf_builder_html($post)
   $default_hf_set_id = get_option('nucleus_default_hf_set', '');
   $is_default = ($default_hf_set_id == $post->ID);
 ?>
-  <!-- Set as Default -->
-  <div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+<!-- Set as Default -->
+<div style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
     <label style="font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-      <input type="checkbox" name="_ncl_is_default_hf" value="1" <?php checked($is_default); ?> />
-      Set as Default Header & Footer Set (Automatically applies to new pages)
+        <input type="checkbox" name="_ncl_is_default_hf" value="1" <?php checked($is_default); ?> />
+        Set as Default Header & Footer Set (Automatically applies to new pages)
     </label>
-  </div>
+</div>
 
-  <!-- TABS NAVIGATION -->
-  <div class="ncl-tabs-nav">
+<!-- TABS NAVIGATION -->
+<div class="ncl-tabs-nav">
     <button type="button" class="ncl-tab-btn active" data-tab="header">Header Builder</button>
     <button type="button" class="ncl-tab-btn" data-tab="footer">Footer Builder</button>
     <button type="button" class="ncl-tab-btn" data-tab="css">CSS Manager</button>
-  </div>
+</div>
 
-  <!-- HEADER BUILDER TAB -->
-  <div id="ncl-tab-content-header" class="ncl-tab-pane active">
+<!-- HEADER BUILDER TAB -->
+<div id="ncl-tab-content-header" class="ncl-tab-pane active">
     <!-- Simplistic Builder JS uses this -->
     <div id="nucleus-header-builder-root" class="ncl-hf-builder-root" data-hf="header"></div>
     <input type="hidden" name="_nucleus_header_data_json" id="_nucleus_header_data_json" value="" />
-  </div>
+</div>
 
-  <!-- FOOTER BUILDER TAB -->
-  <div id="ncl-tab-content-footer" class="ncl-tab-pane">
+<!-- FOOTER BUILDER TAB -->
+<div id="ncl-tab-content-footer" class="ncl-tab-pane">
     <div id="nucleus-footer-builder-root" class="ncl-hf-builder-root" data-hf="footer"></div>
     <input type="hidden" name="_nucleus_footer_data_json" id="_nucleus_footer_data_json" value="" />
-  </div>
+</div>
 
-  <!-- CSS MANAGER TAB -->
-  <div id="ncl-tab-content-css" class="ncl-tab-pane">
+<!-- CSS MANAGER TAB -->
+<div id="ncl-tab-content-css" class="ncl-tab-pane">
     <div class="ncl-css-manager-wrapper ncl-css-sidebar-layout">
-      <div class="ncl-css-sidebar">
-        <div class="ncl-css-sidebar-title">Sections</div>
-        <ul id="ncl-css-sidebar-list"></ul>
-      </div>
-      <div class="ncl-css-editor-panel">
-        <div id="ncl-css-editor-container"></div>
-        <p class="description">Use IDs like <code>#header-logo</code> or <code>#footer-links</code>.</p>
-      </div>
+        <div class="ncl-css-sidebar">
+            <div class="ncl-css-sidebar-title">Sections</div>
+            <ul id="ncl-css-sidebar-list"></ul>
+        </div>
+        <div class="ncl-css-editor-panel">
+            <div id="ncl-css-editor-container"></div>
+            <p class="description">Use IDs like <code>#header-logo</code> or <code>#footer-links</code>.</p>
+        </div>
     </div>
     <input type="hidden" name="_nucleus_hf_css_json" id="_nucleus_hf_css_json" value="" />
-  </div>
+</div>
 
-  <style>
-    /* Reset and shared styles from page builder */
-    .ncl-tabs-nav {
-      border-bottom: 1px solid #dcdcde;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 5px;
-    }
+<style>
+/* Reset and shared styles from page builder */
+.ncl-tabs-nav {
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 5px;
+}
 
-    .ncl-tab-btn {
-      background: #f0f0f1;
-      border: 1px solid #dcdcde;
-      border-bottom: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #50575e;
-      margin-bottom: -1px;
-      border-radius: 4px 4px 0 0;
-    }
+.ncl-tab-btn {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-bottom: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #50575e;
+    margin-bottom: -1px;
+    border-radius: 4px 4px 0 0;
+}
 
-    .ncl-tab-btn.active {
-      background: #fff;
-      border-bottom: 1px solid #fff;
-      color: #1d2327;
-    }
+.ncl-tab-btn.active {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    color: #1d2327;
+}
 
-    .ncl-tab-pane {
-      display: none;
-    }
+.ncl-tab-pane {
+    display: none;
+}
 
-    .ncl-tab-pane.active {
-      display: block;
-    }
+.ncl-tab-pane.active {
+    display: block;
+}
 
-    /* --- CSS Sidebar Layout --- */
-    .ncl-css-sidebar-layout {
-      display: flex;
-      gap: 0;
-      padding: 0 !important;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid #c3c4c7;
-      border-radius: 4px;
-    }
+/* --- CSS Sidebar Layout --- */
+.ncl-css-sidebar-layout {
+    display: flex;
+    gap: 0;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
 
-    .ncl-css-sidebar {
-      width: 220px;
-      min-width: 220px;
-      background: #f6f7f7;
-      border-right: 1px solid #c3c4c7;
-      padding: 0;
-      flex-shrink: 0;
-    }
+.ncl-css-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #f6f7f7;
+    border-right: 1px solid #c3c4c7;
+    padding: 0;
+    flex-shrink: 0;
+}
 
-    .ncl-css-sidebar-title {
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #50575e;
-      padding: 14px 16px 8px;
-    }
+.ncl-css-sidebar-title {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #50575e;
+    padding: 14px 16px 8px;
+}
 
-    #ncl-css-sidebar-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+#ncl-css-sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
 
-    #ncl-css-sidebar-list li {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #1d2327;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, border-color 0.15s;
-      border-bottom: 1px solid #eee;
-    }
+#ncl-css-sidebar-list li {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1d2327;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+    border-bottom: 1px solid #eee;
+}
 
-    #ncl-css-sidebar-list li:hover {
-      background: #e9ecf0;
-    }
+#ncl-css-sidebar-list li:hover {
+    background: #e9ecf0;
+}
 
-    #ncl-css-sidebar-list li.active {
-      background: #fff;
-      border-left-color: #2271b1;
-      font-weight: 600;
-      color: #2271b1;
-    }
+#ncl-css-sidebar-list li.active {
+    background: #fff;
+    border-left-color: #2271b1;
+    font-weight: 600;
+    color: #2271b1;
+}
 
-    .ncl-css-editor-panel {
-      flex: 1;
-      padding: 20px;
-      min-width: 0;
-    }
-  </style>
+.ncl-css-editor-panel {
+    flex: 1;
+    padding: 20px;
+    min-width: 0;
+}
+</style>
 
-  <script type="text/javascript">
-    jQuery(document).ready(function($) {
-      let headerData = <?php echo json_encode($header_data); ?>;
-      let footerData = <?php echo json_encode($footer_data); ?>;
-      let cssData = <?php echo json_encode($hf_css_data); ?>;
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    let headerData = <?php echo json_encode($header_data); ?>;
+    let footerData = <?php echo json_encode($footer_data); ?>;
+    let cssData = <?php echo json_encode($hf_css_data); ?>;
 
-      if (!Array.isArray(headerData)) headerData = [];
-      if (!Array.isArray(footerData)) footerData = [];
-      if (!cssData || Array.isArray(cssData)) cssData = {};
+    if (!Array.isArray(headerData)) headerData = [];
+    if (!Array.isArray(footerData)) footerData = [];
+    if (!cssData || Array.isArray(cssData)) cssData = {};
 
-      let currentCssSection = '';
-      const $cssRoot = $('#ncl-css-editor-container');
-      const $sidebarList = $('#ncl-css-sidebar-list');
+    let currentCssSection = '';
+    const $cssRoot = $('#ncl-css-editor-container');
+    const $sidebarList = $('#ncl-css-sidebar-list');
 
-      function syncHiddenInputs() {
+    function syncHiddenInputs() {
         $('#_nucleus_header_data_json').val(JSON.stringify(headerData));
         $('#_nucleus_footer_data_json').val(JSON.stringify(footerData));
         $('#_nucleus_hf_css_json').val(JSON.stringify(cssData));
-      }
+    }
 
-      function renderBuilder(type) {
+    function renderBuilder(type) {
         const dataArr = type === 'header' ? headerData : footerData;
         const $root = $('#nucleus-' + type + '-builder-root');
         $root.empty();
@@ -362,7 +362,7 @@ function nucleus_hf_builder_html($post)
         const $sectionsWrapper = $('<div class="ncl-sections-wrapper"></div>');
 
         dataArr.forEach((section, sIndex) => {
-          const $sectionBox = $(`
+            const $sectionBox = $(`
                 <div class="ncl-section-block" data-sindex="${sIndex}" data-type="${type}" style="background: #f0f0f1; padding: 15px; margin-bottom: 15px; border: 1px solid #c3c4c7; border-radius: 4px;">
                     <div class="ncl-section-header" style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 2px solid #ccc; padding-bottom: 10px;">
                         <h3>
@@ -386,11 +386,11 @@ function nucleus_hf_builder_html($post)
                 </div>
             `);
 
-          const $compList = $sectionBox.find('.ncl-comp-list');
-          if (section.components) {
-            section.components.forEach((comp, cIndex) => {
-              const fullHtmlId = `${type}-${section.section_id}-${comp.id}`;
-              $compList.append(`
+            const $compList = $sectionBox.find('.ncl-comp-list');
+            if (section.components) {
+                section.components.forEach((comp, cIndex) => {
+                    const fullHtmlId = `${type}-${section.section_id}-${comp.id}`;
+                    $compList.append(`
                         <div class="ncl-comp-item" data-cindex="${cIndex}" style="background:#fff; border:1px solid #ccc; border-left:4px solid #2271b1; padding:10px;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                                 <div><strong>ID:</strong> <code>${escapeHtml(fullHtmlId)}</code></div>
@@ -422,10 +422,10 @@ function nucleus_hf_builder_html($post)
                             </div>
                         </div>
                     `);
-            });
-          }
+                });
+            }
 
-          $sectionsWrapper.append($sectionBox);
+            $sectionsWrapper.append($sectionBox);
         });
 
         $root.append($sectionsWrapper);
@@ -436,140 +436,140 @@ function nucleus_hf_builder_html($post)
         `);
 
         $sectionsWrapper.sortable({
-          handle: '.ncl-drag-handle',
-          update: function() {
-            reorderDataArray(type);
-          }
+            handle: '.ncl-drag-handle',
+            update: function() {
+                reorderDataArray(type);
+            }
         });
 
         syncHiddenInputs();
         buildCssSidebar();
-      }
+    }
 
-      function reorderDataArray(type) {
+    function reorderDataArray(type) {
         const newData = [];
         const dataArr = type === 'header' ? headerData : footerData;
         $('#nucleus-' + type + '-builder-root .ncl-section-block').each(function() {
-          const originalIndex = $(this).data('sindex');
-          newData.push(dataArr[originalIndex]);
+            const originalIndex = $(this).data('sindex');
+            newData.push(dataArr[originalIndex]);
         });
         if (type === 'header') headerData = newData;
         else footerData = newData;
         renderBuilder(type);
-      }
+    }
 
-      function buildCssSidebar() {
+    function buildCssSidebar() {
         $sidebarList.empty();
         $sidebarList.append(
-          `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}" style="padding:10px; cursor:pointer; font-weight:bold; border-bottom:1px solid #ccc;">Global H&F CSS</li>`
+            `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}" style="padding:10px; cursor:pointer; font-weight:bold; border-bottom:1px solid #ccc;">Global H&F CSS</li>`
         );
 
         ['header', 'footer'].forEach(type => {
-          const arr = type === 'header' ? headerData : footerData;
-          arr.forEach(sec => {
-            const secId = type + '-' + sec.section_id;
-            $sidebarList.append(
-              `<li data-section="${secId}" class="${currentCssSection === secId ? 'active' : ''}" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">${secId}</li>`
-            );
-          });
+            const arr = type === 'header' ? headerData : footerData;
+            arr.forEach(sec => {
+                const secId = type + '-' + sec.section_id;
+                $sidebarList.append(
+                    `<li data-section="${secId}" class="${currentCssSection === secId ? 'active' : ''}" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">${secId}</li>`
+                );
+            });
         });
         renderCssEditor();
-      }
+    }
 
-      function renderCssEditor() {
+    function renderCssEditor() {
         $cssRoot.empty();
         if (!currentCssSection) {
-          $cssRoot.html(
-            '<div style="padding:40px; text-align:center; color:#666;">Select a section to edit CSS</div>'
-          );
-          return;
+            $cssRoot.html(
+                '<div style="padding:40px; text-align:center; color:#666;">Select a section to edit CSS</div>'
+            );
+            return;
         }
         const val = cssData[currentCssSection] || '';
         $cssRoot.append(`
             <textarea id="ncl-active-css-editor" style="width:100%; height:300px; font-family:monospace; padding:10px; background:#fafafa;">${escapeHtml(val)}</textarea>
         `);
-      }
+    }
 
-      function escapeHtml(unsafe) {
+    function escapeHtml(unsafe) {
         if (!unsafe) return '';
         return String(unsafe).replace(/[&<"']/g, function(m) {
-          switch (m) {
-            case '&':
-              return '&amp;';
-            case '<':
-              return '&lt;';
-            case '"':
-              return '&quot;';
-            case "'":
-              return '&#039;';
-          }
+            switch (m) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '"':
+                    return '&quot;';
+                case "'":
+                    return '&#039;';
+            }
         });
-      }
+    }
 
-      // Tabs
-      $('.ncl-tab-btn').on('click', function() {
+    // Tabs
+    $('.ncl-tab-btn').on('click', function() {
         $('.ncl-tab-btn').removeClass('active');
         $(this).addClass('active');
         const tab = $(this).data('tab');
         $('.ncl-tab-pane').removeClass('active');
         $('#ncl-tab-content-' + tab).addClass('active');
-      });
+    });
 
-      // Content Interactions
-      $(document).on('click', '.ncl-hf-builder-root .btn-add-section', function() {
+    // Content Interactions
+    $(document).on('click', '.ncl-hf-builder-root .btn-add-section', function() {
         const type = $(this).closest('.ncl-hf-builder-root').data('hf');
         const arr = type === 'header' ? headerData : footerData;
         arr.push({
-          section_id: 'sec-' + Math.floor(Math.random() * 100),
-          bg_value: '#ffffff',
-          components: []
+            section_id: 'sec-' + Math.floor(Math.random() * 100),
+            bg_value: '#ffffff',
+            components: []
         });
         renderBuilder(type);
-      });
+    });
 
-      $(document).on('click', '.ncl-hf-builder-root .btn-delete-section', function() {
+    $(document).on('click', '.ncl-hf-builder-root .btn-delete-section', function() {
         if (confirm('Delete section?')) {
-          const block = $(this).closest('.ncl-section-block');
-          const type = block.data('type');
-          const sIndex = block.data('sindex');
-          const arr = type === 'header' ? headerData : footerData;
-          arr.splice(sIndex, 1);
-          renderBuilder(type);
+            const block = $(this).closest('.ncl-section-block');
+            const type = block.data('type');
+            const sIndex = block.data('sindex');
+            const arr = type === 'header' ? headerData : footerData;
+            arr.splice(sIndex, 1);
+            renderBuilder(type);
         }
-      });
+    });
 
-      $(document).on('input', '.ncl-hf-builder-root .input-sec-id', function() {
+    $(document).on('input', '.ncl-hf-builder-root .input-sec-id', function() {
         const block = $(this).closest('.ncl-section-block');
         const type = block.data('type');
         const sIndex = block.data('sindex');
         const arr = type === 'header' ? headerData : footerData;
         arr[sIndex].section_id = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
         syncHiddenInputs();
-      });
+    });
 
-      $(document).on('input', '.ncl-hf-builder-root .input-sec-bg', function() {
+    $(document).on('input', '.ncl-hf-builder-root .input-sec-bg', function() {
         const block = $(this).closest('.ncl-section-block');
         const type = block.data('type');
         const sIndex = block.data('sindex');
         const arr = type === 'header' ? headerData : footerData;
         arr[sIndex].bg_value = $(this).val();
         syncHiddenInputs();
-      });
+    });
 
-      $(document).on('click', '.ncl-hf-builder-root .btn-add-comp', function() {
+    $(document).on('click', '.ncl-hf-builder-root .btn-add-comp', function() {
         const block = $(this).closest('.ncl-section-block');
         const type = block.data('type');
         const sIndex = block.data('sindex');
         const arr = type === 'header' ? headerData : footerData;
         arr[sIndex].components.push({
-          id: 'comp-' + Math.floor(Math.random() * 100),
-          type: 'text',
-          value: ''
+            id: 'comp-' + Math.floor(Math.random() * 100),
+            type: 'text',
+            value: ''
         });
         renderBuilder(type);
-      });
+    });
 
-      $(document).on('click', '.ncl-hf-builder-root .btn-delete-comp', function() {
+    $(document).on('click', '.ncl-hf-builder-root .btn-delete-comp', function() {
         const block = $(this).closest('.ncl-section-block');
         const item = $(this).closest('.ncl-comp-item');
         const type = block.data('type');
@@ -578,9 +578,9 @@ function nucleus_hf_builder_html($post)
         const arr = type === 'header' ? headerData : footerData;
         arr[sIndex].components.splice(cIndex, 1);
         renderBuilder(type);
-      });
+    });
 
-      $(document).on('change', '.ncl-hf-builder-root .input-comp-type', function() {
+    $(document).on('change', '.ncl-hf-builder-root .input-comp-type', function() {
         const block = $(this).closest('.ncl-section-block');
         const item = $(this).closest('.ncl-comp-item');
         const type = block.data('type');
@@ -589,26 +589,26 @@ function nucleus_hf_builder_html($post)
         const arr = type === 'header' ? headerData : footerData;
         arr[sIndex].components[cIndex].type = $(this).val();
         renderBuilder(type);
-      });
+    });
 
-      $(document).on('input', '.ncl-hf-builder-root .input-comp-key, .ncl-hf-builder-root .input-comp-val',
+    $(document).on('input', '.ncl-hf-builder-root .input-comp-key, .ncl-hf-builder-root .input-comp-val',
         function() {
-          const block = $(this).closest('.ncl-section-block');
-          const item = $(this).closest('.ncl-comp-item');
-          const type = block.data('type');
-          const sIndex = block.data('sindex');
-          const cIndex = item.data('cindex');
-          const arr = type === 'header' ? headerData : footerData;
+            const block = $(this).closest('.ncl-section-block');
+            const item = $(this).closest('.ncl-comp-item');
+            const type = block.data('type');
+            const sIndex = block.data('sindex');
+            const cIndex = item.data('cindex');
+            const arr = type === 'header' ? headerData : footerData;
 
-          arr[sIndex].components[cIndex].id = item.find('.input-comp-key').val().trim().toLowerCase()
-            .replace(/[^a-z0-9_-]/g, '');
-          arr[sIndex].components[cIndex].value = item.find('.input-comp-val').val();
-          syncHiddenInputs();
+            arr[sIndex].components[cIndex].id = item.find('.input-comp-key').val().trim().toLowerCase()
+                .replace(/[^a-z0-9_-]/g, '');
+            arr[sIndex].components[cIndex].value = item.find('.input-comp-val').val();
+            syncHiddenInputs();
         });
 
-      // Image Upload
-      let mediaUploader;
-      $(document).on('click', '.ncl-hf-builder-root .btn-upload-img', function(e) {
+    // Image Upload
+    let mediaUploader;
+    $(document).on('click', '.ncl-hf-builder-root .btn-upload-img', function(e) {
         e.preventDefault();
         const block = $(this).closest('.ncl-section-block');
         const item = $(this).closest('.ncl-comp-item');
@@ -618,42 +618,42 @@ function nucleus_hf_builder_html($post)
         const arr = type === 'header' ? headerData : footerData;
 
         let compUploader = wp.media({
-          title: 'Choose Image',
-          button: {
-            text: 'Choose'
-          },
-          multiple: false
+            title: 'Choose Image',
+            button: {
+                text: 'Choose'
+            },
+            multiple: false
         });
         compUploader.on('select', function() {
-          const attachment = compUploader.state().get('selection').first().toJSON();
-          arr[sIndex].components[cIndex].value = attachment.url;
-          renderBuilder(type);
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            arr[sIndex].components[cIndex].value = attachment.url;
+            renderBuilder(type);
         });
         compUploader.open();
-      });
+    });
 
-      // CSS actions
-      $(document).on('click', '#ncl-css-sidebar-list li', function() {
+    // CSS actions
+    $(document).on('click', '#ncl-css-sidebar-list li', function() {
         currentCssSection = $(this).data('section');
         $('#ncl-css-sidebar-list li').removeClass('active');
         $(this).addClass('active');
         if (currentCssSection && !cssData[currentCssSection]) cssData[currentCssSection] =
-          `/* Style for ${currentCssSection} */\n`;
+            `/* Style for ${currentCssSection} */\n`;
         renderCssEditor();
         syncHiddenInputs();
-      });
-
-      $(document).on('input', '#ncl-active-css-editor', function() {
-        if (currentCssSection) {
-          cssData[currentCssSection] = $(this).val();
-          syncHiddenInputs();
-        }
-      });
-
-      renderBuilder('header');
-      renderBuilder('footer');
     });
-  </script>
+
+    $(document).on('input', '#ncl-active-css-editor', function() {
+        if (currentCssSection) {
+            cssData[currentCssSection] = $(this).val();
+            syncHiddenInputs();
+        }
+    });
+
+    renderBuilder('header');
+    renderBuilder('footer');
+});
+</script>
 <?php
 }
 
@@ -695,83 +695,83 @@ function nucleus_page_dynamic_builder_html($post)
   }
 ?>
 
-  <!-- HF SET SELECTION -->
-  <div
+<!-- HF SET SELECTION -->
+<div
     style="background: #eef5ff; border: 1px solid #9ba2aa; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; align-items: center; gap: 15px;">
     <strong><span class="dashicons dashicons-layout"></span> Header & Footer Template:</strong>
     <select name="_nucleus_selected_hf_set" style="min-width: 250px;">
-      <option value="">Use Theme Default (Oxygen)</option>
-      <?php foreach ($hf_sets as $set): ?>
+        <option value="">Use Theme Default (Oxygen)</option>
+        <?php foreach ($hf_sets as $set): ?>
         <option value="<?php echo esc_attr($set->ID); ?>" <?php selected($selected_hf, $set->ID); ?>>
-          <?php echo esc_html($set->post_title); ?></option>
-      <?php endforeach; ?>
+            <?php echo esc_html($set->post_title); ?></option>
+        <?php endforeach; ?>
     </select>
     <a href="<?php echo admin_url('edit.php?post_type=nucleus_hf_set'); ?>" target="_blank"
-      style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
-  </div>
+        style="text-decoration:none; font-size:13px;">Manage Sets ↗</a>
+</div>
 
-  <!-- TABS NAVIGATION -->
-  <div class="ncl-tabs-nav">
+<!-- TABS NAVIGATION -->
+<div class="ncl-tabs-nav">
     <button type="button" class="ncl-tab-btn active" data-tab="content">Content Builder</button>
     <button type="button" class="ncl-tab-btn" data-tab="css">CSS Manager</button>
     <button type="button" class="ncl-tab-btn" data-tab="help"><span class="dashicons dashicons-book"></span> User
-      Handbook</button>
-  </div>
+        Handbook</button>
+</div>
 
-  <!-- CONTENT BUILDER TAB -->
-  <div id="ncl-tab-content-content" class="ncl-tab-pane active">
+<!-- CONTENT BUILDER TAB -->
+<div id="ncl-tab-content-content" class="ncl-tab-pane active">
     <div id="nucleus-page-builder-root"></div>
     <input type="hidden" name="_nucleus_page_data_json" id="_nucleus_page_data_json" value="" />
-  </div>
+</div>
 
-  <!-- CSS MANAGER TAB -->
-  <div id="ncl-tab-content-css" class="ncl-tab-pane">
+<!-- CSS MANAGER TAB -->
+<div id="ncl-tab-content-css" class="ncl-tab-pane">
     <div class="ncl-css-manager-wrapper ncl-css-sidebar-layout">
-      <div class="ncl-css-sidebar">
-        <div class="ncl-css-sidebar-title">Sections</div>
-        <ul id="ncl-css-sidebar-list">
-          <!-- Populated via JS -->
-        </ul>
-      </div>
-      <div class="ncl-css-editor-panel">
-        <div id="ncl-css-editor-container"></div>
-        <p class="description">Enter standard CSS. Use selectors like <code>#section-component</code> or specific
-          IDs.</p>
-      </div>
+        <div class="ncl-css-sidebar">
+            <div class="ncl-css-sidebar-title">Sections</div>
+            <ul id="ncl-css-sidebar-list">
+                <!-- Populated via JS -->
+            </ul>
+        </div>
+        <div class="ncl-css-editor-panel">
+            <div id="ncl-css-editor-container"></div>
+            <p class="description">Enter standard CSS. Use selectors like <code>#section-component</code> or specific
+                IDs.</p>
+        </div>
     </div>
     <!-- Hidden elements kept for JS compatibility -->
     <select id="ncl-css-section-select" style="display:none;"></select>
     <input type="hidden" name="_nucleus_page_css_json" id="_nucleus_page_css_json" value="" />
-  </div>
+</div>
 
-  <!-- HELP HANDBOOK TAB -->
-  <div id="ncl-tab-content-help" class="ncl-tab-pane">
+<!-- HELP HANDBOOK TAB -->
+<div id="ncl-tab-content-help" class="ncl-tab-pane">
     <div class="ncl-help-container"
-      style="background:#fff; border:1px solid #c3c4c7; padding:30px; border-radius:4px; max-width:850px;">
-      <h2 style="margin-top:0; font-size:24px;">📖 Nucleus Page Manager: CSS & Layout Handbook</h2>
-      <p style="font-size:15px; color:#50575e; line-height:1.6;">Welcome to the Nucleus Page Manager! This builder
-        allows you to stack Sections and Components to build dynamic pages. Because the builder uses standard HTML,
-        you can use the <strong>CSS Manager</strong> tab to style absolutely anything you want.</p>
+        style="background:#fff; border:1px solid #c3c4c7; padding:30px; border-radius:4px; max-width:850px;">
+        <h2 style="margin-top:0; font-size:24px;">📖 Nucleus Page Manager: CSS & Layout Handbook</h2>
+        <p style="font-size:15px; color:#50575e; line-height:1.6;">Welcome to the Nucleus Page Manager! This builder
+            allows you to stack Sections and Components to build dynamic pages. Because the builder uses standard HTML,
+            you can use the <strong>CSS Manager</strong> tab to style absolutely anything you want.</p>
 
-      <div
-        style="background-color: #fff8e5; border-left: 4px solid #f0b849; padding: 12px 15px; margin-bottom: 20px;">
-        <strong>⚠️ Important Note:</strong> If you modify a section or component name, the CSS of the page might not
-        catch up automatically. You should make a simple change in the CSS Manager (like adding a space or
-        re-copying and pasting your CSS) to trigger a refresh.
-      </div>
+        <div
+            style="background-color: #fff8e5; border-left: 4px solid #f0b849; padding: 12px 15px; margin-bottom: 20px;">
+            <strong>⚠️ Important Note:</strong> If you modify a section or component name, the CSS of the page might not
+            catch up automatically. You should make a simple change in the CSS Manager (like adding a space or
+            re-copying and pasting your CSS) to trigger a refresh.
+        </div>
 
-      <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-      <h3 style="font-size:18px;">1. Targeting Sections & Backgrounds</h3>
-      <p>Every section you create gets an automatic ID based on its <strong>Section Name</strong>. All section IDs
-        start with <code>nucleus-section-</code>. When you add a <strong>Background Image or Color</strong> using
-        the dropdown settings, the style is applied directly to this section container.</p>
-      <ul style="list-style:disc; margin-left:20px; margin-bottom:15px;">
-        <li><strong>Section ID Formula:</strong> <code>#nucleus-section-{section_name}</code></li>
-      </ul>
-      <p><em>Example: Accessing Section Layout & Styling Background Overlays (Assuming Section Name is "hero")</em>
-      </p>
-      <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Set padding and text alignment for the entire section */
+        <h3 style="font-size:18px;">1. Targeting Sections & Backgrounds</h3>
+        <p>Every section you create gets an automatic ID based on its <strong>Section Name</strong>. All section IDs
+            start with <code>nucleus-section-</code>. When you add a <strong>Background Image or Color</strong> using
+            the dropdown settings, the style is applied directly to this section container.</p>
+        <ul style="list-style:disc; margin-left:20px; margin-bottom:15px;">
+            <li><strong>Section ID Formula:</strong> <code>#nucleus-section-{section_name}</code></li>
+        </ul>
+        <p><em>Example: Accessing Section Layout & Styling Background Overlays (Assuming Section Name is "hero")</em>
+        </p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Set padding and text alignment for the entire section */
 #nucleus-section-hero {
     padding: 80px 20px;
     text-align: center;
@@ -795,684 +795,684 @@ function nucleus_page_dynamic_builder_html($post)
     background-attachment: fixed !important; /* Parallax effect */
 }</code></pre>
 
-      <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-      <h3 style="font-size:18px;">2. Targeting Individual Components</h3>
-      <p>Every component inside a section is given a unique ID combining the Section Name and the Component Name.</p>
-      <ul style="list-style:disc; margin-left:20px;">
-        <li><strong>Formula:</strong> <code>#{section_name}-{component_name}</code></li>
-      </ul>
-      <p><em>Example: (If section is "hero" and text component is "main-title")</em></p>
-      <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Target the specific title in the hero section */
+        <h3 style="font-size:18px;">2. Targeting Individual Components</h3>
+        <p>Every component inside a section is given a unique ID combining the Section Name and the Component Name.</p>
+        <ul style="list-style:disc; margin-left:20px;">
+            <li><strong>Formula:</strong> <code>#{section_name}-{component_name}</code></li>
+        </ul>
+        <p><em>Example: (If section is "hero" and text component is "main-title")</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Target the specific title in the hero section */
 #hero-main-title {
     color: #ffffff;
     font-size: 48px;
     text-align: center;
 }</code></pre>
 
-      <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-      <h3 style="font-size:18px;">3. General Component Classes</h3>
-      <p>If you want to style <em>all</em> components of a certain type across a section, use the built-in classes
-        below:</p>
-      <table style="width:100%; border-collapse:collapse; margin-bottom:15px; border:1px solid #dcdcde;">
-        <tr style="background:#f6f7f7;">
-          <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Class Name</th>
-          <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Applies To</th>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-title</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "title"</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-subtitle</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "subtitle"</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-text</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Standard String (Text), text areas, and WYSIWYG
-            boxes</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-number</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">All "Number" fields</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-heading</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Explicit H1-H6 Heading tags</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-btn-primary</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Button (Text + Link) modules</td>
-        </tr>
-        <tr>
-          <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-link</code></td>
-          <td style="padding:10px; border:1px solid #dcdcde;">Raw Link URL fields</td>
-        </tr>
-      </table>
-      <p><em>Example:</em></p>
-      <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Change the background color of ALL buttons in the 'pricing' section */
+        <h3 style="font-size:18px;">3. General Component Classes</h3>
+        <p>If you want to style <em>all</em> components of a certain type across a section, use the built-in classes
+            below:</p>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:15px; border:1px solid #dcdcde;">
+            <tr style="background:#f6f7f7;">
+                <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Class Name</th>
+                <th style="padding:10px; border:1px solid #dcdcde; text-align:left;">Applies To</th>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-title</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "title"</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-subtitle</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Any component name containing "subtitle"</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-text</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Standard String (Text), text areas, and WYSIWYG
+                    boxes</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-number</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">All "Number" fields</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-heading</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Explicit H1-H6 Heading tags</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-btn-primary</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Button (Text + Link) modules</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; border:1px solid #dcdcde;"><code>.nucleus-link</code></td>
+                <td style="padding:10px; border:1px solid #dcdcde;">Raw Link URL fields</td>
+            </tr>
+        </table>
+        <p><em>Example:</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Change the background color of ALL buttons in the 'pricing' section */
 #nucleus-section-pricing .nucleus-btn-primary {
     background-color: #ff5500;
 }</code></pre>
 
-      <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-      <h3 style="font-size:18px;">4. Styling Advanced Components</h3>
-      <p>Advanced blocks output specific wrapper classes that contain inner elements. Here are the keys you need to
-        style them:</p>
+        <h3 style="font-size:18px;">4. Styling Advanced Components</h3>
+        <p>Advanced blocks output specific wrapper classes that contain inner elements. Here are the keys you need to
+            style them:</p>
 
-      <div style="display:flex; gap:20px; flex-wrap:wrap;">
-        <div
-          style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
-          <h4 style="margin-top:0;">Accordion / FAQ (<code>.nucleus-accordion</code>)</h4>
-          <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
-            <li>.nucleus-accordion-item</li>
-            <li>.nucleus-accordion-header</li>
-            <li>.nucleus-accordion-content</li>
-          </ul>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Accordion / FAQ (<code>.nucleus-accordion</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-accordion-item</li>
+                    <li>.nucleus-accordion-header</li>
+                    <li>.nucleus-accordion-content</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Slider (<code>.nucleus-carousel-wrapper</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-carousel-slide</li>
+                    <li>.nucleus-carousel-slide-title</li>
+                    <li>.nucleus-carousel-slide-desc</li>
+                    <li>.nucleus-carousel-dot.active</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Testimonial (<code>.nucleus-testimonial</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-testimonial-quote</li>
+                    <li>.nucleus-testimonial-author</li>
+                    <li>.nucleus-testimonial-avatar</li>
+                </ul>
+            </div>
+
+            <div
+                style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
+                <h4 style="margin-top:0;">Stats / KPI (<code>.nucleus-stats</code>)</h4>
+                <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
+                    <li>.nucleus-stats-number</li>
+                    <li>.nucleus-stats-label</li>
+                </ul>
+            </div>
         </div>
 
-        <div
-          style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
-          <h4 style="margin-top:0;">Slider (<code>.nucleus-carousel-wrapper</code>)</h4>
-          <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
-            <li>.nucleus-carousel-slide</li>
-            <li>.nucleus-carousel-slide-title</li>
-            <li>.nucleus-carousel-slide-desc</li>
-            <li>.nucleus-carousel-dot.active</li>
-          </ul>
-        </div>
+        <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
 
-        <div
-          style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
-          <h4 style="margin-top:0;">Testimonial (<code>.nucleus-testimonial</code>)</h4>
-          <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
-            <li>.nucleus-testimonial-quote</li>
-            <li>.nucleus-testimonial-author</li>
-            <li>.nucleus-testimonial-avatar</li>
-          </ul>
-        </div>
-
-        <div
-          style="flex:1; min-width:300px; background:#f9f9f9; padding:15px; border-radius:4px; border:1px solid #e0e0e0;">
-          <h4 style="margin-top:0;">Stats / KPI (<code>.nucleus-stats</code>)</h4>
-          <ul style="font-size:13px; font-family:monospace; margin-left:15px;">
-            <li>.nucleus-stats-number</li>
-            <li>.nucleus-stats-label</li>
-          </ul>
-        </div>
-      </div>
-
-      <hr style="margin:25px 0; border:0; border-top:1px solid #dcdcde;">
-
-      <h3 style="font-size:18px;">5. Grouping Components (Flexbox & Grids)</h3>
-      <p>The builder has a hidden superpower: <strong>Prefix Grouping</strong>. If you name multiple components with
-        the <em>exact same word and a dash</em> (e.g., <code>card-image</code>, <code>card-title</code>,
-        <code>card-text</code>), they are automatically wrapped in a single Group <code>&lt;div&gt;</code> so you
-        can style them together easily.
-      </p>
-      <ul style="list-style:disc; margin-left:20px;">
-        <li><strong>Group Class:</strong> <code>.nucleus-group-{prefix}</code></li>
-        <li><strong>Group ID:</strong> <code>#{section_name}-{prefix}</code></li>
-      </ul>
-      <p><em>Example: (You are in section 'services' and add components: box-1, box-2, box-3. They are automatically
-          grouped under <code>#services-box</code>)</em></p>
-      <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Turn the group into a 3-column CSS Grid */
+        <h3 style="font-size:18px;">5. Grouping Components (Flexbox & Grids)</h3>
+        <p>The builder has a hidden superpower: <strong>Prefix Grouping</strong>. If you name multiple components with
+            the <em>exact same word and a dash</em> (e.g., <code>card-image</code>, <code>card-title</code>,
+            <code>card-text</code>), they are automatically wrapped in a single Group <code>&lt;div&gt;</code> so you
+            can style them together easily.
+        </p>
+        <ul style="list-style:disc; margin-left:20px;">
+            <li><strong>Group Class:</strong> <code>.nucleus-group-{prefix}</code></li>
+            <li><strong>Group ID:</strong> <code>#{section_name}-{prefix}</code></li>
+        </ul>
+        <p><em>Example: (You are in section 'services' and add components: box-1, box-2, box-3. They are automatically
+                grouped under <code>#services-box</code>)</em></p>
+        <pre style="background:#f0f0f1; padding:15px; border-left:4px solid #2271b1; overflow-x:auto;"><code>/* Turn the group into a 3-column CSS Grid */
 #services-box {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }</code></pre>
     </div>
-  </div>
-
-  <style>
-    .ncl-tabs-nav {
-      border-bottom: 1px solid #dcdcde;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 5px;
-    }
-
-    .ncl-tab-btn {
-      background: #f0f0f1;
-      border: 1px solid #dcdcde;
-      border-bottom: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #50575e;
-      margin-bottom: -1px;
-      border-radius: 4px 4px 0 0;
-    }
-
-    .ncl-tab-btn.active {
-      background: #fff;
-      border-bottom: 1px solid #fff;
-      color: #1d2327;
-    }
-
-    .ncl-tab-pane {
-      display: none;
-    }
-
-    .ncl-tab-pane.active {
-      display: block;
-    }
-
-    .ncl-css-manager-wrapper {
-      background: #fff;
-      border: 1px solid #c3c4c7;
-      padding: 20px;
-      border-radius: 4px;
-    }
-
-    .ncl-css-header {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      margin-bottom: 15px;
-      background: #f0f0f1;
-      padding: 10px;
-      border-radius: 4px;
-    }
-
-    .ncl-css-box {
-      border: 1px solid #ddd;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .ncl-css-box-header {
-      background: #f6f7f7;
-      padding: 8px 12px;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      font-family: monospace;
-      color: #2271b1;
-    }
-
-    .ncl-css-textarea {
-      width: 100%;
-      height: 150px;
-      font-family: monospace;
-      border: none;
-      padding: 10px;
-      resize: vertical;
-      background: #fafafa;
-    }
-
-    .ncl-css-textarea:focus {
-      background: #fff;
-      outline: none;
-    }
-
-    #nucleus-page-builder-root {
-      margin-top: 15px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    }
-
-    .ncl-section-block {
-      background: #f0f0f1;
-      border: 1px solid #c3c4c7;
-      padding: 15px;
-      margin-bottom: 25px;
-      border-radius: 4px;
-      position: relative;
-    }
-
-    .ncl-section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #dcdcde;
-      cursor: move;
-    }
-
-    .ncl-section-header h3 {
-      margin: 0;
-      font-size: 16px;
-      color: #1d2327;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .ncl-drag-handle {
-      cursor: grab;
-      font-size: 18px;
-      color: #8c8f94;
-    }
-
-    .ncl-section-badge {
-      background: #2271b1;
-      color: white;
-      padding: 3px 8px;
-      border-radius: 3px;
-      font-family: monospace;
-      font-size: 13px;
-      margin-left: 10px;
-    }
-
-    .ncl-bg-settings {
-      background: #fff;
-      padding: 10px 15px;
-      border: 1px solid #dcdcde;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .ncl-bg-settings label {
-      font-weight: 600;
-      color: #50575e;
-    }
-
-    .ncl-bg-settings select,
-    .ncl-bg-settings input {
-      padding: 4px 8px;
-      border: 1px solid #8c8f94;
-      border-radius: 3px;
-    }
-
-    .ncl-comp-list {
-      margin-left: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .ncl-comp-item {
-      background: #fff;
-      border: 1px solid #dcdcde;
-      padding: 15px;
-      border-radius: 4px;
-      border-left: 4px solid #2271b1;
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-    }
-
-    .ncl-comp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .ncl-comp-id-display {
-      font-family: monospace;
-      font-size: 14px;
-      font-weight: 600;
-      color: #d63638;
-      background: #f6f7f7;
-      padding: 4px 8px;
-      border-radius: 3px;
-      border: 1px solid #dcdcde;
-    }
-
-    .ncl-form-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .ncl-form-row label {
-      width: 120px;
-      font-weight: 600;
-      color: #50575e;
-      flex-shrink: 0;
-    }
-
-    .ncl-form-row input[type="text"],
-    .ncl-form-row input[type="number"],
-    .ncl-form-row input[type="url"],
-    .ncl-form-row textarea,
-    .ncl-form-row select {
-      width: 100%;
-      max-width: 600px;
-      padding: 6px 8px;
-      border: 1px solid #8c8f94;
-      border-radius: 3px;
-    }
-
-    .ncl-btn {
-      cursor: pointer;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 3px;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .ncl-btn-primary {
-      background: #2271b1;
-      color: #fff;
-      border: 1px solid #2271b1;
-    }
-
-    .ncl-btn-primary:hover {
-      background: #135e96;
-      border-color: #135e96;
-    }
-
-    .ncl-btn-danger {
-      background: #fff;
-      color: #d63638;
-      border: 1px solid #d63638;
-    }
-
-    .ncl-btn-danger:hover {
-      background: #d63638;
-      color: #fff;
-    }
-
-    .ncl-btn-secondary {
-      background: #f6f7f7;
-      color: #2271b1;
-      border: 1px solid #2271b1;
-    }
-
-    .ncl-btn-secondary:hover {
-      background: #f0f0f1;
-      border-color: #0a4b78;
-      color: #0a4b78;
-    }
-
-    .ncl-add-comp-container {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px dashed #c3c4c7;
-      text-align: right;
-    }
-
-    .ncl-add-section-container {
-      padding: 30px;
-      background: #fff;
-      border: 2px dashed #c3c4c7;
-      text-align: center;
-      border-radius: 4px;
-    }
-
-    .ui-sortable-helper {
-      opacity: 0.9;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .ui-sortable-placeholder {
-      border: 2px dashed #2271b1;
-      background: #f0f6fc;
-      visibility: visible !important;
-      margin-bottom: 25px;
-      border-radius: 4px;
-    }
-
-    /* --- Collapsible Sections & Components --- */
-    .ncl-toggle-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-      color: #50575e;
-      padding: 2px 6px;
-      transition: transform 0.2s;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .ncl-toggle-btn:hover {
-      color: #2271b1;
-    }
-
-    .ncl-toggle-btn .dashicons {
-      transition: transform 0.2s;
-    }
-
-    .ncl-section-block.collapsed .ncl-toggle-btn .dashicons {
-      transform: rotate(-90deg);
-    }
-
-    .ncl-section-block.collapsed .ncl-bg-settings,
-    .ncl-section-block.collapsed .ncl-comp-list,
-    .ncl-section-block.collapsed .ncl-add-comp-container {
-      display: none;
-    }
-
-    .ncl-section-block.collapsed .ncl-section-header {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .ncl-comp-item.collapsed .ncl-form-row {
-      display: none;
-    }
-
-    .ncl-comp-item.collapsed .ncl-comp-header {
-      margin-bottom: 0;
-    }
-
-    .ncl-comp-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      color: #50575e;
-      padding: 2px 4px;
-      margin-right: 4px;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .ncl-comp-toggle:hover {
-      color: #2271b1;
-    }
-
-    .ncl-comp-toggle .dashicons {
-      transition: transform 0.2s;
-    }
-
-    .ncl-comp-item.collapsed .ncl-comp-toggle .dashicons {
-      transform: rotate(-90deg);
-    }
-
-    /* --- CSS Sidebar Layout --- */
-    .ncl-css-sidebar-layout {
-      display: flex;
-      gap: 0;
-      padding: 0 !important;
-      overflow: hidden;
-    }
-
-    .ncl-css-sidebar {
-      width: 220px;
-      min-width: 220px;
-      background: #f6f7f7;
-      border-right: 1px solid #c3c4c7;
-      padding: 0;
-      flex-shrink: 0;
-    }
-
-    .ncl-css-sidebar-title {
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #50575e;
-      padding: 14px 16px 8px;
-    }
-
-    #ncl-css-sidebar-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    #ncl-css-sidebar-list li {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #1d2327;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    #ncl-css-sidebar-list li:hover {
-      background: #e9ecf0;
-    }
-
-    #ncl-css-sidebar-list li.active {
-      background: #fff;
-      border-left-color: #2271b1;
-      font-weight: 600;
-      color: #2271b1;
-    }
-
-    #ncl-css-sidebar-list li .dashicons {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      vertical-align: middle;
-      margin-right: 6px;
-      color: #8c8f94;
-    }
-
-    #ncl-css-sidebar-list li.active .dashicons {
-      color: #2271b1;
-    }
-
-    .ncl-css-editor-panel {
-      flex: 1;
-      padding: 20px;
-      min-width: 0;
-    }
-
-    /* --- Tabs Editor --- */
-    .ncl-tabs-editor {
-      background: #fafafa;
-      border: 1px solid #dcdcde;
-      border-radius: 4px;
-      padding: 15px;
-      margin-top: 10px;
-    }
-
-    .ncl-tabs-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .ncl-tab-item {
-      background: #fff;
-      border: 1px solid #dcdcde;
-      border-left: 3px solid #2271b1;
-      padding: 12px;
-      border-radius: 3px;
-    }
-
-    .ncl-tab-item .input-tab-title {
-      display: block;
-      width: 100%;
-      padding: 6px 8px;
-      margin-bottom: 8px;
-      border: 1px solid #8c8f94;
-      border-radius: 3px;
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    .ncl-tab-item .input-tab-content {
-      display: block;
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #8c8f94;
-      border-radius: 3px;
-      font-family: monospace;
-      font-size: 12px;
-      resize: vertical;
-    }
-
-    .ncl-tab-item .btn-delete-tab {
-      max-width: 100%;
-    }
-  </style>
-
-  <script type="text/javascript">
-    jQuery(document).ready(function($) {
-      let mediaUploader;
-
-      // DATA
-      let pageData = <?php echo json_encode($page_data); ?>;
-      let cssData = <?php echo json_encode($page_css_data); ?>; // { "hero": ".hero { bg... }", "intro": "..." }
-
-      // Ensure CSS data is object
-      if (!cssData || Array.isArray(cssData)) cssData = {};
-
-      // --- MIGRATION Logic ---
-      if (pageData && !Array.isArray(pageData) && Object.keys(pageData).length > 0) {
+</div>
+
+<style>
+.ncl-tabs-nav {
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 5px;
+}
+
+.ncl-tab-btn {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-bottom: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #50575e;
+    margin-bottom: -1px;
+    border-radius: 4px 4px 0 0;
+}
+
+.ncl-tab-btn.active {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    color: #1d2327;
+}
+
+.ncl-tab-pane {
+    display: none;
+}
+
+.ncl-tab-pane.active {
+    display: block;
+}
+
+.ncl-css-manager-wrapper {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.ncl-css-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+    background: #f0f0f1;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.ncl-css-box {
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ncl-css-box-header {
+    background: #f6f7f7;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-family: monospace;
+    color: #2271b1;
+}
+
+.ncl-css-textarea {
+    width: 100%;
+    height: 150px;
+    font-family: monospace;
+    border: none;
+    padding: 10px;
+    resize: vertical;
+    background: #fafafa;
+}
+
+.ncl-css-textarea:focus {
+    background: #fff;
+    outline: none;
+}
+
+#nucleus-page-builder-root {
+    margin-top: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.ncl-section-block {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.ncl-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #dcdcde;
+    cursor: move;
+}
+
+.ncl-section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1d2327;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ncl-drag-handle {
+    cursor: grab;
+    font-size: 18px;
+    color: #8c8f94;
+}
+
+.ncl-section-badge {
+    background: #2271b1;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+.ncl-bg-settings {
+    background: #fff;
+    padding: 10px 15px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ncl-bg-settings label {
+    font-weight: 600;
+    color: #50575e;
+}
+
+.ncl-bg-settings select,
+.ncl-bg-settings input {
+    padding: 4px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+}
+
+.ncl-comp-list {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ncl-comp-item {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #2271b1;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.ncl-comp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ncl-comp-id-display {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d63638;
+    background: #f6f7f7;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #dcdcde;
+}
+
+.ncl-form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ncl-form-row label {
+    width: 120px;
+    font-weight: 600;
+    color: #50575e;
+    flex-shrink: 0;
+}
+
+.ncl-form-row input[type="text"],
+.ncl-form-row input[type="number"],
+.ncl-form-row input[type="url"],
+.ncl-form-row textarea,
+.ncl-form-row select {
+    width: 100%;
+    max-width: 600px;
+    padding: 6px 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+}
+
+.ncl-btn {
+    cursor: pointer;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.ncl-btn-primary {
+    background: #2271b1;
+    color: #fff;
+    border: 1px solid #2271b1;
+}
+
+.ncl-btn-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+}
+
+.ncl-btn-danger {
+    background: #fff;
+    color: #d63638;
+    border: 1px solid #d63638;
+}
+
+.ncl-btn-danger:hover {
+    background: #d63638;
+    color: #fff;
+}
+
+.ncl-btn-secondary {
+    background: #f6f7f7;
+    color: #2271b1;
+    border: 1px solid #2271b1;
+}
+
+.ncl-btn-secondary:hover {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+
+.ncl-add-comp-container {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #c3c4c7;
+    text-align: right;
+}
+
+.ncl-add-section-container {
+    padding: 30px;
+    background: #fff;
+    border: 2px dashed #c3c4c7;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.ui-sortable-helper {
+    opacity: 0.9;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.ui-sortable-placeholder {
+    border: 2px dashed #2271b1;
+    background: #f0f6fc;
+    visibility: visible !important;
+    margin-bottom: 25px;
+    border-radius: 4px;
+}
+
+/* --- Collapsible Sections & Components --- */
+.ncl-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #50575e;
+    padding: 2px 6px;
+    transition: transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ncl-toggle-btn:hover {
+    color: #2271b1;
+}
+
+.ncl-toggle-btn .dashicons {
+    transition: transform 0.2s;
+}
+
+.ncl-section-block.collapsed .ncl-toggle-btn .dashicons {
+    transform: rotate(-90deg);
+}
+
+.ncl-section-block.collapsed .ncl-bg-settings,
+.ncl-section-block.collapsed .ncl-comp-list,
+.ncl-section-block.collapsed .ncl-add-comp-container {
+    display: none;
+}
+
+.ncl-section-block.collapsed .ncl-section-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ncl-comp-item.collapsed .ncl-form-row {
+    display: none;
+}
+
+.ncl-comp-item.collapsed .ncl-comp-header {
+    margin-bottom: 0;
+}
+
+.ncl-comp-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #50575e;
+    padding: 2px 4px;
+    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ncl-comp-toggle:hover {
+    color: #2271b1;
+}
+
+.ncl-comp-toggle .dashicons {
+    transition: transform 0.2s;
+}
+
+.ncl-comp-item.collapsed .ncl-comp-toggle .dashicons {
+    transform: rotate(-90deg);
+}
+
+/* --- CSS Sidebar Layout --- */
+.ncl-css-sidebar-layout {
+    display: flex;
+    gap: 0;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.ncl-css-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #f6f7f7;
+    border-right: 1px solid #c3c4c7;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.ncl-css-sidebar-title {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #50575e;
+    padding: 14px 16px 8px;
+}
+
+#ncl-css-sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#ncl-css-sidebar-list li {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1d2327;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+#ncl-css-sidebar-list li:hover {
+    background: #e9ecf0;
+}
+
+#ncl-css-sidebar-list li.active {
+    background: #fff;
+    border-left-color: #2271b1;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+#ncl-css-sidebar-list li .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 6px;
+    color: #8c8f94;
+}
+
+#ncl-css-sidebar-list li.active .dashicons {
+    color: #2271b1;
+}
+
+.ncl-css-editor-panel {
+    flex: 1;
+    padding: 20px;
+    min-width: 0;
+}
+
+/* --- Tabs Editor --- */
+.ncl-tabs-editor {
+    background: #fafafa;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.ncl-tabs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ncl-tab-item {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-left: 3px solid #2271b1;
+    padding: 12px;
+    border-radius: 3px;
+}
+
+.ncl-tab-item .input-tab-title {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.ncl-tab-item .input-tab-content {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+    resize: vertical;
+}
+
+.ncl-tab-item .btn-delete-tab {
+    max-width: 100%;
+}
+</style>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    let mediaUploader;
+
+    // DATA
+    let pageData = <?php echo json_encode($page_data); ?>;
+    let cssData = <?php echo json_encode($page_css_data); ?>; // { "hero": ".hero { bg... }", "intro": "..." }
+
+    // Ensure CSS data is object
+    if (!cssData || Array.isArray(cssData)) cssData = {};
+
+    // --- MIGRATION Logic ---
+    if (pageData && !Array.isArray(pageData) && Object.keys(pageData).length > 0) {
         let newData = [];
         Object.keys(pageData).forEach(secKey => {
-          let comps = [];
-          Object.keys(pageData[secKey]).forEach(compKey => {
-            comps.push({
-              id: compKey,
-              type: pageData[secKey][compKey].type || 'text',
-              value: pageData[secKey][compKey].value || ''
+            let comps = [];
+            Object.keys(pageData[secKey]).forEach(compKey => {
+                comps.push({
+                    id: compKey,
+                    type: pageData[secKey][compKey].type || 'text',
+                    value: pageData[secKey][compKey].value || ''
+                });
             });
-          });
-          newData.push({
-            section_id: secKey,
-            bg_type: 'none',
-            bg_value: '',
-            components: comps
-          });
+            newData.push({
+                section_id: secKey,
+                bg_type: 'none',
+                bg_value: '',
+                components: comps
+            });
         });
         pageData = newData;
-      } else if (!Array.isArray(pageData)) {
+    } else if (!Array.isArray(pageData)) {
         pageData = [];
-      }
-      // --- END MIGRATION ---
+    }
+    // --- END MIGRATION ---
 
-      const $root = $('#nucleus-page-builder-root');
-      const $cssRoot = $('#ncl-css-editor-container');
-      const $sectionSelect = $('#ncl-css-section-select');
+    const $root = $('#nucleus-page-builder-root');
+    const $cssRoot = $('#ncl-css-editor-container');
+    const $sectionSelect = $('#ncl-css-section-select');
 
-      // Tracks currently active CSS section in the editor
-      let currentCssSection = '';
+    // Tracks currently active CSS section in the editor
+    let currentCssSection = '';
 
-      const $hiddenInput = $('#_nucleus_page_data_json');
-      const $hiddenCssInput = $('#_nucleus_page_css_json');
+    const $hiddenInput = $('#_nucleus_page_data_json');
+    const $hiddenCssInput = $('#_nucleus_page_css_json');
 
-      // Track collapsed section IDs to preserve state across re-renders
-      let collapsedSections = new Set();
+    // Track collapsed section IDs to preserve state across re-renders
+    let collapsedSections = new Set();
 
-      function renderBuilder() {
+    function renderBuilder() {
         // Save currently collapsed sections before re-rendering
         collapsedSections.clear();
         $('.ncl-section-block.collapsed').each(function() {
-          const sIndex = $(this).data('sindex');
-          const sectionId = pageData[sIndex]?.section_id;
-          if (sectionId) {
-            collapsedSections.add(sectionId);
-          }
+            const sIndex = $(this).data('sindex');
+            const sectionId = pageData[sIndex]?.section_id;
+            if (sectionId) {
+                collapsedSections.add(sectionId);
+            }
         });
 
         // Destroy existing wp_editor instances to prevent caching issues
         if (typeof wp !== 'undefined' && wp.editor) {
-          $('.input-comp-wysiwyg').each(function() {
-            wp.editor.remove($(this).attr('id'));
-          });
+            $('.input-comp-wysiwyg').each(function() {
+                wp.editor.remove($(this).attr('id'));
+            });
         }
 
         $root.empty();
@@ -1481,18 +1481,18 @@ function nucleus_page_dynamic_builder_html($post)
         const $sidebarList = $('#ncl-css-sidebar-list');
         $sidebarList.empty();
         $sidebarList.append(
-          `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}"><span class="dashicons dashicons-admin-customizer"></span>Global Custom CSS</li>`
+            `<li data-section="global" class="${currentCssSection === 'global' ? 'active' : ''}"><span class="dashicons dashicons-admin-customizer"></span>Global Custom CSS</li>`
         );
 
         const $sectionsWrapper = $('<div class="ncl-sections-wrapper"></div>');
 
         pageData.forEach((section, sIndex) => {
-          // Populate CSS sidebar
-          $sidebarList.append(
-            `<li data-section="${escapeHtml(section.section_id)}" class="${currentCssSection === section.section_id ? 'active' : ''}"><span class="dashicons dashicons-layout"></span>${escapeHtml(section.section_id)}</li>`
-          );
+            // Populate CSS sidebar
+            $sidebarList.append(
+                `<li data-section="${escapeHtml(section.section_id)}" class="${currentCssSection === section.section_id ? 'active' : ''}"><span class="dashicons dashicons-layout"></span>${escapeHtml(section.section_id)}</li>`
+            );
 
-          const $sectionBox = $(`
+            const $sectionBox = $(`
                         <div class="ncl-section-block" data-sindex="${sIndex}">
                             <div class="ncl-section-header">
                                 <h3>
@@ -1532,13 +1532,13 @@ function nucleus_page_dynamic_builder_html($post)
                         </div>
                     `);
 
-          const $compList = $sectionBox.find('.ncl-comp-list');
+            const $compList = $sectionBox.find('.ncl-comp-list');
 
-          if (section.components && section.components.length > 0) {
-            section.components.forEach((comp, cIndex) => {
-              const fullHtmlId = `${section.section_id}-${comp.id}`;
+            if (section.components && section.components.length > 0) {
+                section.components.forEach((comp, cIndex) => {
+                    const fullHtmlId = `${section.section_id}-${comp.id}`;
 
-              $compBox = $(`
+                    $compBox = $(`
                                 <div class="ncl-comp-item">
                                     <div class="ncl-comp-header">
                                         <div><button type="button" class="ncl-comp-toggle btn-toggle-comp"><span class="dashicons dashicons-arrow-down-alt2"></span></button><span class="dashicons dashicons-editor-code" style="color: #2271b1; vertical-align: middle;"></span> Component ID: <span class="ncl-comp-id-display">${escapeHtml(fullHtmlId)}</span></div>
@@ -1643,7 +1643,7 @@ function nucleus_page_dynamic_builder_html($post)
                                         </div>
                                     ` : ''}
                                     ${comp.type === 'card' ? `
-                                    <div class="ncl-card-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+                                    <div class="ncl-card-editor" data-sindex="${sIndex}" data-cindex="${cIndex}" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
                                     <div style="display:flex; flex-direction:column; gap:12px;">
                                     <div style="display:flex; gap:10px; align-items:center;">
                                     <input type="text" class="input-card-image" placeholder="Image URL" value="${escapeHtml(comp.value?.image || '')}" style="flex:1; padding:6px 8px; border:1px solid #8c8f94; border-radius:3px;" />
@@ -1705,15 +1705,15 @@ function nucleus_page_dynamic_builder_html($post)
                                     </div>
                                 </div>
                             `);
-              $compList.append($compBox);
-            });
-          } else {
-            $compList.append(
-              '<p style="color:#646970; font-style:italic;">No components added to this section yet.</p>'
-            );
-          }
+                    $compList.append($compBox);
+                });
+            } else {
+                $compList.append(
+                    '<p style="color:#646970; font-style:italic;">No components added to this section yet.</p>'
+                );
+            }
 
-          $sectionsWrapper.append($sectionBox);
+            $sectionsWrapper.append($sectionBox);
         });
 
         $root.append($sectionsWrapper);
@@ -1725,78 +1725,78 @@ function nucleus_page_dynamic_builder_html($post)
 
         // Restore collapsed state
         collapsedSections.forEach(sectionId => {
-          $sectionBlock = $root.find('.ncl-section-block').filter(function() {
-            const sIndex = $(this).data('sindex');
-            return pageData[sIndex]?.section_id === sectionId;
-          });
-          if ($sectionBlock.length) {
-            $sectionBlock.addClass('collapsed');
-          }
+            $sectionBlock = $root.find('.ncl-section-block').filter(function() {
+                const sIndex = $(this).data('sindex');
+                return pageData[sIndex]?.section_id === sectionId;
+            });
+            if ($sectionBlock.length) {
+                $sectionBlock.addClass('collapsed');
+            }
         });
 
         // Initialize Sortable for Drag and Drop
         $sectionsWrapper.sortable({
-          handle: '.ncl-section-header',
-          placeholder: 'ui-sortable-placeholder',
-          forcePlaceholderSize: true,
-          update: function(event, ui) {
-            reorderDataArray();
-          }
+            handle: '.ncl-section-header',
+            placeholder: 'ui-sortable-placeholder',
+            forcePlaceholderSize: true,
+            update: function(event, ui) {
+                reorderDataArray();
+            }
         });
 
         // Initialize WYSIWYG editors
         if (typeof wp !== 'undefined' && wp.editor) {
-          $('.input-comp-wysiwyg').each(function() {
-            const id = $(this).attr('id');
-            const sIndex = $(this).data('sindex');
-            const cIndex = $(this).data('cindex');
+            $('.input-comp-wysiwyg').each(function() {
+                const id = $(this).attr('id');
+                const sIndex = $(this).data('sindex');
+                const cIndex = $(this).data('cindex');
 
-            wp.editor.initialize(id, {
-              tinymce: {
-                wpautop: true,
-                setup: function(ed) {
-                  ed.on('keyup change redo undo', function() {
-                    ed.save(); // Save visual content back to textarea
-                    $('#' + id).trigger(
-                      'change'); // Trigger our saving logic
-                  });
-                }
-              },
-              quicktags: true
+                wp.editor.initialize(id, {
+                    tinymce: {
+                        wpautop: true,
+                        setup: function(ed) {
+                            ed.on('keyup change redo undo', function() {
+                                ed.save(); // Save visual content back to textarea
+                                $('#' + id).trigger(
+                                    'change'); // Trigger our saving logic
+                            });
+                        }
+                    },
+                    quicktags: true
+                });
             });
-          });
         }
 
         syncHiddenInput();
         renderCssEditor(); // Re-render CSS portion
-      }
+    }
 
-      // NEW: Render just the editor for the stored/current selection
-      function renderCssEditor() {
+    // NEW: Render just the editor for the stored/current selection
+    function renderCssEditor() {
         $cssRoot.empty();
 
         if (!currentCssSection) {
-          $cssRoot.html(
-            '<div style="padding: 40px; text-align: center; color: #666; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px;">Select a section from the sidebar to edit its CSS.</div>'
-          );
-          return;
+            $cssRoot.html(
+                '<div style="padding: 40px; text-align: center; color: #666; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px;">Select a section from the sidebar to edit its CSS.</div>'
+            );
+            return;
         }
 
         const cssContent = cssData[currentCssSection] || '';
         let placeholder = '';
         if (currentCssSection === 'global') {
-          placeholder = "/* Global CSS — applies to the entire page */\nbody {\n\n}";
+            placeholder = "/* Global CSS — applies to the entire page */\nbody {\n\n}";
         } else {
-          // Build a helpful placeholder showing component IDs
-          const section = pageData.find(s => s.section_id === currentCssSection);
-          let compHints = '';
-          if (section && section.components && section.components.length > 0) {
-            compHints = section.components.map(c =>
-              `#${currentCssSection}-${c.id} {\n    /* style this component */\n}`).join('\n\n');
-          } else {
-            compHints = `/* Add components in Content Builder first */`;
-          }
-          placeholder = `/* CSS for section: ${currentCssSection} */\n${compHints}`;
+            // Build a helpful placeholder showing component IDs
+            const section = pageData.find(s => s.section_id === currentCssSection);
+            let compHints = '';
+            if (section && section.components && section.components.length > 0) {
+                compHints = section.components.map(c =>
+                    `#${currentCssSection}-${c.id} {\n    /* style this component */\n}`).join('\n\n');
+            } else {
+                compHints = `/* Add components in Content Builder first */`;
+            }
+            placeholder = `/* CSS for section: ${currentCssSection} */\n${compHints}`;
         }
 
         const $editor = $(`
@@ -1806,63 +1806,63 @@ function nucleus_page_dynamic_builder_html($post)
         `);
 
         $cssRoot.append($editor);
-      }
+    }
 
-      function syncCssInput() {
+    function syncCssInput() {
         $hiddenCssInput.val(JSON.stringify(cssData));
-      }
+    }
 
-      function reorderDataArray() {
+    function reorderDataArray() {
         const newData = [];
         $('.ncl-section-block').each(function() {
-          const originalIndex = $(this).data('sindex');
-          newData.push(pageData[originalIndex]);
+            const originalIndex = $(this).data('sindex');
+            newData.push(pageData[originalIndex]);
         });
         pageData = newData;
         renderBuilder(); // Re-render to fix indices
-      }
+    }
 
-      function syncHiddenInput() {
+    function syncHiddenInput() {
         $hiddenInput.val(JSON.stringify(pageData));
-      }
+    }
 
-      function escapeHtml(unsafe) {
+    function escapeHtml(unsafe) {
         if (!unsafe) return '';
         return String(unsafe).replace(/[&<"']/g, function(m) {
-          switch (m) {
-            case '&':
-              return '&amp;';
-            case '<':
-              return '&lt;';
-            case '"':
-              return '&quot;';
-            case "'":
-              return '&#039;';
-          }
+            switch (m) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '"':
+                    return '&quot;';
+                case "'":
+                    return '&#039;';
+            }
         });
-      }
+    }
 
-      // --- Interactions --- //
+    // --- Interactions --- //
 
-      // TABS
-      $('.ncl-tab-btn').on('click', function() {
+    // TABS
+    $('.ncl-tab-btn').on('click', function() {
         $('.ncl-tab-btn').removeClass('active');
         $(this).addClass('active');
         const tab = $(this).data('tab');
         $('.ncl-tab-pane').removeClass('active');
         $('#ncl-tab-content-' + tab).addClass('active');
-      });
+    });
 
-      // CSS Interactions
-      // 1. Handle Dropdown Change (kept for backward compat, sidebar is primary)
-      $sectionSelect.on('change', function() {
+    // CSS Interactions
+    // 1. Handle Dropdown Change (kept for backward compat, sidebar is primary)
+    $sectionSelect.on('change', function() {
         const val = $(this).val();
         currentCssSection = val;
         renderCssEditor();
-      });
+    });
 
-      // 2. CSS Sidebar Click
-      $(document).on('click', '#ncl-css-sidebar-list li', function() {
+    // 2. CSS Sidebar Click
+    $(document).on('click', '#ncl-css-sidebar-list li', function() {
         const val = $(this).data('section');
         currentCssSection = val;
         $('#ncl-css-sidebar-list li').removeClass('active');
@@ -1870,107 +1870,107 @@ function nucleus_page_dynamic_builder_html($post)
 
         // Auto-initialize if empty
         if (val && !cssData[val]) {
-          if (val === 'global') {
-            cssData[val] = "/* Global Styles */\nbody {\n\n}";
-          } else {
-            const section = pageData.find(s => s.section_id === val);
-            let starterCss = `/* CSS for section: ${val} */\n`;
-            if (section && section.components && section.components.length > 0) {
-              starterCss += section.components.map(c => `#${val}-${c.id} {\n\n}`).join('\n\n');
+            if (val === 'global') {
+                cssData[val] = "/* Global Styles */\nbody {\n\n}";
+            } else {
+                const section = pageData.find(s => s.section_id === val);
+                let starterCss = `/* CSS for section: ${val} */\n`;
+                if (section && section.components && section.components.length > 0) {
+                    starterCss += section.components.map(c => `#${val}-${c.id} {\n\n}`).join('\n\n');
+                }
+                cssData[val] = starterCss;
             }
-            cssData[val] = starterCss;
-          }
-          syncCssInput();
+            syncCssInput();
         }
 
         renderCssEditor();
-      });
+    });
 
-      // 3. Live Type Saving
-      $cssRoot.on('input', '#ncl-active-css-editor', function() {
+    // 3. Live Type Saving
+    $cssRoot.on('input', '#ncl-active-css-editor', function() {
         if (currentCssSection) {
-          cssData[currentCssSection] = $(this).val();
-          syncCssInput();
+            cssData[currentCssSection] = $(this).val();
+            syncCssInput();
         }
-      });
+    });
 
-      // Content Interactions (Existing)
-      $root.on('click', '.btn-add-section', function() {
+    // Content Interactions (Existing)
+    $root.on('click', '.btn-add-section', function() {
         // Generate a readable default name like "new-section", "new-section-2", etc.
         let baseName = 'new-section';
         let newId = baseName;
         let counter = 2;
         while (pageData.some(s => s.section_id === newId)) {
-          newId = baseName + '-' + counter;
-          counter++;
+            newId = baseName + '-' + counter;
+            counter++;
         }
         pageData.push({
-          section_id: newId,
-          bg_type: 'none',
-          bg_value: '',
-          components: []
+            section_id: newId,
+            bg_type: 'none',
+            bg_value: '',
+            components: []
         });
         renderBuilder();
-      });
+    });
 
-      $root.on('click', '.btn-delete-section', function() {
+    $root.on('click', '.btn-delete-section', function() {
         if (confirm('Are you sure you want to delete this entire section and all its contents?')) {
-          const sIndex = $(this).data('sindex');
-          pageData.splice(sIndex, 1);
-          renderBuilder();
+            const sIndex = $(this).data('sindex');
+            pageData.splice(sIndex, 1);
+            renderBuilder();
         }
-      });
+    });
 
-      $root.on('input', '.input-sec-id', function() {
+    $root.on('input', '.input-sec-id', function() {
         const sIndex = $(this).data('sindex');
         let newId = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_]/g, '-');
         pageData[sIndex].section_id = newId;
 
         // Live update the frontend IDs displayed for all components in this section
         $(this).closest('.ncl-section-block').find('.ncl-sec-css-display').text('#nucleus-section-' + (
-          newId || '[empty]'));
+            newId || '[empty]'));
         $(this).closest('.ncl-section-block').find('.ncl-comp-item').each(function() {
-          const cIndex = $(this).find('.input-comp-key').data('cindex');
-          const compId = pageData[sIndex].components[cIndex].id;
-          $(this).find('.ncl-comp-id-display').text(newId + '-' + (compId || '[empty]'));
+            const cIndex = $(this).find('.input-comp-key').data('cindex');
+            const compId = pageData[sIndex].components[cIndex].id;
+            $(this).find('.ncl-comp-id-display').text(newId + '-' + (compId || '[empty]'));
         });
         syncHiddenInput();
-      });
+    });
 
-      // Toggle section collapse
-      $root.on('click', '.btn-toggle-section', function(e) {
+    // Toggle section collapse
+    $root.on('click', '.btn-toggle-section', function(e) {
         e.stopPropagation();
         $(this).closest('.ncl-section-block').toggleClass('collapsed');
-      });
+    });
 
-      // Toggle component collapse
-      $root.on('click', '.btn-toggle-comp', function(e) {
+    // Toggle component collapse
+    $root.on('click', '.btn-toggle-comp', function(e) {
         e.stopPropagation();
         $(this).closest('.ncl-comp-item').toggleClass('collapsed');
-      });
+    });
 
-      $root.on('click', '.btn-add-comp', function() {
+    $root.on('click', '.btn-add-comp', function() {
         const sIndex = $(this).data('sindex');
         pageData[sIndex].components.push({
-          id: '',
-          type: 'text',
-          value: '',
-          meta: ''
+            id: '',
+            type: 'text',
+            value: '',
+            meta: ''
         });
         renderBuilder();
-      });
+    });
 
-      $root.on('click', '.btn-delete-comp', function() {
+    $root.on('click', '.btn-delete-comp', function() {
         if (confirm('Delete this component?')) {
-          const sIndex = $(this).data('sindex');
-          const cIndex = $(this).data('cindex');
-          pageData[sIndex].components.splice(cIndex, 1);
-          renderBuilder();
+            const sIndex = $(this).data('sindex');
+            const cIndex = $(this).data('cindex');
+            pageData[sIndex].components.splice(cIndex, 1);
+            renderBuilder();
         }
-      });
+    });
 
-      // Updating Data dynamically
-      $root.on('change', '.input-sec-bg-type', function() {
+    // Updating Data dynamically
+    $root.on('change', '.input-sec-bg-type', function() {
         const sIndex = $(this).data('sindex');
         pageData[sIndex].bg_type = $(this).val();
 
@@ -1979,16 +1979,16 @@ function nucleus_page_dynamic_builder_html($post)
         else pageData[sIndex].bg_value = '';
 
         renderBuilder();
-      });
+    });
 
-      $root.on('input change', '.input-sec-bg-val', function() {
+    $root.on('input change', '.input-sec-bg-val', function() {
         const sIndex = $(this).data('sindex');
         pageData[sIndex].bg_value = $(this).val();
         syncHiddenInput();
-      });
+    });
 
-      // Handle Component Type Change
-      $root.on('change', '.input-comp-type', function() {
+    // Handle Component Type Change
+    $root.on('change', '.input-comp-type', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const newType = $(this).val();
@@ -1996,340 +1996,347 @@ function nucleus_page_dynamic_builder_html($post)
 
         // Initialize tabs array if switching to tabs type
         if (newType === 'tabs' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [{
-            title: '',
-            content: ''
-          }];
+            pageData[sIndex].components[cIndex].value = [{
+                title: '',
+                content: ''
+            }];
         }
 
         // Initialize carousel array if switching to carousel type
         if (newType === 'carousel' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [{
-            image: '',
-            title: '',
-            content: '',
-            link: ''
-          }];
+            pageData[sIndex].components[cIndex].value = [{
+                image: '',
+                title: '',
+                content: '',
+                link: ''
+            }];
         }
 
         // Initialize accordion array
         if (newType === 'accordion' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [{
-            title: '',
-            content: ''
-          }];
+            pageData[sIndex].components[cIndex].value = [{
+                title: '',
+                content: ''
+            }];
         }
 
         // Initialize card array
         if (newType === 'card' && typeof pageData[sIndex].components[cIndex].value !== 'object') {
-          pageData[sIndex].components[cIndex].value = {
-            image: '',
-            title: '',
-            desc: '',
-            content: ''
-          };
+            pageData[sIndex].components[cIndex].value = {
+                image: '',
+                title: '',
+                desc: '',
+                content: ''
+            };
         }
 
         // Initialize checklist array
         if (newType === 'checklist' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [];
+            pageData[sIndex].components[cIndex].value = [];
         }
 
         // Initialize testimonial object
         if (newType === 'testimonial' && typeof pageData[sIndex].components[cIndex].value !==
-          'object') {
-          pageData[sIndex].components[cIndex].value = {
-            quote: '',
-            author: '',
-            image: ''
-          };
+            'object') {
+            pageData[sIndex].components[cIndex].value = {
+                quote: '',
+                author: '',
+                image: ''
+            };
         }
 
         renderBuilder();
-      });
+    });
 
-      // Tabs: Add Tab Item
-      $root.on('click', '.btn-add-tab', function(e) {
+    // Tabs: Add Tab Item
+    $root.on('click', '.btn-add-tab', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
 
         if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [];
+            pageData[sIndex].components[cIndex].value = [];
         }
         pageData[sIndex].components[cIndex].value.push({
-          title: '',
-          content: ''
+            title: '',
+            content: ''
         });
         renderBuilder();
-      });
+    });
 
-      // Tabs: Delete Tab Item
-      $root.on('click', '.btn-delete-tab', function(e) {
+    // Tabs: Delete Tab Item
+    $root.on('click', '.btn-delete-tab', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const tIndex = $(this).data('tindex');
 
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
-          renderBuilder();
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
         }
-      });
+    });
 
-      // Tabs: Update Tab Title
-      $root.on('input', '.input-tab-title', function() {
+    // Tabs: Update Tab Title
+    $root.on('input', '.input-tab-title', function() {
         const sIndex = $(this).closest('.ncl-tab-item').data('sindex');
         const cIndex = $(this).closest('.ncl-tab-item').data('cindex');
         const tIndex = $(this).closest('.ncl-tab-item').data('tindex');
 
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value[tIndex].title = $(this).val();
-          syncHiddenInput();
+            pageData[sIndex].components[cIndex].value[tIndex].title = $(this).val();
+            syncHiddenInput();
         }
-      });
+    });
 
-      // Tabs: Update Tab Content
-      $root.on('input', '.input-tab-content', function() {
+    // Tabs: Update Tab Content
+    $root.on('input', '.input-tab-content', function() {
         const sIndex = $(this).closest('.ncl-tab-item').data('sindex');
         const cIndex = $(this).closest('.ncl-tab-item').data('cindex');
         const tIndex = $(this).closest('.ncl-tab-item').data('tindex');
 
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value[tIndex].content = $(this).val();
-          syncHiddenInput();
+            pageData[sIndex].components[cIndex].value[tIndex].content = $(this).val();
+            syncHiddenInput();
         }
-      });
+    });
 
-      // Carousel: Add Slide
-      $root.on('click', '.btn-add-carousel-slide', function(e) {
+    // Carousel: Add Slide
+    $root.on('click', '.btn-add-carousel-slide', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
 
         if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [];
+            pageData[sIndex].components[cIndex].value = [];
         }
         pageData[sIndex].components[cIndex].value.push({
-          image: '',
-          title: '',
-          content: '',
-          link: ''
+            image: '',
+            title: '',
+            content: '',
+            link: ''
         });
         renderBuilder();
-      });
+    });
 
-      // Carousel: Delete Slide
-      $root.on('click', '.btn-delete-carousel-slide', function(e) {
+    // Carousel: Delete Slide
+    $root.on('click', '.btn-delete-carousel-slide', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const tIndex = $(this).data('tindex');
 
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
-          renderBuilder();
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
         }
-      });
+    });
 
-      // Carousel: Update Fields
-      $root.on('input',
+    // Carousel: Update Fields
+    $root.on('input',
         '.input-carousel-image, .input-carousel-title, .input-carousel-content, .input-carousel-link',
         function() {
-          const $item = $(this).closest('.ncl-carousel-item');
-          const sIndex = $item.data('sindex');
-          const cIndex = $item.data('cindex');
-          const tIndex = $item.data('tindex');
+            const $item = $(this).closest('.ncl-carousel-item');
+            const sIndex = $item.data('sindex');
+            const cIndex = $item.data('cindex');
+            const tIndex = $item.data('tindex');
 
-          if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-            pageData[sIndex].components[cIndex].value[tIndex] = {
-              image: $item.find('.input-carousel-image').val(),
-              title: $item.find('.input-carousel-title').val(),
-              content: $item.find('.input-carousel-content').val(),
-              link: $item.find('.input-carousel-link').val()
-            };
-            syncHiddenInput();
-          }
+            if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+                pageData[sIndex].components[cIndex].value[tIndex] = {
+                    image: $item.find('.input-carousel-image').val(),
+                    title: $item.find('.input-carousel-title').val(),
+                    content: $item.find('.input-carousel-content').val(),
+                    link: $item.find('.input-carousel-link').val()
+                };
+                syncHiddenInput();
+            }
         });
 
-      // Carousel: Upload Image
-      $root.on('click', '.btn-upload-carousel-image', function(e) {
+    // Carousel: Upload Image
+    $root.on('click', '.btn-upload-carousel-image', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const tIndex = $(this).data('tindex');
 
         let compUploader = wp.media({
-          title: 'Choose Slide Image',
-          button: {
-            text: 'Choose Image'
-          },
-          multiple: false
+            title: 'Choose Slide Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
         });
 
         compUploader.on('select', function() {
-          const attachment = compUploader.state().get('selection').first().toJSON();
-          if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-            pageData[sIndex].components[cIndex].value[tIndex].image = attachment.url;
-            renderBuilder();
-          }
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+                pageData[sIndex].components[cIndex].value[tIndex].image = attachment.url;
+                renderBuilder();
+            }
         });
         compUploader.open();
-      });
+    });
 
-      // --- Checklist: Add item ---
-      $root.on('click', '.btn-add-checklist', function() {
+    // --- Checklist: Add item ---
+    $root.on('click', '.btn-add-checklist', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [];
+            pageData[sIndex].components[cIndex].value = [];
         }
         pageData[sIndex].components[cIndex].value.push('');
         renderBuilder();
-      });
+    });
 
-      // --- Checklist: Remove item ---
-      $root.on('click', '.btn-delete-checklist', function() {
+    // --- Checklist: Remove item ---
+    $root.on('click', '.btn-delete-checklist', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const tIndex = $(this).data('tindex');
         pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
         renderBuilder();
-      });
+    });
 
-      // --- Checklist: Update item text on change ---
-      $root.on('input', '.input-checklist-item', function() {
+    // --- Checklist: Update item text on change ---
+    $root.on('input', '.input-checklist-item', function() {
         const $item = $(this).closest('.ncl-checklist-item');
         const sIndex = $item.data('sindex');
         const cIndex = $item.data('cindex');
         const tIndex = $item.data('tindex');
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value[tIndex] = $(this).val();
-          syncHiddenInput();
+            pageData[sIndex].components[cIndex].value[tIndex] = $(this).val();
+            syncHiddenInput();
         }
-      });
+    });
 
-      // Accordion: Add Item
-      $root.on('click', '.btn-add-accordion', function(e) {
+    // Accordion: Add Item
+    $root.on('click', '.btn-add-accordion', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value = [];
+            pageData[sIndex].components[cIndex].value = [];
         }
         pageData[sIndex].components[cIndex].value.push({
-          title: '',
-          content: ''
+            title: '',
+            content: ''
         });
         renderBuilder();
-      });
+    });
 
-      // Accordion: Delete Item
-      $root.on('click', '.btn-delete-accordion', function(e) {
+    // Accordion: Delete Item
+    $root.on('click', '.btn-delete-accordion', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const tIndex = $(this).data('tindex');
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
-          renderBuilder();
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
         }
-      });
+    });
 
-      // Accordion: Update Fields
-      $root.on('input', '.input-accordion-title, .input-accordion-content', function() {
+    // Accordion: Update Fields
+    $root.on('input', '.input-accordion-title, .input-accordion-content', function() {
         const $item = $(this).closest('.ncl-accordion-item');
         const sIndex = $item.data('sindex');
         const cIndex = $item.data('cindex');
         const tIndex = $item.data('tindex');
         if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
-          pageData[sIndex].components[cIndex].value[tIndex] = {
-            title: $item.find('.input-accordion-title').val(),
-            content: $item.find('.input-accordion-content').val()
-          };
-          syncHiddenInput();
+            pageData[sIndex].components[cIndex].value[tIndex] = {
+                title: $item.find('.input-accordion-title').val(),
+                content: $item.find('.input-accordion-content').val()
+            };
+            syncHiddenInput();
         }
-      });
+    });
 
-      // Testimonial: Update Fields
-      $root.on('input', '.input-testimonial-quote, .input-testimonial-author, .input-testimonial-image',
+    // Testimonial: Update Fields
+    $root.on('input', '.input-testimonial-quote, .input-testimonial-author, .input-testimonial-image',
         function() {
-          const $editor = $(this).closest('.ncl-testimonial-editor');
-          const sIndex = $editor.data('sindex');
-          const cIndex = $editor.data('cindex');
-          pageData[sIndex].components[cIndex].value = {
-            quote: $editor.find('.input-testimonial-quote').val(),
-            author: $editor.find('.input-testimonial-author').val(),
-            image: $editor.find('.input-testimonial-image').val()
-          };
-          syncHiddenInput();
+            const $editor = $(this).closest('.ncl-testimonial-editor');
+            const sIndex = $editor.data('sindex');
+            const cIndex = $editor.data('cindex');
+            pageData[sIndex].components[cIndex].value = {
+                quote: $editor.find('.input-testimonial-quote').val(),
+                author: $editor.find('.input-testimonial-author').val(),
+                image: $editor.find('.input-testimonial-image').val()
+            };
+            syncHiddenInput();
         });
 
-      // Testimonial: Upload Image
-      $root.on('click', '.btn-upload-testimonial-image', function(e) {
+    // Testimonial: Upload Image
+    $root.on('click', '.btn-upload-testimonial-image', function(e) {
         e.preventDefault();
         const $editor = $(this).closest('.ncl-testimonial-editor');
         const sIndex = $editor.data('sindex');
         const cIndex = $editor.data('cindex');
 
         let compUploader = wp.media({
-          title: 'Choose Author Image',
-          button: {
-            text: 'Choose Image'
-          },
-          multiple: false
+            title: 'Choose Author Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
         });
         compUploader.on('select', function() {
-          const attachment = compUploader.state().get('selection').first().toJSON();
-          if (typeof pageData[sIndex].components[cIndex].value !== 'object') {
-            pageData[sIndex].components[cIndex].value = {
-              quote: '',
-              author: '',
-              image: ''
-            };
-          }
-          pageData[sIndex].components[cIndex].value.image = attachment.url;
-          renderBuilder();
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            if (typeof pageData[sIndex].components[cIndex].value !== 'object') {
+                pageData[sIndex].components[cIndex].value = {
+                    quote: '',
+                    author: '',
+                    image: ''
+                };
+            }
+            pageData[sIndex].components[cIndex].value.image = attachment.url;
+            renderBuilder();
         });
         compUploader.open();
-      });
+    });
 
-      // Card: update fields on change
-      $root.on('input change', '.input-card-image, .input-card-title, .input-card-desc, .input-card-content, .input-card-url, .input-card-link-text', function() {
-        const $editor = $(this).closest('.ncl-card-editor');
-        const sIndex = $editor.closest('.ncl-comp-item').find('[data-sindex]').first().data('sindex') ||
-          $(this).closest('[data-sindex]').data('sindex');
-        const cIndex = $editor.closest('.ncl-comp-item').find('[data-cindex]').first().data('cindex') ||
-          $(this).closest('[data-cindex]').data('cindex');
-        pageData[sIndex].components[cIndex].value = {
-          image: $editor.find('.input-card-image').val(),
-          title: $editor.find('.input-card-title').val(),
-          desc: $editor.find('.input-card-desc').val(),
-          content: $editor.find('.input-card-content').val(),
-          url: $editor.find('.input-card-url').val(),
-          link_text: $editor.find('.input-card-link-text').val()
-        };
-        syncHiddenInput();
-      });
+    // Card: update fields on change
+    $root.on('input change',
+        '.input-card-image, .input-card-title, .input-card-desc, .input-card-content, .input-card-url, .input-card-link-text',
+        function() {
+            const $editor = $(this).closest('.ncl-card-editor');
+            let sIndex = $editor.data('sindex');
+            let cIndex = $editor.data('cindex');
 
-      // Card: image upload button
-      $root.on('click', '.btn-upload-card-image', function() {
+            if (sIndex === undefined) {
+                sIndex = $editor.closest('.ncl-comp-item').find('[data-sindex]').first().data('sindex');
+            }
+            if (cIndex === undefined) {
+                cIndex = $editor.closest('.ncl-comp-item').find('[data-cindex]').first().data('cindex');
+            }
+            pageData[sIndex].components[cIndex].value = {
+                image: $editor.find('.input-card-image').val(),
+                title: $editor.find('.input-card-title').val(),
+                desc: $editor.find('.input-card-desc').val(),
+                content: $editor.find('.input-card-content').val(),
+                url: $editor.find('.input-card-url').val(),
+                link_text: $editor.find('.input-card-link-text').val()
+            };
+            syncHiddenInput();
+        });
+
+    // Card: image upload button
+    $root.on('click', '.btn-upload-card-image', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         const $btn = $(this);
         const frame = wp.media({
-          title: 'Select Card Image',
-          multiple: false
+            title: 'Select Card Image',
+            multiple: false
         });
         frame.on('select', function() {
-          const attachment = frame.state().get('selection').first().toJSON();
-          $btn.siblings('.input-card-image').val(attachment.url).trigger('input');
+            const attachment = frame.state().get('selection').first().toJSON();
+            $btn.siblings('.input-card-image').val(attachment.url).trigger('input');
         });
         frame.open();
-      });
+    });
 
-      // Sanitize Section ID on change
-      $root.on('change', '.input-sec-id', function() {
+    // Sanitize Section ID on change
+    $root.on('change', '.input-sec-id', function() {
         const sIndex = $(this).data('sindex');
         let val = $(this).val().trim();
         // Convert to slug: lowercase, replace spaces/specials with dashes
@@ -2338,25 +2345,25 @@ function nucleus_page_dynamic_builder_html($post)
 
         pageData[sIndex].section_id = val;
         renderBuilder(); // Refresh UI to show sanitized value
-      });
+    });
 
-      $root.on('input change', '.input-comp-val, .input-comp-wysiwyg', function() {
+    $root.on('input change', '.input-comp-val, .input-comp-wysiwyg', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         pageData[sIndex].components[cIndex].value = $(this).val();
         syncHiddenInput();
-      });
+    });
 
-      // New META field listener (for links)
-      $root.on('input change', '.input-comp-meta', function() {
+    // New META field listener (for links)
+    $root.on('input change', '.input-comp-meta', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         pageData[sIndex].components[cIndex].meta = $(this).val();
         syncHiddenInput();
-      });
+    });
 
-      // Handle Component Key Renaming Live (Updates the UI frontend ID string instantly)
-      $root.on('input', '.input-comp-key', function() {
+    // Handle Component Key Renaming Live (Updates the UI frontend ID string instantly)
+    $root.on('input', '.input-comp-key', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         let newId = $(this).val().trim().toLowerCase().replace(/[^a-z0-9_]/g, '-');
@@ -2365,64 +2372,64 @@ function nucleus_page_dynamic_builder_html($post)
 
         // Live visual update on the header
         $(this).closest('.ncl-comp-item')
-          .find('.ncl-comp-id-display')
-          .text(pageData[sIndex].section_id + '-' + (newId || '[empty]'));
+            .find('.ncl-comp-id-display')
+            .text(pageData[sIndex].section_id + '-' + (newId || '[empty]'));
 
         syncHiddenInput();
-      });
+    });
 
-      // WP Media Uploader for Section Backgrounds
-      $root.on('click', '.btn-upload-image', function(e) {
+    // WP Media Uploader for Section Backgrounds
+    $root.on('click', '.btn-upload-image', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
 
         if (mediaUploader) {
-          mediaUploader.open();
-          return;
+            mediaUploader.open();
+            return;
         }
 
         mediaUploader = wp.media.frames.file_frame = wp.media({
-          title: 'Choose Background Image',
-          button: {
-            text: 'Choose Image'
-          },
-          multiple: false
+            title: 'Choose Background Image',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
         });
 
         mediaUploader.on('select', function() {
-          const attachment = mediaUploader.state().get('selection').first().toJSON();
-          pageData[sIndex].bg_value = attachment.url;
-          renderBuilder();
+            const attachment = mediaUploader.state().get('selection').first().toJSON();
+            pageData[sIndex].bg_value = attachment.url;
+            renderBuilder();
         });
         mediaUploader.open();
-      });
+    });
 
-      // WP Media Uploader for Component Images
-      $root.on('click', '.btn-upload-comp-image', function(e) {
+    // WP Media Uploader for Component Images
+    $root.on('click', '.btn-upload-comp-image', function(e) {
         e.preventDefault();
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
 
         let compUploader = wp.media({
-          title: 'Choose Image Component',
-          button: {
-            text: 'Choose Image'
-          },
-          multiple: false
+            title: 'Choose Image Component',
+            button: {
+                text: 'Choose Image'
+            },
+            multiple: false
         });
 
         compUploader.on('select', function() {
-          const attachment = compUploader.state().get('selection').first().toJSON();
-          pageData[sIndex].components[cIndex].value = attachment.url;
-          renderBuilder();
+            const attachment = compUploader.state().get('selection').first().toJSON();
+            pageData[sIndex].components[cIndex].value = attachment.url;
+            renderBuilder();
         });
         compUploader.open();
-      });
-
-      // Initialize UI
-      renderBuilder();
     });
-  </script>
+
+    // Initialize UI
+    renderBuilder();
+});
+</script>
 <?php
 }
 

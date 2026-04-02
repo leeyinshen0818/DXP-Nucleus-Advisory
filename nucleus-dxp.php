@@ -22,6 +22,9 @@ require_once NUCLEUS_DXP_PATH . 'includes/product-manager.php';
 require_once NUCLEUS_DXP_PATH . 'includes/page-manager.php';
 require_once plugin_dir_path(__FILE__) . 'includes/activity-manager.php';
 require_once NUCLEUS_DXP_PATH . 'includes/rest-api.php';
+require_once NUCLEUS_DXP_PATH . 'includes/service-manager.php';
+
+
 
 // Database table creation on activation
 function nucleus_core_activate_table()

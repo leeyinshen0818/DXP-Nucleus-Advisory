@@ -277,6 +277,9 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
                     <option value="soon">Starting Soon</option>
                     <option value="past">Past</option>
                 </select>
+                <select id="yearFilter" class="past-select">
+                    <option value="all">All Years</option>
+                </select>
             </div>
 
             <div class="past-table-wrap">
@@ -351,7 +354,7 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
 
                         foreach($all_activities as $act):
                         ?>
-                            <tr class="past-row" data-type="<?php echo esc_attr($act['type']); ?>" data-status="<?php echo esc_attr($act['status']); ?>" data-title="<?php echo esc_attr(strtolower($act['post']->post_title)); ?>" onclick="window.location='<?php echo esc_url(get_permalink($act['post']->ID)); ?>'">
+                            <tr class="past-row" data-year="<?php echo esc_attr($act['sort'] ? substr($act['sort'], 0, 4) : ''); ?>" data-type="<?php echo esc_attr($act['type']); ?>" data-status="<?php echo esc_attr($act['status']); ?>" data-title="<?php echo esc_attr(strtolower($act['post']->post_title)); ?>" onclick="window.location='<?php echo esc_url(get_permalink($act['post']->ID)); ?>'">
                                 <td class="past-cell date"><?php echo esc_html($act['date']); ?></td>
                                 <td class="past-cell title"><?php echo esc_html($act['post']->post_title); ?></td>
                                 <td class="past-cell type">
@@ -373,17 +376,38 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
                     const searchBox = document.getElementById('pastSearch');
                     const filterMenu = document.getElementById('pastFilter');
                     const statusMenu = document.getElementById('statusFilter');
+                    const yearMenu = document.getElementById('yearFilter');
                     const rows = document.querySelectorAll('.past-row');
                     const noRes = document.getElementById('noResults');
                     const loadMoreContainer = document.getElementById('loadMoreContainer');
                     const loadMoreBtn = document.getElementById('loadMoreBtn');
                     
                     let limit = 10;
+                    
+                    let uniqueYears = new Set();
+                    rows.forEach(row => {
+                        let yr = row.getAttribute('data-year');
+                        if (yr && parseInt(yr) > 1900 && parseInt(yr) < 3000) {
+                            uniqueYears.add(yr);
+                        }
+                    });
+                    let sortedYears = Array.from(uniqueYears).sort().reverse();
+                    if (sortedYears.length > 0) {
+                        sortedYears.forEach(y => {
+                            let opt = document.createElement('option');
+                            opt.value = y;
+                            opt.textContent = y;
+                            yearMenu.appendChild(opt);
+                        });
+                    } else {
+                        yearMenu.style.display = 'none';
+                    }
 
                     function filterTable() {
                         const searchTerm = searchBox.value.toLowerCase();
                         const filterType = filterMenu.value;
                         const statusType = statusMenu.value;
+                        const yearType = yearMenu.value;
                         let visibleCount = 0;
                         let matchedRows = [];
 
@@ -391,12 +415,14 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
                             const title = row.getAttribute('data-title');
                             const type = row.getAttribute('data-type');
                             const status = row.getAttribute('data-status');
+                            const year = row.getAttribute('data-year');
                             
                             const matchesSearch = title.includes(searchTerm);
                             const matchesFilter = (filterType === 'all' || filterType === type);
                             const matchesStatus = (statusType === 'all' || statusType === status);
+                            const matchesYear = (yearType === 'all' || yearType === year);
 
-                            if(matchesSearch && matchesFilter && matchesStatus) {
+                            if(matchesSearch && matchesFilter && matchesStatus && matchesYear) {
                                 matchedRows.push(row);
                             } else {
                                 row.style.display = 'none';
@@ -419,6 +445,7 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
                     searchBox.addEventListener('input', () => { limit = 10; filterTable(); });
                     filterMenu.addEventListener('change', () => { limit = 10; filterTable(); });
                     statusMenu.addEventListener('change', () => { limit = 10; filterTable(); });
+                    yearMenu.addEventListener('change', () => { limit = 10; filterTable(); });
                     
                     loadMoreBtn.addEventListener('click', () => {
                         limit += 10;

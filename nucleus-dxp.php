@@ -20,9 +20,9 @@ require_once NUCLEUS_DXP_PATH . 'includes/analytics.php';
 require_once NUCLEUS_DXP_PATH . 'includes/admin-dashboard.php';
 require_once NUCLEUS_DXP_PATH . 'includes/product-manager.php';
 require_once NUCLEUS_DXP_PATH . 'includes/page-manager.php';
-require_once plugin_dir_path(__FILE__) . 'includes/activity-manager.php';
+require_once plugin_dir_path(__FILE__) . 'includes/program-manager.php';
 require_once NUCLEUS_DXP_PATH . 'includes/rest-api.php';
-require_once NUCLEUS_DXP_PATH . 'includes/service-manager.php';
+
 
 
 

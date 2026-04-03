@@ -1,16 +1,25 @@
 <?php
 /**
- * Template Name: Nucleus Activity (Standalone)
- * Description: Default template for displaying Nucleus Activities with Custom HF
+ * Template Name: Nucleus Event (Standalone)
+ * Description: Default template for displaying Nucleus Events with Custom HF
  */
 
 $post_id = get_the_ID();
 $hf_set_id = get_post_meta($post_id, '_nucleus_selected_hf_set', true);
 
-// Fetch Activity Meta Data
-$activity_desc = get_post_meta($post_id, '_nucleus_activity_desc', true);
-$media_json = get_post_meta($post_id, '_nucleus_activity_media', true);
+// Fetch Event Meta Data
+$activity_desc = get_post_meta($post_id, '_nucleus_event_desc', true);
+$media_json = get_post_meta($post_id, '_nucleus_event_media', true);
 $media_files = json_decode($media_json, true);
+
+$date_type = get_post_meta($post_id, '_nucleus_event_date_type', true);
+$start_date = get_post_meta($post_id, '_nucleus_event_start_date', true);
+$end_date = get_post_meta($post_id, '_nucleus_event_end_date', true);
+$hide_date = get_post_meta($post_id, '_nucleus_event_hide_date', true);
+
+$time_loc = get_post_meta($post_id, '_nucleus_event_time_loc', true);
+$speakers = get_post_meta($post_id, '_nucleus_event_speakers', true);
+$agenda = get_post_meta($post_id, '_nucleus_event_agenda', true);
 
 if (!is_array($media_files)) {
     $media_files = array();
@@ -186,18 +195,21 @@ html, body {
     margin: 0 auto;
 }
 
-.n-act-badge {
-    display: inline-block;
-    padding: 6px 16px;
-    background: rgba(37,99,235,0.1);
-    border: 1px solid rgba(37,99,235,0.2);
-    color: #2563eb;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
+.n-act-parent-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
     margin-bottom: 24px;
+    transition: color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.n-act-parent-link:hover {
+    color: #2563eb;
 }
 
 .n-act-title {
@@ -329,8 +341,8 @@ html, body {
 
 @media (max-width: 768px) {
     .n-act-hero { margin: 60px auto 40px; padding: 0 20px; }
-    .n-act-title { font-size: 2.5rem; }
-    .n-act-desc { font-size: 1.1rem; padding-left: 16px; }
+    .n-act-title { font-size: 2.2rem; }
+    .n-act-desc { font-size: 1rem; border-left:none; padding-left:0; margin-top:16px;}
     .n-act-gallery { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
     .n-act-gallery-container { padding: 0 20px; }
 }
@@ -339,7 +351,19 @@ html, body {
 <div class="n-act-wrapper">
     <div class="n-act-hero">
         <div class="n-act-hero-inner">
-            <div class="n-act-badge">Activity Report</div>
+            <?php
+            $parent_program_id = get_post_meta($post_id, '_nucleus_parent_program', true);
+            if ($parent_program_id) {
+                $program_title = get_the_title($parent_program_id);
+                $program_url = get_permalink($parent_program_id);
+                ?>
+                <a href="<?php echo esc_url($program_url); ?>" class="n-act-parent-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Part of <?php echo esc_html($program_title); ?>
+                </a>
+                <?php
+            }
+            ?>
             <!-- Smart split text feature if you type something like "Awesome Activity" -->
             <h1 class="n-act-title">
                 <?php 
@@ -353,9 +377,72 @@ html, body {
                 }
                 ?>
             </h1>
+            <?php if ($hide_date !== '1'): ?>
+                <?php
+                $date_string = '';
+                if ($date_type === 'soon') {
+                    $date_string = 'Starting Soon';
+                } elseif ($date_type === 'ongoing') {
+                    $date_string = 'Ongoing';
+                } else {
+                    if (!empty($start_date)) {
+                        $date_string = date('F j, Y', strtotime($start_date));
+                        if (!empty($end_date)) {
+                            $date_string .= ' &mdash; ' . date('F j, Y', strtotime($end_date));
+                        }
+                    }
+                }
+                ?>
+                <?php if (!empty($date_string)): ?>
+                    <div style="font-weight: 600; color: #64748b; margin-top: -12px; margin-bottom: 24px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span class="dashicons dashicons-calendar-alt"></span> <?php echo $date_string; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
             <?php if (!empty($activity_desc)): ?>
-                <div class="n-act-desc">
+                <div class="n-act-desc" style="margin-bottom:32px;">
                     <?php echo wp_kses_post($activity_desc); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($time_loc) || !empty($speakers) || !empty($agenda)): ?>
+                <div style="background:#fff; border: 1px solid #e2e8f0; border-radius:12px; padding:40px; margin-bottom:48px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);">
+                    <h2 style="margin-top:0; color:#0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom:16px; margin-bottom:24px;">Event Details</h2>
+                    <div style="display:flex; flex-wrap:wrap; gap:40px;">
+                        <div style="flex:1; min-width:280px;">
+                            <?php if (!empty($time_loc)): ?>
+                            <div style="margin-bottom:32px;">
+                                <h4 style="color:#64748b; margin:0 0 8px; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">Time & Location</h4>
+                                <p style="font-size:1.15rem; font-weight:500; margin:0; color:#0f172a;"><?php echo esc_html($time_loc); ?></p>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($speakers)): ?>
+                            <div>
+                                <h4 style="color:#64748b; margin:0 0 12px; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">Speakers & Facilitators</h4>
+                                <ul style="list-style:none; padding:0; margin:0;">
+                                    <?php 
+                                    $spk_list = explode("\n", str_replace("\r", "", $speakers));
+                                    foreach ($spk_list as $spk) {
+                                        if (trim($spk) !== '') {
+                                            echo '<li style="margin-bottom:8px; display:flex; align-items:center; gap:8px; color:#0f172a;"><span class="dashicons dashicons-businessman" style="color:#94a3b8;"></span> ' . esc_html($spk) . '</li>';
+                                        }
+                                    }
+                                    ?>
+                                </ul>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($agenda)): ?>
+                        <div style="flex:2; min-width:300px;">
+                            <h4 style="color:#64748b; margin:0 0 16px; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">Agenda</h4>
+                            <div style="background:#f8fafc; padding:24px; border-radius:8px; font-size:1.05rem; line-height:1.7; color:#334155;">
+                                <?php echo wp_kses_post($agenda); ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
@@ -398,7 +485,7 @@ html, body {
             <div class="n-act-gallery">
                 <?php foreach ($n_images as $img): ?>
                     <div class="n-act-item">
-                        <img src="<?php echo esc_url($img['url']); ?>" loading="lazy" alt="<?php echo esc_attr(get_the_title()); ?> Activity Photo">
+                        <img src="<?php echo esc_url($img['url']); ?>" loading="lazy" alt="<?php echo esc_attr(get_the_title()); ?> Event Photo">
                         <div class="n-act-item-overlay"></div>
                     </div>
                 <?php endforeach; ?>
@@ -472,7 +559,7 @@ html, body {
     <div class="n-act-nav-container">
         <?php if ($prev_post): ?>
             <a href="<?php echo esc_url(get_permalink($prev_post->ID)); ?>" class="n-act-nav-card prev">
-                <span class="n-act-nav-label">Previous Activity</span>
+                <span class="n-act-nav-label">Previous Event</span>
                 <h3 class="n-act-nav-title"><span>&larr;</span> <?php echo esc_html(get_the_title($prev_post->ID)); ?></h3>
             </a>
         <?php else: ?>
@@ -481,7 +568,7 @@ html, body {
 
         <?php if ($next_post): ?>
             <a href="<?php echo esc_url(get_permalink($next_post->ID)); ?>" class="n-act-nav-card next">
-                <span class="n-act-nav-label">Next Activity</span>
+                <span class="n-act-nav-label">Next Event</span>
                 <h3 class="n-act-nav-title"><?php echo esc_html(get_the_title($next_post->ID)); ?> <span>&rarr;</span></h3>
             </a>
         <?php else: ?>

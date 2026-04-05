@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Star — WordPress Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+    <!-- 4 sections 
+ 1. CSS Manager (line 20-733)
+ 2. services-star-ui (line 751-859)
+ 3. services-star-modal (line 825-881)
+ 4. services-star-card (line 887-1135)
+    -->
+
+    <style>
+/* =====================================================================
+   CSS Manager — Paste everything below into CSS Manager
+   ===================================================================== */
+
+        /* ─── Section wrapper ─────────────────────────────────────────────── */
+        #nucleus-section-service-star {
+            position: relative;
+            background: linear-gradient(160deg, #dde8f8 0%, #e8f0fa 60%, #dce7f6 100%);
+            padding: 35px 16px;
+            /* overflow:clip clips visual bleed WITHOUT creating a scroll container,
+               so position:fixed descendants (the modal) use the viewport as intended.
+               Do NOT use overflow:hidden here — it traps fixed elements in some browsers. */
+            overflow: clip;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Pentagon Container (desktop: position:relative, NO flex/grid) */
+        #nucleus-section-service-star #ncl-star-container {
+            position: relative;
+            width: 100%;
+            min-height: 860px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 60px;
+            box-sizing: border-box;
+            /* ⚠️ No display:flex or display:grid here — children are absolutely positioned */
+        }
+
+        /*  CSS Connecting Lines ───────────────────────────────── */
+        #nucleus-section-service-star .ncl-star-lines-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        #nucleus-section-service-star .ncl-star-line {
+            stroke: rgba(0, 0, 0, 0.25);
+            stroke-width: 1.5;
+            fill: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Center Hub: large horizontal oval ─────────────────── */
+        #nucleus-section-service-star .ncl-star-center {
+            /* Absolutely centered — NEVER use static/flex positioning */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Oval dimensions */
+            width: 380px;
+            height: 280px;
+            border-radius: 190px / 140px;
+            /* true pill/ellipse shape */
+            /* Visual from reference image: light interior, blue-purple oval border */
+            background: rgba(255, 255, 255, 1);
+            border: 2px solid rgba(100, 120, 220, 0.35);
+            box-shadow:
+                0 0 0 10px rgba(100, 140, 240, 0.06),
+                0 4px 30px rgba(80, 100, 200, 0.12);
+            z-index: 2;
+            /* Internal layout: column, text at top, image at bottom */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px 32px 24px;
+            /* Hub opacity is always 1 — overridden explicitly in focus mode */
+            opacity: 1;
+            overflow: hidden
+        }
+
+        /* Hub title: "Consulting" (purple) + "Services" (dark) */
+        #nucleus-section-service-star .ncl-hub-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin: 0 0 6px 0;
+            color: #1e1b4b;
+            letter-spacing: -0.02em;
+        }
+
+        #nucleus-section-service-star .ncl-hub-title .ncl-hub-title-accent {
+            color: #7c3aed;
+        }
+
+        /* Hub subtitle */
+        #nucleus-section-service-star .ncl-hub-subtitle {
+            font-size: 0.76rem;
+            font-weight: 400;
+            color: #3b82f6;
+            line-height: 1.5;
+            margin: 0 0 14px 0;
+            max-width: 280px;
+        }
+
+        /* Hub image placeholder — ALWAYS LAST, below title + subtitle */
+        #nucleus-section-service-star .ncl-hub-image-placeholder {
+            width: 80%;
+            height: 90px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #nucleus-section-service-star .ncl-hub-image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 7px;
+        }
+
+        #nucleus-section-service-star .ncl-hub-image-placeholder img~* {
+            display: none;
+        }
+
+        /* ─── TASK 1 ─ Service Cards ─────────────────────────────────────── */
+        #nucleus-section-service-star .ncl-star-node {
+            position: absolute;
+            width: 220px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            z-index: 5;
+            overflow: hidden;
+            /* ─── TASK 2 — transition for focus mode ─── */
+            transition:
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Pentagon absolute positions (per updated brief) */
+        #nucleus-section-service-star .ncl-node-1 {
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #nucleus-section-service-star .ncl-node-2 {
+            top: 22%;
+            left: 12%;
+        }
+
+        #nucleus-section-service-star .ncl-node-3 {
+            top: 22%;
+            right: 12%;
+        }
+
+        #nucleus-section-service-star .ncl-node-4 {
+            bottom: 18%;
+            left: 18%;
+        }
+
+        #nucleus-section-service-star .ncl-node-5 {
+            bottom: 18%;
+            right: 18%;
+        }
+
+        /* Card body */
+        #nucleus-section-service-star .ncl-node-body {
+            padding: 14px 16px 18px;
+        }
+
+        #nucleus-section-service-star .ncl-node-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #6b21a8;
+            margin: 0 0 6px 0;
+            line-height: 1.3;
+        }
+
+        #nucleus-section-service-star .ncl-node-subtitle {
+            font-size: 0.85rem;
+            color: #2563eb;
+            margin: 0;
+            line-height: 1.5;
+            font-weight: 400;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Focus Mode CSS ────────────────────────────────────── */
+
+        /* Dim all non-hovered cards when container is hovered */
+        #nucleus-section-service-star #ncl-star-container.ncl-has-focus .ncl-star-node:not(.ncl-node-focused) {
+            opacity: 0.25;
+            filter: grayscale(30%);
+        }
+
+        /* Dim SVG lines only during active focus */
+        #nucleus-section-service-star #ncl-star-container.ncl-has-focus .ncl-star-line {
+            opacity: 0.15;
+        }
+
+        /* Focused card — lift and purple glow */
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused.ncl-node-1 {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused.ncl-node-2,
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused.ncl-node-3,
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused.ncl-node-4,
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused.ncl-node-5 {
+            transform: scale(1.05);
+        }
+
+        #nucleus-section-service-star #ncl-star-container .ncl-node-focused {
+            box-shadow: 0 8px 40px rgba(109, 40, 217, 0.45);
+            opacity: 1;
+            filter: none;
+            z-index: 10;
+        }
+
+        /* Hub: NEVER dims */
+        #nucleus-section-service-star .ncl-star-center {
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        /* Responsive Breakpoints ──────────────────────────────── */
+        @media (max-width: 1024px) {
+            #nucleus-section-service-star #ncl-star-container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+                min-height: auto;
+                padding: 40px 20px;
+                position: static;
+            }
+
+            #nucleus-section-service-star .ncl-star-lines-svg {
+                display: none;
+            }
+
+            #nucleus-section-service-star .ncl-star-center {
+                grid-column: 1 / -1;
+                position: static;
+                transform: none;
+                border-radius: 20px;
+                width: 100%;
+                min-height: auto;
+            }
+
+            #nucleus-section-service-star .ncl-hub-image-placeholder {
+                width: 80%;
+                height: 80px;
+                margin: 12px auto 0;
+            }
+
+            #nucleus-section-service-star .ncl-star-node {
+                position: static;
+                transform: none;
+                width: 100%;
+            }
+
+            /* Reset focus mode — hover intent undefined on tablet */
+            #nucleus-section-service-star #ncl-star-container:hover .ncl-star-node:not(:hover) {
+                opacity: 1;
+                filter: none;
+            }
+
+            #nucleus-section-service-star #ncl-star-container .ncl-star-node:hover {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #nucleus-section-service-star {
+                padding: 40px 16px;
+            }
+
+            #nucleus-section-service-star #ncl-star-container {
+                grid-template-columns: 1fr;
+                padding: 24px 0;
+            }
+
+            #nucleus-section-service-star .ncl-hub-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           MODAL — Premium Two-Column Capability/Impact Design
+           ═══════════════════════════════════════════════════════════════════ */
+
+        .ncl-service-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        .ncl-service-modal.visible,
+        .ncl-service-modal.is-open {
+            display: flex;
+        }
+
+        /* ── Blurred overlay ── */
+        .ncl-service-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 10, 26, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: nclFadeIn 0.28s ease;
+        }
+
+        @keyframes nclFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ── Modal card shell ── */
+        .ncl-service-modal-card {
+            position: relative;
+            width: 92%;
+            max-width: 780px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            background: #0d1224;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow:
+                0 0 0 1px rgba(124, 58, 237, 0.18),
+                0 32px 80px rgba(0, 0, 0, 0.7),
+                0 0 60px rgba(124, 58, 237, 0.08);
+            animation: nclModalIn 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 1;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
+        }
+
+        .ncl-service-modal-card::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .ncl-service-modal-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ncl-service-modal-card::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.35);
+            border-radius: 4px;
+        }
+
+        @keyframes nclModalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.91) translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* ── Hero banner (image + gradient overlay + title) ── */
+        .ncl-modal-hero {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            border-radius: 24px 24px 0 0;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .ncl-modal-hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.55) saturate(1.2);
+        }
+
+        .ncl-modal-hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg,
+                    var(--ncl-modal-color-a, rgba(124, 58, 237, 0.55)) 0%,
+                    transparent 55%,
+                    rgba(8, 10, 26, 0.85) 100%);
+        }
+
+        .ncl-modal-hero-badge {
+            position: absolute;
+            top: 20px;
+            left: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ncl-modal-hero-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .ncl-modal-hero-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.65);
+            background: rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .ncl-modal-hero-titles {
+            position: absolute;
+            bottom: 18px;
+            left: 22px;
+            right: 60px;
+        }
+
+        .ncl-modal-hero-title {
+            font-size: 1.45em;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 4px;
+            line-height: 1.25;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .ncl-modal-hero-subtitle {
+            font-size: 0.82em;
+            color: rgba(255, 255, 255, 0.68);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* ── Close button ── */
+        .ncl-service-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 1.3em;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+        }
+
+        .ncl-service-modal-close:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* ── Modal body ── */
+        .ncl-modal-body {
+            padding: 28px 32px 32px;
+        }
+
+        /* ── Intro description ── */
+        .ncl-modal-intro {
+            font-size: 0.93em;
+            color: rgba(255, 255, 255, 0.58);
+            line-height: 1.75;
+            margin: 0 0 28px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* ── Two-column table header ── */
+        .ncl-modal-table-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 24px;
+            margin-bottom: 16px;
+        }
+
+        .ncl-modal-col-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+            padding: 8px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ncl-modal-col-label.cap-label {
+            background: rgba(124, 58, 237, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+        }
+
+        .ncl-modal-col-label.imp-label {
+            background: rgba(6, 182, 212, 0.12);
+            color: #67e8f9;
+            border: 1px solid rgba(6, 182, 212, 0.22);
+        }
+
+        .ncl-modal-col-label svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ── Two-column rows ── */
+        .ncl-modal-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 24px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .ncl-modal-row::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 12px;
+            bottom: 12px;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(-50%);
+        }
+
+        /* ── Capability cell ── */
+        .ncl-modal-cap-cell,
+        .ncl-modal-imp-cell {
+            background: rgba(255, 255, 255, 0.035);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .ncl-modal-cap-cell:hover {
+            background: rgba(124, 58, 237, 0.08);
+            border-color: rgba(124, 58, 237, 0.20);
+        }
+
+        .ncl-modal-imp-cell:hover {
+            background: rgba(6, 182, 212, 0.07);
+            border-color: rgba(6, 182, 212, 0.18);
+        }
+
+        .ncl-modal-cell-name {
+            font-size: 0.86em;
+            font-weight: 700;
+            margin: 0 0 5px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ncl-modal-cap-cell .ncl-modal-cell-name {
+            color: #c4b5fd;
+        }
+
+        .ncl-modal-imp-cell .ncl-modal-cell-name {
+            color: #a5f3fc;
+        }
+
+        .ncl-modal-cell-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .ncl-modal-cap-cell .ncl-modal-cell-dot {
+            background: #7c3aed;
+        }
+
+        .ncl-modal-imp-cell .ncl-modal-cell-dot {
+            background: #06b6d4;
+        }
+
+        .ncl-modal-cell-desc {
+            font-size: 0.80em;
+            color: rgba(255, 255, 255, 0.48);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ── Footer with CTA ── */
+        .ncl-modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .ncl-modal-footer-note {
+            font-size: 0.80em;
+            color: rgba(255, 255, 255, 0.33);
+        }
+
+        .ncl-service-modal-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+            color: #fff !important;
+            font-size: 0.88em;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.01em;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+            white-space: nowrap;
+        }
+
+        .ncl-service-modal-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.55);
+            filter: brightness(1.1);
+        }
+
+        .ncl-service-modal-cta svg {
+            width: 15px;
+            height: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .ncl-service-modal-cta:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .ncl-modal-body {
+                padding: 20px 18px 24px;
+            }
+
+            .ncl-modal-hero {
+                height: 150px;
+            }
+
+            .ncl-modal-hero-title {
+                font-size: 1.15em;
+            }
+
+            .ncl-modal-table-header,
+            .ncl-modal-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .ncl-modal-row::after {
+                display: none;
+            }
+
+            .ncl-modal-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ncl-service-modal-cta {
+                justify-content: center;
+            }
+        }
+
+        /* Legacy selectors — kept for safety */
+        .ncl-service-modal-icon,
+        .ncl-service-modal-title,
+        .ncl-service-modal-desc,
+        .ncl-service-modal-features {
+            display: none !important;
+        }
+
+        /* =====================================================================
+                                  END CSS Manager
+          ===================================================================== */
+    </style>
+</head>
+
+<body style="margin:0; background:#dde8f8;">
+
+    <!-- Component ID: services-star-ui -->
+    <!--
+  SECTION: #nucleus-section-service-star wraps the full section.
+  If your Page Manager creates its own section wrapper, start
+  from #ncl-star-container instead and scope CSS accordingly.
+    -->
+
+    <section id="nucleus-section-service-star">
+        <div id="ncl-star-container">
+            <svg class="ncl-star-lines-svg" viewBox="0 0 1200 800" preserveAspectRatio="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="600" y1="400" x2="600" y2="76" class="ncl-star-line" />
+                <line x1="600" y1="400" x2="158" y2="204" class="ncl-star-line" />
+                <line x1="600" y1="400" x2="1042" y2="204" class="ncl-star-line" />
+                <line x1="600" y1="400" x2="310" y2="618" class="ncl-star-line" />
+                <line x1="600" y1="400" x2="890" y2="618" class="ncl-star-line" />
+            </svg>
+
+            <!--
+      Center Hub — absolutely centered oval.
+      Internal order (strict): title → subtitle → image placeholder.
+    -->
+            <div class="ncl-star-center">
+                <h2 class="ncl-hub-title">
+                    <span class="ncl-hub-title-accent">Consulting</span> Services
+                </h2>
+                <p class="ncl-hub-subtitle">Comprehensive Solutions for Modern Business Challenges</p>
+                <!-- Image Placeholder is LAST — always below text -->
+                <div class="ncl-hub-image-placeholder">
+                    <img src="https://nucleusadvisory.co/wp-content/uploads/2026/02/Gemini_Generated_Image_g7dipgg7dipgg7di.png"
+                        alt="Consulting Services Visual">
+                </div>
+            </div>
+
+            <!-- Node 1: Top Center -->
+            <div class="ncl-star-node ncl-node-1" data-service-id="1" data-service="advisory">
+                <div class="ncl-node-body">
+                    <h3 class="ncl-node-title">Strategy &amp; Transformation</h3>
+                    <p class="ncl-node-subtitle">Future-Proof Your Business with Our Strategic Expertise</p>
+                </div>
+            </div>
+
+            <!-- Node 2: Top Left -->
+            <div class="ncl-star-node ncl-node-2" data-service-id="2" data-service="risk">
+                <div class="ncl-node-body">
+                    <h3 class="ncl-node-title">People & Organization </h3>
+                    <p class="ncl-node-subtitle">Unlock the Full Potential of Your Workforce</p>
+                </div>
+            </div>
+
+            <!-- Node 3: Top Right -->
+            <div class="ncl-star-node ncl-node-3" data-service-id="3" data-service="wealth">
+                <div class="ncl-node-body">
+                    <h3 class="ncl-node-title">Mergers, Acquisitions & Divestitures</h3>
+                    <p class="ncl-node-subtitle">Expert Guidance Through Complex Business Transitions</p>
+                </div>
+            </div>
+
+            <!-- Node 4: Bottom Left -->
+            <div class="ncl-star-node ncl-node-4" data-service-id="4" data-service="estate">
+                <div class="ncl-node-body">
+                    <h3 class="ncl-node-title">Sales, Marketing & Customer Experience</h3>
+                    <p class="ncl-node-subtitle">Drive Revenue & Enhance Customer Engagement</p>
+                </div>
+            </div>
+
+            <!-- Node 5: Bottom Right -->
+            <div class="ncl-star-node ncl-node-5" data-service-id="5" data-service="tax">
+                <div class="ncl-node-body">
+                    <h3 class="ncl-node-title">Technology & Innovation</h3>
+                    <p class="ncl-node-subtitle">Harness Cutting-Edge Technologies to Propel Your Business Forward</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- Component ID: services-star-modal -->
+
+    <div class="ncl-service-modal" id="ncl-service-modal">
+        <div class="ncl-service-modal-overlay"></div>
+        <div class="ncl-service-modal-card">
+
+            <!-- Close -->
+            <button class="ncl-service-modal-close" id="ncl-modal-close" aria-label="Close">&times;</button>
+
+            <!-- Hero banner -->
+            <div class="ncl-modal-hero" id="ncl-modal-hero">
+                <img class="ncl-modal-hero-img" id="ncl-modal-hero-img" src="" alt="">
+                <div class="ncl-modal-hero-gradient" id="ncl-modal-hero-gradient"></div>
+                <div class="ncl-modal-hero-badge">
+                    <div class="ncl-modal-hero-icon" id="ncl-modal-hero-icon"></div>
+                    <span class="ncl-modal-hero-label" id="ncl-modal-hero-label">Consulting Services</span>
+                </div>
+                <div class="ncl-modal-hero-titles">
+                    <h3 class="ncl-modal-hero-title" id="ncl-modal-title"></h3>
+                    <p class="ncl-modal-hero-subtitle" id="ncl-modal-subtitle"></p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="ncl-modal-body">
+
+                <!-- Intro -->
+                <p class="ncl-modal-intro" id="ncl-modal-intro"></p>
+
+                <!-- Two-column header labels -->
+                <div class="ncl-modal-table-header">
+                    <div class="ncl-modal-col-label cap-label">
+                        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 2L10.5 6H14L11 9L12 13L8 10.5L4 13L5 9L2 6H5.5L8 2Z" fill="currentColor"
+                                opacity="0.8" />
+                        </svg>
+                        Strategic Capabilities
+                    </div>
+                    <div class="ncl-modal-col-label imp-label">
+                        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Business Impact
+                    </div>
+                </div>
+
+                <!-- Row container (JS-rendered) -->
+                <div id="ncl-modal-rows"></div>
+
+            </div><!-- /.ncl-modal-body -->
+
+            <!-- Legacy elements hidden by CSS — kept for JS compatibility -->
+            <div class="ncl-service-modal-icon" id="ncl-modal-icon" style="display:none"></div>
+            <p class="ncl-service-modal-desc" id="ncl-modal-desc" style="display:none"></p>
+            <ul class="ncl-service-modal-features" id="ncl-modal-features" style="display:none"></ul>
+
+        </div><!-- /.ncl-service-modal-card -->
+    </div>
+
+
+    <!-- Component ID: services-star-card -->
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ══════════════════════════════════════════════════════════════════
+               SERVICE DATA — Two-column capability / impact structure
+               Each entry: icon, label, title, subtitle, intro, color,
+               image (re-uses card image), capabilities[], impacts[], cta
+               ══════════════════════════════════════════════════════════════════ */
+            var IMG = 'https://nucleusadvisory.co/wp-content/uploads/2026/02/Gemini_Generated_Image_g7dipgg7dipgg7di.png';
+
+            var serviceData = {
+
+                /* ── Node 1: Strategy & Transformation ── */
+                advisory: {
+                    icon: '🧭',
+                    label: 'Strategy & Transformation',
+                    title: 'Strategy & Transformation',
+                    subtitle: 'Future-Proof Your Business with Our Strategic Expertise',
+                    intro: 'We partner with leadership teams to cut through complexity, align ambitions with market realities, and build transformation roadmaps that actually get executed.',
+                    color: '#7c3aed',
+                    image: IMG,
+                    capabilities: [
+                        { name: 'Strategic Vision Design', desc: 'Crafting long-range strategies that align stakeholder ambitions with market opportunity.' },
+                        { name: 'Transformation Roadmaps', desc: 'Breaking bold goals into phased, executable plans with clear milestones and accountability.' },
+                        { name: 'Competitive Intelligence', desc: 'Deep market analysis to identify white space, threats, and positioning advantages.' }
+                    ],
+                    impacts: [
+                        { name: 'Market Leadership', desc: 'Positioning your organisation ahead of industry shifts before they become table stakes.' },
+                        { name: 'Execution Excellence', desc: 'Turning strategy from a slide deck into measurable, on-time business outcomes.' },
+                        { name: 'Sustained Growth', desc: 'Building compounding advantages that deliver returns well beyond the engagement.' }
+                    ],
+                    cta: 'https://nucleusadvisory.co/nucleus_page/solutions/'
+                },
+
+                /* ── Node 2: People & Organization ── */
+                risk: {
+                    icon: '👥',
+                    label: 'People & Organization',
+                    title: 'People & Organization',
+                    subtitle: 'Unlock the Full Potential of Your Workforce',
+                    intro: 'Your people are your most renewable competitive asset. We design systems and cultures that attract the right talent, accelerate capability, and build organisations that outperform.',
+                    color: '#f43f5e',
+                    image: IMG,
+                    capabilities: [
+                        { name: 'Talent Lifecycle Management', desc: 'Strategies to attract, develop, and retain top-tier talent across every stage of the employee journey.' },
+                        { name: 'HR Process Optimization', desc: 'Reducing administrative friction to free capacity for high-value, human-centric initiatives.' },
+                        { name: 'Engagement & Culture', desc: 'Building a high-performance environment where people feel purpose, belonging, and drive to excel.' }
+                    ],
+                    impacts: [
+                        { name: 'Strategic Advantage', desc: 'Transforming human capital into a measurable, defensible competitive edge in your market.' },
+                        { name: 'Efficiency Gains', desc: 'Streamlined operations that allow for rapid scaling without proportional overhead growth.' },
+                        { name: 'Bottom-Line Growth', desc: 'Directly driving productivity, innovation, and long-term profitability through your people.' }
+                    ],
+                    cta: '#'
+                },
+
+                /* ── Node 3: Mergers, Acquisitions & Divestitures ── */
+                wealth: {
+                    icon: '🤝',
+                    label: 'M&A Advisory',
+                    title: 'Mergers, Acquisitions & Divestitures',
+                    subtitle: 'Expert Guidance Through Complex Business Transitions',
+                    intro: 'We guide leadership teams through the full M&A lifecycle — from target identification and due diligence to integration planning — ensuring deals create, not destroy, long-term value.',
+                    color: '#0ea5e9',
+                    image: IMG,
+                    capabilities: [
+                        { name: 'Deal Structuring & Due Diligence', desc: 'Rigorous financial and operational analysis to de-risk transactions before they close.' },
+                        { name: 'Integration Planning', desc: 'Day-one-ready blueprints that preserve value and unlock synergies from the moment of close.' },
+                        { name: 'Divestiture Optimisation', desc: 'Carving out non-core assets cleanly to refocus capital on your highest-return activities.' }
+                    ],
+                    impacts: [
+                        { name: 'Value Realisation', desc: 'Capturing the deal thesis in full — not just on paper, but in post-merger performance.' },
+                        { name: 'Risk Mitigation', desc: 'Identifying and resolving integration friction points before they erode shareholder value.' },
+                        { name: 'Accelerated Synergies', desc: 'Reaching combined-entity performance targets months ahead of organic timelines.' }
+                    ],
+                    cta: '#'
+                },
+
+                /* ── Node 4: Sales, Marketing & Customer Experience ── */
+                estate: {
+                    icon: '🎯',
+                    label: 'Revenue Growth',
+                    title: 'Sales, Marketing & Customer Experience',
+                    subtitle: 'Drive Revenue & Enhance Customer Engagement',
+                    intro: 'We redesign the complete revenue engine — from how you attract prospects to how you convert, retain, and delight customers — turning CX into a durable growth lever.',
+                    color: '#f59e0b',
+                    image: IMG,
+                    capabilities: [
+                        { name: 'Revenue Engine Design', desc: 'Aligning sales, marketing, and CX into a single, accountable growth system.' },
+                        { name: 'Go-to-Market Strategy', desc: 'Precise channel, messaging, and segmentation plays that reduce CAC and lift conversion.' },
+                        { name: 'Customer Journey Mapping', desc: 'Identifying and resolving the friction points that silently stall retention and referral.' }
+                    ],
+                    impacts: [
+                        { name: 'Revenue Acceleration', desc: 'Faster pipeline velocity and higher win rates translating directly to top-line growth.' },
+                        { name: 'Customer Lifetime Value', desc: 'Loyalty-driving experiences that increase repeat purchase and reduce churn.' },
+                        { name: 'Brand Differentiation', desc: 'Standing out in crowded markets with a CX signature competitors cannot easily replicate.' }
+                    ],
+                    cta: '#'
+                },
+
+                /* ── Node 5: Technology & Innovation ── */
+                tax: {
+                    icon: '💡',
+                    label: 'Tech & Innovation',
+                    title: 'Technology & Innovation',
+                    subtitle: 'Harness Cutting-Edge Technologies to Propel Your Business Forward',
+                    intro: 'We help organisations move from technology curiosity to technology advantage — identifying the right investments, building the right capabilities, and shipping results at speed.',
+                    color: '#06b6d4',
+                    image: IMG,
+                    capabilities: [
+                        { name: 'Digital Transformation', desc: 'Reimagining core processes and business models for a digitally-native competitive landscape.' },
+                        { name: 'AI & Automation Strategy', desc: 'Identifying where intelligent automation delivers the highest-leverage efficiency and growth gains.' },
+                        { name: 'Technology Architecture', desc: 'Designing scalable, secure, and future-proof tech stacks aligned to your strategic roadmap.' }
+                    ],
+                    impacts: [
+                        { name: 'Operational Velocity', desc: 'Dramatically reducing cycle times and cost-per-transaction through smart automation.' },
+                        { name: 'Innovation Pipeline', desc: 'Building internal capability to continuously identify and commercialise new opportunities.' },
+                        { name: 'Competitive Resilience', desc: 'Ensuring your technology foundation is an accelerant, not a liability, as markets evolve.' }
+                    ],
+                    cta: '#'
+                }
+            };
+
+            /* ══════════════════════════════════════════════════════════════════
+               DOM REFERENCES
+               ══════════════════════════════════════════════════════════════════ */
+            /* ══════════════════════════════════════════════════════════════════
+               RENDER HELPERS  (no DOM access — safe to define immediately)
+               ══════════════════════════════════════════════════════════════════ */
+            function hexToRgb(hex) {
+                var r = parseInt(hex.slice(1, 3), 16);
+                var g = parseInt(hex.slice(3, 5), 16);
+                var b = parseInt(hex.slice(5, 7), 16);
+                return r + ',' + g + ',' + b;
+            }
+
+            function renderRows(caps, imps) {
+                var html = '';
+                var len = Math.max(caps.length, imps.length);
+                for (var i = 0; i < len; i++) {
+                    var cap = caps[i] || { name: '', desc: '' };
+                    var imp = imps[i] || { name: '', desc: '' };
+                    html += '<div class="ncl-modal-row">' +
+                        '<div class="ncl-modal-cap-cell">' +
+                        '<p class="ncl-modal-cell-name"><span class="ncl-modal-cell-dot"></span>' + cap.name + '</p>' +
+                        '<p class="ncl-modal-cell-desc">' + cap.desc + '</p>' +
+                        '</div>' +
+                        '<div class="ncl-modal-imp-cell">' +
+                        '<p class="ncl-modal-cell-name"><span class="ncl-modal-cell-dot"></span>' + imp.name + '</p>' +
+                        '<p class="ncl-modal-cell-desc">' + imp.desc + '</p>' +
+                        '</div>' +
+                        '</div>';
+                }
+                return html;
+            }
+
+            /* ══════════════════════════════════════════════════════════════════
+               INIT — wrapped in DOMContentLoaded so ALL blocks are in the DOM
+               ══════════════════════════════════════════════════════════════════ */
+            function nclInit() {
+
+                var modal = document.getElementById('ncl-service-modal');
+                var modalClose = document.getElementById('ncl-modal-close');
+                var overlay = modal ? modal.querySelector('.ncl-service-modal-overlay') : null;
+                var heroImg = document.getElementById('ncl-modal-hero-img');
+                var heroGradient = document.getElementById('ncl-modal-hero-gradient');
+                var heroIcon = document.getElementById('ncl-modal-hero-icon');
+                var heroLabel = document.getElementById('ncl-modal-hero-label');
+                var modalTitle = document.getElementById('ncl-modal-title');
+                var modalSubtitle = document.getElementById('ncl-modal-subtitle');
+                var modalIntro = document.getElementById('ncl-modal-intro');
+                var modalRows = document.getElementById('ncl-modal-rows');
+                var modalCta = document.getElementById('ncl-modal-cta');
+
+                if (!modal) return;
+
+                if (modal.parentElement !== document.body) {
+                    document.body.appendChild(modal);
+                }
+
+                /* ── FOCUS MODE ──────────────────────────────────────────────── */   // ← ADD FROM HERE
+                var container = document.getElementById('ncl-star-container');
+                document.querySelectorAll('.ncl-star-node').forEach(function (card) {
+                    card.addEventListener('mouseenter', function () {
+                        if (container) container.classList.add('ncl-has-focus');
+                        this.classList.add('ncl-node-focused');
+                    });
+                    card.addEventListener('mouseleave', function () {
+                        this.classList.remove('ncl-node-focused');
+                        if (container) container.classList.remove('ncl-has-focus');
+                    });
+                });                                                                    // ← TO HERE
+
+                /* ── CLOSE ──────────────────────────────────────────────────── */
+                function closeModal() {
+                    modal.classList.remove('visible', 'is-open');
+                    document.body.style.overflow = '';
+                }
+
+                /* ── OPEN via event delegation ──────────────────────────────── */
+                document.addEventListener('click', function (e) {
+                    var card = e.target.closest('.ncl-star-node');
+                    if (!card) return;
+
+                    var serviceKey = card.getAttribute('data-service');
+                    var data = serviceData[serviceKey];
+                    if (!data) return;
+
+                    if (heroImg) { heroImg.src = data.image; heroImg.alt = data.title; }
+                    if (heroGradient) {
+                        var rgb = hexToRgb(data.color);
+                        heroGradient.style.background =
+                            'linear-gradient(160deg,rgba(' + rgb + ',0.60) 0%,transparent 55%,rgba(8,10,26,0.85) 100%)';
+                    }
+                    if (heroIcon) heroIcon.textContent = data.icon;
+                    if (heroLabel) heroLabel.textContent = data.label;
+                    if (modalTitle) modalTitle.textContent = data.title;
+                    if (modalSubtitle) modalSubtitle.textContent = data.subtitle;
+                    if (modalIntro) modalIntro.textContent = data.intro;
+                    if (modalRows) modalRows.innerHTML = renderRows(data.capabilities, data.impacts);
+
+                    if (modalCta) {
+                        var rgb2 = hexToRgb(data.color);
+                        modalCta.href = data.cta;
+                        modalCta.style.background =
+                            'linear-gradient(135deg,' + data.color + ' 0%,rgba(' + rgb2 + ',0.75) 100%)';
+                    }
+
+                    modal.setAttribute('data-active-service', card.getAttribute('data-service-id'));
+                    modal.classList.add('visible', 'is-open');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                /* ── Close triggers ─────────────────────────────────────────── */
+                if (modalClose) modalClose.addEventListener('click', closeModal);
+                if (overlay) overlay.addEventListener('click', closeModal);
+                modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+                document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', nclInit);
+            } else {
+                nclInit();
+            }
+
+        })();
+    </script>
+
+
+</body>
+
+</html>

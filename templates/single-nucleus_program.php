@@ -1,230 +1,198 @@
 <?php
 /**
- * Template Name: Nucleus Program (Standalone)
- * Description: Default template for displaying Nucleus Programs with Custom HF
+ * Single Activity Page — Simple, official, compact.
  */
+if (!defined('ABSPATH')) exit;
 
-$post_id = get_the_ID();
+$post_id   = get_the_ID();
 $hf_set_id = get_post_meta($post_id, '_nucleus_selected_hf_set', true);
+$p         = '_nucleus_activity_';
 
-$program_desc = get_post_meta($post_id, '_nucleus_program_desc', true);
-$media_json = get_post_meta($post_id, '_nucleus_program_media', true);
+$a_type     = get_post_meta($post_id, $p . 'type', true) ?: 'program';
+$desc       = get_post_meta($post_id, $p . 'desc', true);
+$start_date = get_post_meta($post_id, $p . 'start_date', true);
+$end_date   = get_post_meta($post_id, $p . 'end_date', true);
+$start_time = get_post_meta($post_id, $p . 'start_time', true);
+$end_time   = get_post_meta($post_id, $p . 'end_time', true);
+$location   = get_post_meta($post_id, $p . 'location', true);
+$show_date     = get_post_meta($post_id, $p . 'show_date', true);
+$show_time     = get_post_meta($post_id, $p . 'show_time', true);
+$show_location = get_post_meta($post_id, $p . 'show_location', true);
+$hrdc        = get_post_meta($post_id, $p . 'hrdc', true);
+$hrdc_url    = get_post_meta($post_id, $p . 'hrdc_url', true);
+$contact_url = get_post_meta($post_id, $p . 'contact_url', true);
+$media_json  = get_post_meta($post_id, $p . 'media', true);
 $media_files = json_decode($media_json, true);
+if (!is_array($media_files)) $media_files = array();
+$tags = get_the_terms($post_id, 'nucleus_activity_tag');
+$status = function_exists('nucleus_get_activity_status') ? nucleus_get_activity_status($post_id) : 'no-date';
+$is_upcoming = ($status === 'upcoming');
 
-$date_type = get_post_meta($post_id, '_nucleus_program_date_type', true);
-$start_date = get_post_meta($post_id, '_nucleus_program_start_date', true);
-$end_date = get_post_meta($post_id, '_nucleus_program_end_date', true);
-$hide_date = get_post_meta($post_id, '_nucleus_program_hide_date', true);
+$n_images = $n_videos = array();
+foreach ($media_files as $m) { if ($m['type'] === 'video') $n_videos[] = $m; else $n_images[] = $m; }
 
-$outcomes = get_post_meta($post_id, '_nucleus_program_outcomes', true);
-$audience = get_post_meta($post_id, '_nucleus_program_audience', true);
-
-if (!is_array($media_files)) {
-    $media_files = array();
-}
-
+// Header
 if ($hf_set_id) {
-    ?><!DOCTYPE html>
-    <html <?php language_attributes(); ?>>
-    <head>
-        <meta charset="<?php bloginfo('charset'); ?>">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <?php wp_head(); ?>
-    </head>
-    <body <?php body_class(); ?>>
-    <?php
-    if (function_exists('nucleus_render_hf_set')) {
-        echo nucleus_render_hf_set($hf_set_id, 'header');
-    }
-} else {
-    get_header();
-}
-
+    ?><!DOCTYPE html><html <?php language_attributes(); ?>><head>
+    <meta charset="<?php bloginfo('charset'); ?>"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title><?php echo esc_html(get_the_title()); ?> - <?php bloginfo('name'); ?></title>
+    <?php wp_head(); ?></head><body <?php body_class(); ?>>
+    <?php if (function_exists('nucleus_render_hf_set')) echo nucleus_render_hf_set($hf_set_id, 'header');
+} else { get_header(); }
 ?>
+
 <style>
-/* Global Resets matching Event Template */
-html { overflow-x: hidden; }
-html, body { margin: 0 !important; padding: 0 !important; display: block !important; max-width: 100% !important; }
-.n-act-wrapper, .nucleus-hf-root, .nucleus-hf-section { max-width: 100%; box-sizing: border-box; }
-.nucleus-header-root { position: relative !important; z-index: 9999; width: 100%; display: block; }
-.nucleus-header-root img { max-width: 130px !important; max-height: 45px !important; width: auto; height: auto; object-fit: contain; }
-.nucleus-header-root .nucleus-container { justify-content: space-between !important; gap: 20px !important; flex-wrap: wrap !important; }
-.nucleus-header-root .nucleus-hf-comp:first-child { flex-shrink: 0; margin-right: auto; }
-.nucleus-header-root .nucleus-hf-comp { font-size: clamp(0.7rem, 1.2vw, 0.85rem); white-space: nowrap; }
-.nucleus-footer-root img { max-width: 200px !important; max-height: 80px !important; width: auto; height: auto; object-fit: contain; }
-.nucleus-footer-root { position: relative !important; z-index: 999; width: 100%; clear: both; display: block; }
-
-@media (max-width: 768px) {
-    .nucleus-header-root .nucleus-container { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 16px !important; gap: 6px !important; justify-content: center !important; flex-wrap: wrap !important; }
-    .nucleus-header-root .nucleus-hf-comp:first-child { width: 100%; text-align: center; margin-right: 0; margin-bottom: 6px; flex-shrink: 0; }
-    .nucleus-header-root .nucleus-hf-comp { font-size: 0.68rem !important; padding: 4px 8px; white-space: nowrap; }
-    .nucleus-header-root img { max-width: 90px !important; max-height: 32px !important; }
-    .nucleus-footer-root .nucleus-container { flex-direction: column !important; text-align: center; gap: 12px !important; padding: 20px 16px !important; }
-    .nucleus-footer-root .nucleus-hf-comp { font-size: 0.8rem; }
-}
-@media (max-width: 400px) {
-    .nucleus-header-root .nucleus-hf-comp { font-size: 0.6rem !important; padding: 3px 5px; letter-spacing: -0.01em; }
+html{overflow-x:hidden}
+html,body{margin:0!important;padding:0!important;display:block!important;max-width:100%!important}
+.nucleus-header-root{position:relative!important;z-index:9999;width:100%;display:block}
+.nucleus-header-root img{max-width:130px!important;max-height:45px!important;width:auto;height:auto;object-fit:contain}
+.nucleus-header-root .nucleus-container{justify-content:space-between!important;gap:20px!important;flex-wrap:wrap!important}
+.nucleus-header-root .nucleus-hf-comp:first-child{flex-shrink:0;margin-right:auto}
+.nucleus-header-root .nucleus-hf-comp{font-size:clamp(.7rem,1.2vw,.85rem);white-space:nowrap}
+.nucleus-footer-root img{max-width:200px!important;max-height:80px!important;width:auto;height:auto;object-fit:contain}
+.nucleus-footer-root{position:relative!important;z-index:999;width:100%;clear:both;display:block}
+@media(max-width:768px){
+    .nucleus-header-root .nucleus-container{max-width:100%!important;width:100%!important;box-sizing:border-box!important;padding:12px 16px!important;gap:6px!important;justify-content:center!important;flex-wrap:wrap!important}
+    .nucleus-header-root .nucleus-hf-comp:first-child{width:100%;text-align:center;margin-right:0;margin-bottom:6px}
+    .nucleus-header-root .nucleus-hf-comp{font-size:.68rem!important;padding:4px 8px}
+    .nucleus-header-root img{max-width:90px!important;max-height:32px!important}
+    .nucleus-footer-root .nucleus-container{flex-direction:column!important;text-align:center;gap:12px!important;padding:20px 16px!important}
 }
 
-.n-act-wrapper { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #ffffff; color: #0f172a; min-height: 80vh; padding-bottom: 120px; -webkit-font-smoothing: antialiased; }
-.n-act-hero { position: relative; width: 100%; padding: 80px 32px 60px; text-align: left; background: #ffffff; color: #0f172a; box-sizing: border-box; }
-.n-act-hero-inner { max-width: 1200px; margin: 0 auto; }
-.n-act-badge { display: inline-block; padding: 6px 16px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); color: #2563eb; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 24px; }
-.n-act-title { font-size: 3.2rem; font-weight: 800; margin: 0 0 24px; max-width: 900px; color: #0f172a; letter-spacing: -0.04em; line-height: 1.1; }
-.n-act-title span { color: #2563eb; }
-.n-act-desc { max-width: 800px; font-size: 1.15rem; line-height: 1.7; color: #64748b; border-left: 3px solid #e2e8f0; padding-left: 24px; }
+.sp-w{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#1e293b;min-height:80vh;padding-bottom:60px;-webkit-font-smoothing:antialiased}
+.sp-c{max-width:780px;margin:0 auto;padding:0 20px}
 
-.n-act-gallery-container { max-width: 1200px; margin: 0 auto 60px; padding: 0 32px; }
-.n-act-gallery-title { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 32px; }
-.n-act-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 32px; width: 100%; }
-.n-act-item { position: relative; border-radius: 12px; overflow: hidden; background: #f9fafb; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); cursor: pointer; aspect-ratio: 16 / 10; }
-.n-act-item:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01); }
-.n-act-item img, .n-act-item video { width: 100%; height: 100%; object-fit: cover !important; display: block; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-.n-act-item:hover img, .n-act-item:hover video { transform: scale(1.04); }
-.n-act-empty { text-align: center; padding: 80px 40px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 12px; color: #6b7280; font-size: 1.1rem; }
+/* Hero */
+.sp-hero{padding:56px 0 32px}
+.sp-back{display:inline-flex;align-items:center;gap:5px;color:#94a3b8;text-decoration:none;font-size:.8rem;font-weight:500;margin-bottom:20px;transition:color .15s}
+.sp-back:hover{color:#2563eb}
+.sp-meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:.75rem;color:#64748b}
+.sp-meta-line span{font-weight:500}
+.sp-dot{color:#cbd5e1}
+.sp-title{font-size:2.2rem;font-weight:700;color:#0f172a;margin:0 0 16px;line-height:1.2;letter-spacing:-.02em}
+.sp-info{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;font-size:.88rem;color:#64748b}
+.sp-info-item{display:flex;align-items:center;gap:5px}
+.sp-info-item svg{color:#94a3b8;flex-shrink:0}
+.sp-desc{font-size:1rem;line-height:1.7;color:#475569}
+.sp-desc p:first-child{margin-top:0}
 
-/* Event Child Cards */
-.n-event-card { display: block; text-decoration: none; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; transition: all 0.2s; }
-.n-event-card:hover { border-color: #cbd5e1; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transform: translateY(-2px); }
-.n-event-card-title { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0 0 8px; }
-.n-event-card-desc { font-size: 0.95rem; color: #64748b; line-height: 1.5; margin: 0; }
+/* Gallery */
+.sp-gal-sec{margin:36px 0}
+.sp-gal-h{font-size:1rem;font-weight:600;color:#0f172a;margin:0 0 14px}
+.sp-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.sp-gi{border-radius:8px;overflow:hidden;background:#f1f5f9;aspect-ratio:16/10;cursor:pointer}
+.sp-gi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.sp-gi:hover img{transform:scale(1.03)}
+.sp-vid{border-radius:8px;overflow:hidden;background:#000;margin-bottom:14px}
+.sp-vid video{width:100%;display:block;max-height:55vh}
 
-@media (max-width: 768px) {
-    .n-act-hero { margin: 60px auto 40px; padding: 0 20px; }
-    .n-act-title { font-size: 2.2rem; }
-    .n-act-desc { font-size: 1rem; border-left:none; padding-left:0; margin-top:16px;}
-    .n-act-gallery { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-    .n-act-gallery-container { padding: 0 20px; }
+/* Small CTAs */
+.sp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0;align-items:center}
+.sp-hrdc-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
+.sp-hrdc-cta:hover{background:#dcfce7;color:#16a34a}
+.sp-contact-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#2563eb;color:#fff;border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
+.sp-contact-cta:hover{background:#1d4ed8;color:#fff}
+
+/* Lightbox */
+.sp-lb{position:fixed;z-index:999999;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:zoom-out;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.sp-lb.active{opacity:1;visibility:visible}
+.sp-lb img{max-width:90vw;max-height:90vh;border-radius:4px;box-shadow:0 20px 40px rgba(0,0,0,.4);transform:scale(.96);transition:transform .3s;object-fit:contain}
+.sp-lb.active img{transform:scale(1)}
+.sp-lb-x{position:absolute;top:24px;right:32px;color:rgba(255,255,255,.6);font-size:40px;cursor:pointer;line-height:1;transition:color .15s}
+.sp-lb-x:hover{color:#fff}
+
+@media(max-width:768px){
+    .sp-hero{padding:40px 0 20px}
+    .sp-title{font-size:1.7rem}
+    .sp-gal{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
 }
 </style>
 
-<div class="n-act-wrapper">
-    <div class="n-act-hero" id="overview">
-        <div class="n-act-hero-inner">
+<div class="sp-w">
+<div class="sp-c">
 
-            <h1 class="n-act-title">
-                <?php 
-                $title = get_the_title();
-                $words = explode(' ', $title);
-                if(count($words) > 1) {
-                    $last_word = array_pop($words);
-                    echo esc_html(implode(' ', $words)) . ' <span>' . esc_html($last_word) . '</span>';
-                } else {
-                    echo esc_html($title);
-                }
-                ?>
-            </h1>
-            <?php if ($hide_date !== '1'): ?>
-                <?php
-                $date_string = '';
-                if ($date_type === 'soon') {
-                    $date_string = 'Starting Soon';
-                } elseif ($date_type === 'ongoing') {
-                    $date_string = 'Ongoing';
-                } else {
-                    if (!empty($start_date)) {
-                        $date_string = date('F j, Y', strtotime($start_date));
-                        if (!empty($end_date)) {
-                            $date_string .= ' &mdash; ' . date('F j, Y', strtotime($end_date));
-                        }
-                    }
-                }
-                ?>
-                <?php if (!empty($date_string)): ?>
-                    <div style="font-weight: 600; color: #64748b; margin-top: -12px; margin-bottom: 24px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                        <span class="dashicons dashicons-calendar-alt"></span> <?php echo $date_string; ?>
-                    </div>
-                <?php endif; ?>
+    <div class="sp-hero">
+
+        <a href="<?php echo esc_url(get_post_type_archive_link('nucleus_program')); ?>" class="sp-back">← All Activities</a>
+
+        <div class="sp-meta-line">
+            <span><?php echo esc_html(ucfirst($a_type)); ?></span>
+            <?php if (!empty($tags) && !is_wp_error($tags)): ?>
+                <?php foreach ($tags as $tag): ?>
+                    <span class="sp-dot">·</span><span><?php echo esc_html($tag->name); ?></span>
+                <?php endforeach; ?>
             <?php endif; ?>
-            <?php if (!empty($program_desc)): ?>
-                <div class="n-act-desc">
-                    <?php echo wp_kses_post($program_desc); ?>
-                </div>
+            <?php if ($is_upcoming): ?>
+                <span class="sp-dot">·</span><span style="color:#16a34a;">Upcoming</span>
+            <?php elseif ($status === 'ongoing'): ?>
+                <span class="sp-dot">·</span><span style="color:#2563eb;">Ongoing</span>
             <?php endif; ?>
         </div>
-    </div>
 
-    <?php if (!empty($audience) || !empty($outcomes)): ?>
-        <div class="n-act-gallery-container" id="outcomes" style="margin-top:0;">
-            <div style="background:#f8fafc; border-radius:12px; padding:40px; margin-bottom:60px; border:1px solid #e2e8f0; display:flex; flex-wrap:wrap; gap:40px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02)">
-                <?php if (!empty($audience)): ?>
-                <div style="flex:1; min-width:250px;">
-                    <h3 style="margin-top:0; color:#0f172a; font-size:1.25rem;">Target Audience</h3>
-                    <p style="color:#475569; font-size:1.05rem; margin:0; font-weight:500;"><?php echo esc_html($audience); ?></p>
-                </div>
-                <?php endif; ?>
-                <?php if (!empty($outcomes)): ?>
-                <div style="flex:2; min-width:300px;">
-                    <h3 style="margin-top:0; color:#0f172a; font-size:1.25rem;">Key Outcomes</h3>
-                    <div style="color:#475569; line-height:1.6; font-size:1.05rem;">
-                        <?php echo wp_kses_post($outcomes); ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endif; ?>
+        <h1 class="sp-title"><?php echo esc_html(get_the_title()); ?></h1>
 
-    <!-- Linked Events Section -->
-    <?php
-    $events = get_posts(array(
-        'post_type' => 'nucleus_event',
-        'numberposts' => -1,
-        'meta_query' => array(
-            array(
-                'key' => '_nucleus_parent_program',
-                'value' => $post_id,
-                'compare' => '='
-            )
-        )
-    ));
-    if (!empty($events)):
-    ?>
-    <div class="n-act-gallery-container" id="events" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 60px; margin-bottom: 60px;">
-        <h3 class="n-act-gallery-title">Events in this Program</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
-            <?php foreach ($events as $event): ?>
-                <a href="<?php echo esc_url(get_permalink($event->ID)); ?>" class="n-event-card">
-                    <h4 class="n-event-card-title"><?php echo esc_html($event->post_title); ?></h4>
-                    <p class="n-event-card-desc">Click to view event details and gallery &rarr;</p>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Media Highlights -->
-    <?php
-    $n_images = [];
-    $n_videos = [];
-    if (!empty($media_files)) {
-        foreach ($media_files as $media) {
-            if ($media['type'] === 'video') { $n_videos[] = $media; } 
-            else { $n_images[] = $media; }
+        <?php
+        $info = array();
+        if ($show_date === '1' && !empty($start_date)) {
+            $ds = gmdate('F j, Y', strtotime($start_date));
+            if (!empty($end_date) && $end_date !== $start_date) $ds .= ' — ' . gmdate('F j, Y', strtotime($end_date));
+            $info[] = array('svg' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>', 'txt' => $ds);
         }
-    }
-    ?>
-
-    <?php if (!empty($n_videos)): ?>
-    <div class="n-act-gallery-container" id="gallery">
-        <h3 class="n-act-gallery-title">Featured Videos</h3>
-        <div style="display: flex; flex-direction: column; gap: 40px;">
-            <?php foreach ($n_videos as $video): ?>
-                <div style="position: relative; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);">
-                    <video src="<?php echo esc_url($video['url']); ?>" controls preload="metadata" style="width: 100%; display: block; max-height: 80vh;"></video>
-                </div>
+        if ($show_time === '1' && !empty($start_time)) {
+            $ts = gmdate('g:i A', strtotime($start_time));
+            if (!empty($end_time)) $ts .= ' – ' . gmdate('g:i A', strtotime($end_time));
+            $info[] = array('svg' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', 'txt' => $ts);
+        }
+        if ($show_location === '1' && !empty($location)) {
+            $info[] = array('svg' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>', 'txt' => $location);
+        }
+        if (!empty($info)):
+        ?>
+        <div class="sp-info">
+            <?php foreach ($info as $i): ?>
+                <div class="sp-info-item"><?php echo $i['svg']; ?> <?php echo esc_html($i['txt']); ?></div>
             <?php endforeach; ?>
         </div>
+        <?php endif; ?>
+
+        <?php if (!empty($desc)): ?>
+            <div class="sp-desc"><?php echo wp_kses_post($desc); ?></div>
+        <?php endif; ?>
+
+    </div>
+
+    <!-- CTAs -->
+    <?php if (($hrdc === '1') || ($is_upcoming && !empty($contact_url))): ?>
+    <div class="sp-actions">
+        <?php if ($hrdc === '1' && !empty($hrdc_url)): ?>
+            <a href="<?php echo esc_url($hrdc_url); ?>" class="sp-hrdc-cta" target="_blank" rel="noopener">HRDC Claimable ↗</a>
+        <?php elseif ($hrdc === '1'): ?>
+            <span class="sp-hrdc-cta" style="cursor:default;">HRDC Claimable</span>
+        <?php endif; ?>
+        <?php if ($is_upcoming && !empty($contact_url)): ?>
+            <a href="<?php echo esc_url($contact_url); ?>" class="sp-contact-cta">Contact Us →</a>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
+    <!-- Videos -->
+    <?php if (!empty($n_videos)): ?>
+    <div class="sp-gal-sec">
+        <h3 class="sp-gal-h">Videos</h3>
+        <?php foreach ($n_videos as $v): ?>
+            <div class="sp-vid"><video src="<?php echo esc_url($v['url']); ?>" controls preload="metadata"></video></div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <!-- Gallery -->
     <?php if (!empty($n_images)): ?>
-    <div class="n-act-gallery-container" <?php if(empty($n_videos)) echo 'id="gallery"'; ?>>
-        <h3 class="n-act-gallery-title">Program Gallery</h3>
-        <div class="n-act-gallery">
+    <div class="sp-gal-sec">
+        <h3 class="sp-gal-h">Gallery</h3>
+        <div class="sp-gal">
             <?php foreach ($n_images as $img): ?>
-                <div class="n-act-item">
-                    <img src="<?php echo esc_url($img['url']); ?>" loading="lazy" alt="Program Photo">
+                <div class="sp-gi" onclick="spLB('<?php echo esc_url($img['url']); ?>')">
+                    <img src="<?php echo esc_url($img['url']); ?>" loading="lazy" alt="<?php echo esc_attr(get_the_title()); ?>">
                 </div>
             <?php endforeach; ?>
         </div>
@@ -232,13 +200,22 @@ html, body { margin: 0 !important; padding: 0 !important; display: block !import
     <?php endif; ?>
 
 </div>
+</div>
+
+<!-- Lightbox -->
+<div id="sp-lb" class="sp-lb" onclick="spLBc()">
+    <span class="sp-lb-x">&times;</span>
+    <img id="sp-lb-img" src="" alt="">
+</div>
+<script>
+function spLB(s){document.getElementById('sp-lb-img').src=s;document.getElementById('sp-lb').classList.add('active');}
+function spLBc(){document.getElementById('sp-lb').classList.remove('active');setTimeout(function(){document.getElementById('sp-lb-img').src='';},250);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')spLBc();});
+</script>
 
 <?php
 if ($hf_set_id) {
-    if (function_exists('nucleus_render_hf_set')) { echo nucleus_render_hf_set($hf_set_id, 'footer'); }
-    wp_footer();
-    echo '</body></html>';
-} else {
-    get_footer();
-}
+    if (function_exists('nucleus_render_hf_set')) echo nucleus_render_hf_set($hf_set_id, 'footer');
+    wp_footer(); echo '</body></html>';
+} else { get_footer(); }
 ?>

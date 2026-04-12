@@ -8,15 +8,17 @@
 }
 
 #nucleus-section-hero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 120% 0%,
-      rgba(40, 104, 230, 0.70) 0%,
-      rgba(40, 104, 230, 0.40) 30%,
-      rgba(40, 104, 230, 0.20) 45%,
-      rgba(40, 104, 230, 0.08) 65%,
-      rgba(40, 104, 230, 0.04) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 120% 0%,
+    rgba(var(--ncl-primary-rgb), 0.7) 0%,
+    rgba(var(--ncl-primary-rgb), 0.4) 30%,
+    rgba(var(--ncl-primary-rgb), 0.2) 45%,
+    rgba(var(--ncl-primary-rgb), 0.08) 65%,
+    rgba(var(--ncl-primary-rgb), 0.04) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -74,12 +76,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #ffffff !important;
+  background: var(--ncl-bg) !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
   border-radius: 24px;
   padding: 8px 16px;
-  color: #2868E6 !important;
+  color: var(--ncl-primary) !important;
   font-size: 10.33px;
   font-weight: 900;
   line-height: 1;
@@ -88,28 +90,28 @@
 }
 
 #hero-badge::before {
-  content: '';
+  content: "";
   display: inline-block;
   flex-shrink: 0;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #37D097;
-  box-shadow: 0 0 0 0 rgba(55, 208, 151, 0.5);
+  background-color: var(--ncl-accent-green);
+  box-shadow: 0 0 0 0 rgba(var(--ncl-accent-green-rgb), 0.5);
   animation: badge-pulse 1.8s ease-out infinite;
 }
 
 @keyframes badge-pulse {
   0% {
-    box-shadow: 0 0 0 0px rgba(55, 208, 151, 0.5);
+    box-shadow: 0 0 0 0px rgba(var(--ncl-accent-green-rgb), 0.5);
   }
 
   70% {
-    box-shadow: 0 0 0 7px rgba(55, 208, 151, 0);
+    box-shadow: 0 0 0 7px rgba(var(--ncl-accent-green-rgb), 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0px rgba(55, 208, 151, 0);
+    box-shadow: 0 0 0 0px rgba(var(--ncl-accent-green-rgb), 0);
   }
 }
 

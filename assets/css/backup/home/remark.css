@@ -11,15 +11,17 @@
 
 /* ── Glow — same as hero ── */
 #nucleus-section-remark::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 100% 100%,
-      rgba(40, 104, 230, 0.70) 0%,
-      rgba(40, 104, 230, 0.40) 40%,
-      rgba(40, 104, 230, 0.20) 55%,
-      rgba(40, 104, 230, 0.08) 80%,
-      rgba(40, 104, 230, 0.04) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 100% 100%,
+    rgba(var(--ncl-primary-rgb), 0.7) 0%,
+    rgba(var(--ncl-primary-rgb), 0.4) 40%,
+    rgba(var(--ncl-primary-rgb), 0.2) 55%,
+    rgba(var(--ncl-primary-rgb), 0.08) 80%,
+    rgba(var(--ncl-primary-rgb), 0.04) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -40,13 +42,13 @@
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: #ffffff !important;
+  background: var(--ncl-bg) !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
   border-radius: 24px;
-  border: 1px solid rgba(40, 104, 230, 0.25);
+  border: 1px solid rgba(var(--ncl-primary-rgb), 0.25);
   padding: 10px 24px;
-  color: #2868E6 !important;
+  color: var(--ncl-primary) !important;
   font-size: 10.33px;
   font-weight: 900;
   line-height: 1;
@@ -78,8 +80,8 @@
   max-width: 100%;
   padding: 32px 40px;
   border-radius: 10px;
-  border: 2.09px solid #2868E6;
-  background-color: rgba(255, 255, 255, 0.52);
+  border: 2.09px solid var(--ncl-primary);
+  background-color: rgba(var(--ncl-bg-rgb), 0.52);
   font-style: italic;
   font-weight: 700;
   font-size: 1.0625rem;
@@ -91,7 +93,7 @@
 
 /* ── Opening quote — top left, sits on the border ── */
 #remark-testimonial::before {
-  content: '❝';
+  content: "❝";
   /* U+275D — heavy double turned comma */
   /* font-family: Georgia, serif; */
   /* serif fonts render curly quotes much larger and more ornate */
@@ -106,7 +108,7 @@
   font-weight: 900;
   line-height: 1;
   /* gradient fill on the quote mark */
-  background: linear-gradient(135deg, #3172FE, #743DF0);
+  background: linear-gradient(135deg, var(--ncl-primary), var(--ncl-tertiary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -118,7 +120,7 @@
 
 /* ── Closing quote — bottom right, sits on the border ── */
 #remark-testimonial::after {
-  content: '❞';
+  content: "❞";
   /* U+275E — heavy double comma */
   /* font-family: Georgia, serif; */
   font-size: 6rem;
@@ -130,7 +132,7 @@
   font-style: normal;
   font-weight: 900;
   line-height: 1;
-  background: linear-gradient(135deg, #3172FE, #743DF0);
+  background: linear-gradient(135deg, var(--ncl-primary), var(--ncl-tertiary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

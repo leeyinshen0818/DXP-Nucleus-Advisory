@@ -1,6 +1,15 @@
-/* Global Styles */
+/* =============================================
+   Global Utility Styles
+   Apply this once site-wide — above all component CSS.
+   ============================================= */
+
+/* ── Gradient text utility ── */
 .text-gradient {
-  background: linear-gradient(135deg, #35308F, #933DF0);
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-tertiary)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

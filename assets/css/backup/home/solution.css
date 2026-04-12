@@ -5,7 +5,7 @@
 #nucleus-section-solution {
   position: relative;
   padding: 100px 20px;
-  background-color: #11183f;
+  background-color: var(--ncl-bg);
 }
 
 #nucleus-section-solution .nucleus-container {
@@ -20,13 +20,13 @@
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: #2C335B !important;
+  background: var(--ncl-surface) !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
   border-radius: 24px;
-  border: 1px solid #2868E6;
+  border: 1px solid var(--ncl-primary);
   padding: 10px 24px;
-  color: #99C5FF !important;
+  color: var(--ncl-primary-muted) !important;
   font-size: 10.33px;
   font-weight: 900;
   line-height: 1;
@@ -40,7 +40,7 @@
 #solution-main-title {
   font-weight: 800;
   text-align: center;
-  color: #ffffff !important;
+  color: var(--ncl-bg) !important;
   margin-bottom: 48px;
 }
 
@@ -78,9 +78,9 @@
   height: 58.4px;
   padding: 0 18px;
   border-radius: 8.11px;
-  border: 1.7px solid #ffffff;
-  background: #ffffff;
-  color: #11183F;
+  border: 1.7px solid var(--ncl-bg);
+  background: var(--ncl-bg);
+  color: var(--ncl-bg);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -91,27 +91,31 @@
 }
 
 #solution-service-tabs .nucleus-tabs-button::after {
-  content: '';
+  content: "";
   display: none;
 }
 
 #solution-service-tabs .nucleus-tabs-button:hover:not(.active) {
-  background: #f0f4ff;
-  /* light blue tint — stays readable with #11183F text */
-  border-color: #2868E6;
+  background: var(--ncl-bg-muted);
+  /* light blue tint — stays readable with var(--ncl-bg) text */
+  border-color: var(--ncl-primary);
   /* blue border on hover as a subtle highlight */
-  color: #11183F;
+  color: var(--ncl-bg);
 }
 
 /* ── Active tab — overflows into content area ── */
 #solution-service-tabs .nucleus-tabs-button.active {
   width: 313px;
   /* 34px wider than inactive */
-  background: linear-gradient(135deg, #3D38A0, #6B3DB8);
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-tertiary)
+  );
   border-color: transparent;
-  color: #ffffff;
+  color: var(--ncl-bg);
   font-weight: 700;
-  box-shadow: 0 4px 20px rgba(53, 48, 143, 0.35);
+  box-shadow: 0 4px 20px rgba(var(--ncl-primary-rgb), 0.35);
   position: relative;
   z-index: 3;
   /* sits above the content panel border */
@@ -119,7 +123,7 @@
 
 /* Right arrow on active tab */
 #solution-service-tabs .nucleus-tabs-button.active::after {
-  content: '→';
+  content: "→";
   display: inline-block;
   font-size: 1rem;
   margin-left: 8px;
@@ -140,10 +144,14 @@
   min-height: 215px;
   padding: 60px 48px;
   border-radius: 8.06px;
-  border: 1.69px solid #2868E6;
+  border: 1.69px solid var(--ncl-primary);
   /* gradient from white to light purple */
-  background: linear-gradient(160deg, #ffffff 0%, #EEE7FF 100%);
-  color: #1d2327;
+  background: linear-gradient(
+    160deg,
+    var(--ncl-bg) 0%,
+    var(--ncl-tertiary-muted) 100%
+  );
+  color: var(--ncl-text-heading);
 }
 
 #solution-service-tabs .nucleus-tab-pane.active {
@@ -154,7 +162,7 @@
 #solution-service-tabs .nucleus-tab-pane h2 {
   font-size: 2rem;
   font-weight: 800;
-  color: #11183f;
+  color: var(--ncl-bg);
   margin-top: 0;
   margin-bottom: 16px;
 }
@@ -163,14 +171,14 @@
 #solution-service-tabs .nucleus-tab-pane p {
   font-size: 0.95rem;
   line-height: 1.7;
-  color: #50575e;
+  color: var(--ncl-text-body-muted);
   margin-bottom: 16px;
 }
 
 /* ── "Best for:" label ── */
 #solution-service-tabs .nucleus-tab-pane p:has(+ ul) {
   font-weight: 700;
-  color: #11183f;
+  color: var(--ncl-bg);
   margin-bottom: 10px;
 }
 
@@ -189,18 +197,18 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #1d2327;
+  color: var(--ncl-text-heading);
   line-height: 1.5;
 }
 
 #solution-service-tabs .check-list li::before {
-  content: '';
+  content: "";
   display: inline-flex;
   flex-shrink: 0;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #37D097;
+  background-color: var(--ncl-accent-green);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
@@ -211,13 +219,17 @@
 #solution-service-tabs .btn-learn-more {
   display: inline-block;
   padding: 12px 28px;
-  background: linear-gradient(135deg, #3D38A0, #6B3DB8);
-  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-tertiary)
+  );
+  color: var(--ncl-bg) !important;
   font-weight: bold;
   font-size: 0.95rem;
   border-radius: 8px;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(var(--ncl-bg-rgb), 0.35);
   transition: opacity 0.2s ease;
   white-space: nowrap;
 }
@@ -246,7 +258,6 @@
 
 /* ── Mobile: accordion-style tabs ── */
 @media (max-width: 768px) {
-
   /* Stack the whole tabs component vertically */
   #solution-service-tabs {
     flex-direction: column;

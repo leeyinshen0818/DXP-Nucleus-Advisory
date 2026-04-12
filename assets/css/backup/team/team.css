@@ -9,15 +9,17 @@
 
 /* ── Radial glow — top right origin ── */
 #nucleus-section-team::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 120% 0%,
-      rgba(40, 104, 230, 0.70) 0%,
-      rgba(40, 104, 230, 0.40) 30%,
-      rgba(40, 104, 230, 0.20) 45%,
-      rgba(40, 104, 230, 0.08) 65%,
-      rgba(40, 104, 230, 0.04) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 120% 0%,
+    rgba(var(--ncl-primary-rgb), 0.7) 0%,
+    rgba(var(--ncl-primary-rgb), 0.4) 30%,
+    rgba(var(--ncl-primary-rgb), 0.2) 45%,
+    rgba(var(--ncl-primary-rgb), 0.08) 65%,
+    rgba(var(--ncl-primary-rgb), 0.04) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -50,7 +52,7 @@
   width: 933px;
   max-width: 100%;
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--ncl-bg);
   box-shadow: 0px 4px 30px 3px rgba(0, 0, 0, 0.25);
   padding: 36px 40px;
   margin-bottom: 56px;
@@ -60,7 +62,7 @@
 #team-intro p {
   font-size: 1.188rem;
   line-height: 1.7;
-  color: #50575e;
+  color: var(--ncl-text-body-muted);
   margin-bottom: 16px;
   margin-block-start: 0px;
 }
@@ -126,8 +128,8 @@
   width: 261px;
   height: 380px;
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0px 4px 16px rgba(40, 104, 230, 0.10);
+  background: var(--ncl-bg);
+  box-shadow: 0px 4px 16px rgba(var(--ncl-primary-rgb), 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -174,26 +176,26 @@
   width: 100%;
 }
 
-/* ── Name — #2868E6, 16.53px ── */
+/* ── Name — var(--ncl-primary), 16.53px ── */
 #team-card-chairman .nucleus-card-title,
 #team-card-partner-1 .nucleus-card-title,
 #team-card-partner-2 .nucleus-card-title,
 #team-card-partner-3 .nucleus-card-title {
   font-size: 16.53px;
   font-weight: 600;
-  color: #2868E6;
+  color: var(--ncl-primary); /*  var(--color-border)*/
   margin: 0;
   text-align: center;
 }
 
-/* ── Designation — bold, 18.53px, #11183F ── */
+/* ── Designation — bold, 18.53px, var(--ncl-bg) ── */
 #team-card-chairman .nucleus-card-desc,
 #team-card-partner-1 .nucleus-card-desc,
 #team-card-partner-2 .nucleus-card-desc,
 #team-card-partner-3 .nucleus-card-desc {
   font-size: 18.53px;
   font-weight: 700;
-  color: #11183F;
+  color: var(--ncl-text-body);
   text-align: center;
   margin: 0;
   line-height: 1.3;

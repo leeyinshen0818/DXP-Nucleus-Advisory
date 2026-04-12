@@ -9,15 +9,17 @@
 
 /* ── Radial glow ── */
 #nucleus-section-partnership::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 120% 0%,
-      rgba(40, 104, 230, 0.70) 0%,
-      rgba(40, 104, 230, 0.40) 30%,
-      rgba(40, 104, 230, 0.20) 45%,
-      rgba(40, 104, 230, 0.08) 65%,
-      rgba(40, 104, 230, 0.04) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 120% 0%,
+    rgba(var(--ncl-primary-rgb), 0.7) 0%,
+    rgba(var(--ncl-primary-rgb), 0.4) 30%,
+    rgba(var(--ncl-primary-rgb), 0.2) 45%,
+    rgba(var(--ncl-primary-rgb), 0.08) 65%,
+    rgba(var(--ncl-primary-rgb), 0.04) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -55,11 +57,11 @@
   max-width: 100%;
   min-height: 78px;
   border-radius: 17.85px;
-  border: 2.23px solid #2868E6;
-  box-shadow: 0px 3.57px 8.92px 1.78px rgba(40, 104, 230, 0.32);
+  border: 2.23px solid var(--ncl-primary);
+  box-shadow: 0px 3.57px 8.92px 1.78px rgba(var(--ncl-primary-rgb), 0.32);
   padding: 16px 40px;
   box-sizing: border-box;
-  background: #2868E61A;
+  background: rgba(var(--ncl-primary-rgb), 0.1);
   margin-bottom: 56px;
 }
 
@@ -133,7 +135,7 @@
 
 /* ── Section divider at bottom ── */
 #nucleus-section-partnership::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -141,13 +143,12 @@
   width: calc(100% - 80px);
   max-width: 960px;
   height: 2px;
-  background: rgba(40, 104, 230, 0.50);
+  background: rgba(var(--ncl-primary-rgb), 0.5);
   border-radius: 1px;
 }
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-
   #partnership-list-title,
   #partnership-list {
     grid-template-columns: 1fr;

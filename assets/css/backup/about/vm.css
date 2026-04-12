@@ -17,14 +17,14 @@
 #vm-header {
   font-weight: 800;
   text-align: center;
-  color: #ffffff !important;
+  color: var(--ncl-bg) !important;
   margin-bottom: 12px;
 }
 
 /* ── Subtitle ── */
 #vm-subtitle {
   text-align: center;
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: rgba(var(--ncl-bg-rgb), 0.75) !important;
   margin-bottom: 48px;
 }
 
@@ -35,7 +35,7 @@
   max-width: 960px;
   min-height: 202px;
   border-radius: 18.33px;
-  background: #ffffff;
+  background: var(--ncl-bg);
   padding: 36px 40px;
   display: flex;
   flex-direction: row;
@@ -51,7 +51,7 @@
 /* ── Icon — ::before sits as first flex child ── */
 #vm-vision::before,
 #vm-mission::before {
-  content: '';
+  content: "";
   display: block;
   flex-shrink: 0;
   width: 89px;
@@ -103,7 +103,11 @@
   font-weight: 800;
   margin-top: 0;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, #35308F, #933DF0);
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-tertiary)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent !important;
@@ -117,13 +121,12 @@
   grid-row: 2;
   /* font-size: 0.95rem; */
   /* line-height: 1.7; */
-  color: #1d2327;
+  color: var(--ncl-text-heading);
   margin-bottom: 0;
 }
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-
   #vm-vision,
   #vm-mission {
     grid-template-columns: 60px 1fr;

@@ -1,6 +1,6 @@
 /* =============================================
    Partnerships Section
-   Background: #11183f (set inline, no need to redeclare)
+   Background: var(--ncl-bg) (set inline, no need to redeclare)
    ============================================= */
 
 /* ── Layout: center everything ── */
@@ -18,13 +18,13 @@
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: #2C335B !important;
+  background: var(--ncl-surface) !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
-  border: 1px solid #2868E6;
+  border: 1px solid var(--ncl-primary);
   border-radius: 24px;
   padding: 12px 24px;
-  color: #99C5FF !important;
+  color: var(--ncl-primary-muted) !important;
   font-size: 10.33px;
   font-weight: 900;
   line-height: 1;
@@ -36,7 +36,7 @@
 
 /* ── Title ── */
 #partnerships-header {
-  color: #ffffff !important;
+  color: var(--ncl-bg) !important;
   text-align: center;
   margin-bottom: 40px;
   font-weight: bold;
@@ -53,11 +53,11 @@
 /* Temporary fallback — targets by class within the section */
 #nucleus-section-partnerships .nucleus-text:not(#partnerships-badge) {
   width: 60%;
-  background: #2C335B;
-  border: 1px solid #2868E6;
+  background: var(--ncl-surface);
+  border: 1px solid var(--ncl-primary);
   border-radius: 12px;
   padding: 20px 24px;
-  color: #ffffff;
+  color: var(--ncl-bg);
   line-height: 1.6;
   margin-bottom: 12px;
 }
@@ -72,21 +72,20 @@
 }
 
 /* Every card inside the group — add card-4 etc. without touching this */
-#partnerships-card>.nucleus-component {
+#partnerships-card > .nucleus-component {
   width: 60%;
-  background: #2C335B;
-  border: 1px solid #2868E6;
+  background: var(--ncl-surface);
+  border: 1px solid var(--ncl-primary);
   border-radius: 12px;
   padding: 20px 24px;
-  color: #ffffff;
+  color: var(--ncl-bg);
   line-height: 1.6;
 }
 
 /* ── Mobile: full width cards ── */
 @media (max-width: 768px) {
-
   #nucleus-section-partnerships .nucleus-text:not(#partnerships-badge),
-  #partnerships-card>.nucleus-component {
+  #partnerships-card > .nucleus-component {
     width: 100%;
   }
 }

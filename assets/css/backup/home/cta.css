@@ -19,7 +19,7 @@
 #cta-subtitle {
   flex: 0 0 100% !important;
   width: 100% !important;
-  max-width: 100% !important; 
+  max-width: 100% !important;
   text-align: center;
 }
 
@@ -33,7 +33,7 @@
 #cta-title {
   font-weight: 800;
   text-align: center;
-  color: #ffffff !important;
+  color: var(--ncl-bg) !important;
   max-width: 680px;
   margin-bottom: 16px;
 }
@@ -42,7 +42,7 @@
 #cta-subtitle {
   text-align: center;
   max-width: 520px;
-  color: #ffffff;
+  color: var(--ncl-bg);
   font-size: 1rem;
   margin-bottom: 40px;
 }
@@ -53,16 +53,20 @@
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
-  background: linear-gradient(135deg, #3D38A0, #6B3DB8) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-primary)
+  ) !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--ncl-bg) !important;
+  -webkit-text-fill-color: var(--ncl-bg) !important;
   font-weight: 700;
   font-size: 0.95rem;
   border-radius: 8px;
   border: none;
-  box-shadow: 0 0 0 0.66px #ffffff;
+  box-shadow: 0 0 0 0.66px var(--ncl-bg);
   text-decoration: none;
   white-space: nowrap;
   transition: opacity 0.2s ease;
@@ -82,12 +86,12 @@
   background: transparent !important;
   background-clip: unset !important;
   -webkit-background-clip: unset !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--ncl-bg) !important;
+  -webkit-text-fill-color: var(--ncl-bg) !important;
   font-weight: 700;
   font-size: 0.95rem;
   border-radius: 8px;
-  border: 1px solid #ffffff;
+  border: 1px solid var(--ncl-bg);
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.2s ease;
@@ -97,13 +101,13 @@
 }
 
 #cta-secondary-cta::after {
-  content: '→';
+  content: "→";
   font-size: 1rem;
   transition: transform 0.2s ease;
 }
 
 #cta-secondary-cta:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(var(--ncl-bg-rgb), 0.08) !important;
 }
 
 #cta-secondary-cta:hover::after {
@@ -112,7 +116,6 @@
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-
   #cta-primary-cta,
   #cta-secondary-cta {
     width: 100%;

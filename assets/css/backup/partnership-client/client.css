@@ -9,14 +9,16 @@
 
 /* ── Softer continuation of the glow from partnerships ── */
 #nucleus-section-clients::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 120% 0%,
-      rgba(40, 104, 230, 0.35) 0%,
-      rgba(40, 104, 230, 0.15) 40%,
-      rgba(40, 104, 230, 0.05) 70%,
-      rgba(40, 104, 230, 0) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 120% 0%,
+    rgba(var(--ncl-primary-rgb), 0.35) 0%,
+    rgba(var(--ncl-primary-rgb), 0.15) 40%,
+    rgba(var(--ncl-primary-rgb), 0.05) 70%,
+    rgba(var(--ncl-primary-rgb), 0) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -52,9 +54,9 @@
   max-width: 900px;
   padding: 32px 40px;
   border-radius: 17.85px;
-  border: 2.23px solid #2868E6;
-  box-shadow: 0px 3.57px 8.92px 1.78px rgba(40, 104, 230, 0.32);
-  background: #2868E61A;
+  border: 2.23px solid var(--ncl-primary);
+  box-shadow: 0px 3.57px 8.92px 1.78px rgba(var(--ncl-primary-rgb), 0.32);
+  background: rgba(var(--ncl-primary-rgb), 0.1);
   box-sizing: border-box;
 }
 

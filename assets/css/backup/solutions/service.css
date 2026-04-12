@@ -9,15 +9,17 @@
 
 /* ── Radial glow — same as hero ── */
 #nucleus-section-service::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 150% 150% at 120% 0%,
-      rgba(40, 104, 230, 0.70) 0%,
-      rgba(40, 104, 230, 0.40) 30%,
-      rgba(40, 104, 230, 0.20) 45%,
-      rgba(40, 104, 230, 0.08) 65%,
-      rgba(40, 104, 230, 0.04) 100%);
+  background: radial-gradient(
+    ellipse 150% 150% at 120% 0%,
+    rgba(var(--ncl-primary-rgb), 0.7) 0%,
+    rgba(var(--ncl-primary-rgb), 0.4) 30%,
+    rgba(var(--ncl-primary-rgb), 0.2) 45%,
+    rgba(var(--ncl-primary-rgb), 0.08) 65%,
+    rgba(var(--ncl-primary-rgb), 0.04) 100%
+  );
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -60,7 +62,7 @@
   position: relative;
   width: 301.68px;
   border-radius: 13.32px;
-  background: #ffffff;
+  background: var(--ncl-bg);
   box-shadow: 0px 2.66px 19.98px 2px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   display: flex;
@@ -118,7 +120,11 @@
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(90deg, #35308F 0%, #933DF0 172.69%);
+  background: linear-gradient(
+    90deg,
+    var(--ncl-primary-hover) 0%,
+    var(--ncl-tertiary) 172.69%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent !important;
@@ -132,7 +138,7 @@
 #service-solution-card-4 .nucleus-card-desc,
 #service-solution-card-5 .nucleus-card-desc {
   font-size: 0.82rem;
-  color: #2868E6;
+  color: var(--ncl-primary);
   margin: 0;
 
   display: -webkit-box;
@@ -152,7 +158,7 @@
   right: 16px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #2868E6;
+  color: var(--ncl-primary);
   text-decoration: none;
 }
 

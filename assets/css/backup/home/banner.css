@@ -14,7 +14,7 @@
 
 /* ── Tagline ── */
 #banner-tagline {
-  color: #ffffff !important;
+  color: var(--ncl-bg) !important;
   font-size: 1.1rem;
   margin-bottom: 0;
   text-align: center;
@@ -25,15 +25,19 @@
   display: inline-block;
   padding: 12px 28px;
   /* more uniform gradient — tighter colour range */
-  background: linear-gradient(135deg, #3D38A0, #6B3DB8);
-  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    var(--ncl-primary-hover),
+    var(--ncl-tertiary)
+  );
+  color: var(--ncl-bg) !important;
   font-weight: bold;
   font-size: 0.95rem;
   border-radius: 8px;
   text-decoration: none;
   white-space: nowrap;
   /* soft white border */
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(var(--ncl-bg-rgb), 0.35);
   transition: opacity 0.2s ease;
   margin-bottom: 0;
 }

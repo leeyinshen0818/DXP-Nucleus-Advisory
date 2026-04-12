@@ -1,0 +1,32 @@
+/* =============================================
+   Why Choose Us Section
+   ============================================= */
+.ncl-features-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+    max-width: 900px; 
+    margin: 0 auto; 
+}
+.ncl-feature-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 14px; 
+    padding: 18px 24px; 
+    background: var(--ncl-surface); 
+    border: 1px solid var(--ncl-neutral-muted); 
+    border-radius: 12px; 
+    font-size: 0.95rem; 
+    font-weight: 600; 
+    color: var(--ncl-text-heading); 
+}
+.ncl-feature-icon { 
+    font-size: 1.5rem; 
+}
+
+@media (max-width: 991px) {
+  .ncl-features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .ncl-features-grid { grid-template-columns: 1fr; padding: 0 20px; }
+}

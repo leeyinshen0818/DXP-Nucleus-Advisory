@@ -8,21 +8,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --nl-navy: #0a1628;
-    --nl-navy-light: #1a2d4a;
-    --nl-blue: #2563eb;
-    --nl-blue-light: #3b82f6;
-    --nl-purple: #7c3aed;
-    --nl-sky: #e0f2fe;
-    --nl-slate: #64748b;
-    --nl-slate-dark: #334155;
-    --nl-light-bg: #f8fafc;
-    --nl-white: #ffffff;
-    --nl-border: #e8ecf1;
+    --nl-navy: var(--ncl-text-heading);
+    --nl-navy-light: var(--ncl-secondary-hover);
+    --nl-blue: var(--ncl-primary);
+    --nl-blue-light: var(--ncl-primary);
+    --nl-purple: var(--ncl-tertiary);
+    --nl-sky: var(--ncl-surface-hover);
+    --nl-slate: var(--ncl-text-muted);
+    --nl-slate-dark: var(--ncl-text-heading);
+    --nl-light-bg: var(--ncl-surface);
+    --nl-white: var(--ncl-bg);
+    --nl-border: var(--ncl-border);
     --nl-radius: 14px;
     --nl-radius-sm: 8px;
-    --nl-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-    --nl-shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --nl-shadow-sm: 0 2px 8px rgba(var(--ncl-text-heading-rgb), 0.06);
+    --nl-shadow-md: 0 8px 30px rgba(var(--ncl-text-heading-rgb), 0.08);
     --nl-font: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -77,7 +77,7 @@
 
 /* ========== HERO ========== */
 .nl-hero {
-    background: linear-gradient(160deg, #0a1628 0%, #1a2d4a 50%, #0f2044 100%);
+    background: linear-gradient(160deg, var(--ncl-text-heading) 0%, var(--ncl-secondary-hover) 50%, var(--ncl-secondary-muted) 100%);
     padding: 160px 32px 80px;
     text-align: center;
     position: relative;
@@ -89,8 +89,8 @@
     position: absolute;
     inset: 0;
     background-image:
-        radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.12) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(var(--ncl-primary-rgb), 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(var(--ncl-tertiary-rgb), 0.12) 0%, transparent 50%);
     pointer-events: none;
 }
 
@@ -103,9 +103,9 @@
 
 .nl-hero-badge {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #93c5fd;
+    background: rgba(var(--ncl-bg-rgb), 0.06);
+    border: 1px solid rgba(var(--ncl-bg-rgb), 0.1);
+    color: var(--ncl-primary-muted);
     padding: 8px 18px;
     border-radius: 99px;
     font-size: 0.78rem;
@@ -126,7 +126,7 @@
 
 .nl-hero-subtitle {
     font-size: 1.1rem;
-    color: #94a3b8;
+    color: var(--ncl-text-muted);
     line-height: 1.6;
     margin: 0 0 36px 0;
     font-weight: 400;
@@ -152,7 +152,7 @@
     position: absolute;
     width: 4px;
     height: 4px;
-    background: rgba(147, 197, 253, 0.5);
+    background: rgba(var(--ncl-primary-rgb), 0.5);
     border-radius: 50%;
 }
 
@@ -365,7 +365,7 @@
     color: var(--nl-white) !important;
     text-decoration: none !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 8px 20px rgba(var(--ncl-primary-rgb), 0.25);
 }
 
 /* ========== CONTROLS ========== */
@@ -504,7 +504,7 @@
 .nl-step:hover {
     transform: translateY(-6px);
     box-shadow: var(--nl-shadow-md);
-    border-color: rgba(37, 99, 235, 0.15);
+    border-color: rgba(var(--ncl-primary-rgb), 0.15);
 }
 
 .nl-step:hover::after {
@@ -514,7 +514,7 @@
 .nl-step-number {
     font-size: 2.5rem;
     font-weight: 900;
-    color: #eef2f7;
+    color: var(--ncl-bg);
     letter-spacing: -0.05em;
     margin-bottom: 14px;
     line-height: 1;
@@ -569,7 +569,7 @@
 }
 
 .nl-include-item:hover {
-    border-color: rgba(37, 99, 235, 0.25);
+    border-color: rgba(var(--ncl-primary-rgb), 0.25);
     transform: translateY(-3px);
     box-shadow: var(--nl-shadow-sm);
 }
@@ -598,7 +598,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle at 1px 1px, rgba(147, 197, 253, 0.04) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, rgba(var(--ncl-primary-rgb), 0.04) 1px, transparent 0);
     background-size: 28px 28px;
     pointer-events: none;
 }
@@ -620,7 +620,7 @@
 
 .nl-cta-text {
     font-size: 1rem;
-    color: #94a3b8;
+    color: var(--ncl-text-muted);
     line-height: 1.6;
     margin: 0;
 }

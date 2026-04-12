@@ -1,0 +1,47 @@
+/* ===== EXPERTISE ===== */
+#nucleus-section-expertise {
+    padding: 100px 20px;
+}
+
+#nucleus-section-expertise .nucleus-container {
+    max-width: 700px;
+}
+
+#expertise-eyebrow {
+    color: var(--ncl-primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+}
+
+#expertise-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--ncl-text-heading);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+#expertise-subtitle {
+    font-size: 1.1rem;
+    color: var(--ncl-text-muted);
+    line-height: 1.7;
+    margin-bottom: 36px;
+}
+
+#expertise-cta-portfolio {
+    padding: 16px 32px;
+    background: var(--ncl-text-heading);
+    color: var(--ncl-bg) !important;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+#expertise-cta-portfolio:hover {
+    background: var(--ncl-text-heading);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}

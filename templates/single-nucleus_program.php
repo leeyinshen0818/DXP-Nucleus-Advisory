@@ -59,47 +59,47 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
     .nucleus-footer-root .nucleus-container{flex-direction:column!important;text-align:center;gap:12px!important;padding:20px 16px!important}
 }
 
-.sp-w{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:#1e293b;min-height:80vh;padding-bottom:60px;-webkit-font-smoothing:antialiased}
+.sp-w{font-family:'Inter',-apple-system,sans-serif;background:var(--ncl-bg);color:var(--ncl-text-heading);min-height:80vh;padding-bottom:60px;-webkit-font-smoothing:antialiased}
 .sp-c{max-width:780px;margin:0 auto;padding:0 20px}
 
 /* Hero */
 .sp-hero{padding:56px 0 32px}
-.sp-back{display:inline-flex;align-items:center;gap:5px;color:#94a3b8;text-decoration:none;font-size:.8rem;font-weight:500;margin-bottom:20px;transition:color .15s}
-.sp-back:hover{color:#2563eb}
-.sp-meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:.75rem;color:#64748b}
+.sp-back{display:inline-flex;align-items:center;gap:5px;color:var(--ncl-text-muted);text-decoration:none;font-size:.8rem;font-weight:500;margin-bottom:20px;transition:color .15s}
+.sp-back:hover{color:var(--ncl-primary)}
+.sp-meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:.75rem;color:var(--ncl-text-muted)}
 .sp-meta-line span{font-weight:500}
-.sp-dot{color:#cbd5e1}
-.sp-title{font-size:2.2rem;font-weight:700;color:#0f172a;margin:0 0 16px;line-height:1.2;letter-spacing:-.02em}
-.sp-info{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;font-size:.88rem;color:#64748b}
+.sp-dot{color:var(--ncl-border)}
+.sp-title{font-size:2.2rem;font-weight:700;color:var(--ncl-text-heading);margin:0 0 16px;line-height:1.2;letter-spacing:-.02em}
+.sp-info{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;font-size:.88rem;color:var(--ncl-text-muted)}
 .sp-info-item{display:flex;align-items:center;gap:5px}
-.sp-info-item svg{color:#94a3b8;flex-shrink:0}
-.sp-desc{font-size:1rem;line-height:1.7;color:#475569}
+.sp-info-item svg{color:var(--ncl-text-muted);flex-shrink:0}
+.sp-desc{font-size:1rem;line-height:1.7;color:var(--ncl-text-body)}
 .sp-desc p:first-child{margin-top:0}
 
 /* Gallery */
 .sp-gal-sec{margin:36px 0}
-.sp-gal-h{font-size:1rem;font-weight:600;color:#0f172a;margin:0 0 14px}
+.sp-gal-h{font-size:1rem;font-weight:600;color:var(--ncl-text-heading);margin:0 0 14px}
 .sp-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.sp-gi{border-radius:8px;overflow:hidden;background:#f1f5f9;aspect-ratio:16/10;cursor:pointer}
+.sp-gi{border-radius:8px;overflow:hidden;background:var(--ncl-surface-hover);aspect-ratio:16/10;cursor:pointer}
 .sp-gi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
 .sp-gi:hover img{transform:scale(1.03)}
-.sp-vid{border-radius:8px;overflow:hidden;background:#000;margin-bottom:14px}
+.sp-vid{border-radius:8px;overflow:hidden;background:var(--ncl-text-heading);margin-bottom:14px}
 .sp-vid video{width:100%;display:block;max-height:55vh}
 
 /* Small CTAs */
 .sp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0;align-items:center}
-.sp-hrdc-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
-.sp-hrdc-cta:hover{background:#dcfce7;color:#16a34a}
-.sp-contact-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#2563eb;color:#fff;border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
-.sp-contact-cta:hover{background:#1d4ed8;color:#fff}
+.sp-hrdc-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:rgba(var(--ncl-accent-green-rgb), 0.1);color:var(--ncl-accent-green);border:1px solid rgba(var(--ncl-accent-green-rgb), 0.3);border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
+.sp-hrdc-cta:hover{background:rgba(var(--ncl-accent-green-rgb), 0.2);color:var(--ncl-accent-green)}
+.sp-contact-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:var(--ncl-primary);color:var(--ncl-bg);border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
+.sp-contact-cta:hover{background:var(--ncl-primary-hover);color:var(--ncl-bg)}
 
 /* Lightbox */
-.sp-lb{position:fixed;z-index:999999;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:zoom-out;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.sp-lb{position:fixed;z-index:999999;inset:0;background:rgba(var(--ncl-text-heading-rgb), .92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:zoom-out;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
 .sp-lb.active{opacity:1;visibility:visible}
-.sp-lb img{max-width:90vw;max-height:90vh;border-radius:4px;box-shadow:0 20px 40px rgba(0,0,0,.4);transform:scale(.96);transition:transform .3s;object-fit:contain}
+.sp-lb img{max-width:90vw;max-height:90vh;border-radius:4px;box-shadow:0 20px 40px rgba(var(--ncl-text-heading-rgb), .4);transform:scale(.96);transition:transform .3s;object-fit:contain}
 .sp-lb.active img{transform:scale(1)}
-.sp-lb-x{position:absolute;top:24px;right:32px;color:rgba(255,255,255,.6);font-size:40px;cursor:pointer;line-height:1;transition:color .15s}
-.sp-lb-x:hover{color:#fff}
+.sp-lb-x{position:absolute;top:24px;right:32px;color:rgba(var(--ncl-bg-rgb), .6);font-size:40px;cursor:pointer;line-height:1;transition:color .15s}
+.sp-lb-x:hover{color:var(--ncl-bg)}
 
 @media(max-width:768px){
     .sp-hero{padding:40px 0 20px}
@@ -123,9 +123,9 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
                 <?php endforeach; ?>
             <?php endif; ?>
             <?php if ($is_upcoming): ?>
-                <span class="sp-dot">·</span><span style="color:#16a34a;">Upcoming</span>
+                <span class="sp-dot">·</span><span style="color:var(--ncl-accent-green);">Upcoming</span>
             <?php elseif ($status === 'ongoing'): ?>
-                <span class="sp-dot">·</span><span style="color:#2563eb;">Ongoing</span>
+                <span class="sp-dot">·</span><span style="color:var(--ncl-primary);">Ongoing</span>
             <?php endif; ?>
         </div>
 

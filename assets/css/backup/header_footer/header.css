@@ -1,0 +1,153 @@
+/* ----- Native Dropdown Menu Styling Support (.nav-list) ----- */
+.nucleus-main-nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px 0;
+}
+
+.nav-list {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 35px;
+    align-items: center;
+}
+
+.nav-list li {
+    list-style-type: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.nav-list > li > a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-list > li > a:hover {
+    color: #4bd2e6;
+}
+
+/* Dropdown arrow bounce */
+.nav-list .has-dropdown svg {
+    opacity: 0.7;
+    transition: transform 0.2s;
+}
+.nav-list .has-dropdown:hover svg {
+    transform: translateY(2px);
+    opacity: 1;
+}
+
+/* -- Dropdown System -- */
+.nav-list li.has-dropdown {
+    position: relative;
+    padding-bottom: 30px !important;
+    margin-bottom: -30px !important; 
+}
+
+/* Sub-Menu Initial Hidden State */
+.nav-list ul.sub-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    min-width: 220px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    list-style: none !important;
+    margin: 0;
+    padding: 10px 0 !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 99999;
+}
+
+/* Display Sub-Menu on hover */
+.nav-list li.has-dropdown:hover > ul.sub-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-list ul.sub-menu li {
+    display: block !important;
+    width: 100%;
+}
+
+.nav-list ul.sub-menu li a {
+    padding: 12px 24px;
+    display: block;
+    color: #1d2327 !important;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-list ul.sub-menu li a:hover {
+    background: #f0f4f8;
+    color: #2271b1 !important; 
+    padding-left: 28px;
+}
+
+/* ===== TABLET RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .nav-list { gap: 15px; }
+    .nav-list > li > a { font-size: 13px; }
+    .nucleus-main-nav { padding: 15px 0; }
+}
+
+/* ===== MOBILE RESPONSIVE (WRAPPABLE NAV ITEMS) ===== */
+@media (max-width: 768px) {
+    .nav-list { 
+        gap: 8px !important; 
+        flex-wrap: wrap !important; /* Forces the nav items to stack into multiple lines! */
+        justify-content: center !important;
+        width: 100%;
+    }
+    .nav-list > li > a { 
+        font-size: 11px !important; 
+        padding: 4px 6px !important;
+    }
+    
+    /* Fix submenu positioning on mobile devices since nav items wrap now */
+    .nav-list ul.sub-menu {
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, 15px);
+    }
+    .nav-list li.has-dropdown:hover > ul.sub-menu {
+        transform: translate(-50%, 0);
+    }
+}
+
+/* ===== EXTRA SMALL PHONE (E.G. iPhone SE) ===== */
+@media (max-width: 400px) {
+    .nav-list { 
+        gap: 6px !important; 
+    }
+    .nav-list > li > a { 
+        font-size: 10px !important; 
+        padding: 3px 5px !important;
+    }
+}
+
+/* ==========================================================================
+   UNIVERSAL HEADER STYLE (Suitable for all pages)
+   ========================================================================== */
+.nucleus-header-root {
+    position: relative !important;
+    z-index: 9999;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+}

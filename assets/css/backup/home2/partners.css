@@ -1,0 +1,103 @@
+/* ===== PARTNERSHIPS =====  */
+#nucleus-section-partners {
+    padding: 80px 20px;
+    text-align: center;
+    background: var(--ncl-bg);
+    overflow: hidden;
+}
+
+#partners-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--ncl-surface);
+    color: var(--ncl-primary);
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+}
+
+#partners-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--ncl-text-heading);
+    margin-bottom: 48px;
+}
+
+/* ===== LOGO TICKER ===== */
+.logo-ticker {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+}
+
+/* Soft fade edges */
+.logo-ticker::before,
+.logo-ticker::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 120px;
+    z-index: 2;
+    pointer-events: none;
+}
+.logo-ticker::before {
+    left: 0;
+    background: linear-gradient(to right, var(--ncl-bg), transparent);
+}
+.logo-ticker::after {
+    right: 0;
+    background: linear-gradient(to left, var(--ncl-bg), transparent);
+}
+
+.logo-track {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    width: max-content;
+    animation: scrollLogos 25s linear infinite;
+}
+
+.logo-item {
+    flex-shrink: 0;
+}
+
+.logo-item img {
+    height: 40px !important;
+    max-width: 160px !important;
+    width: auto !important;
+    object-fit: contain;
+    filter: grayscale(100%) opacity(0.4);
+    transition: all 0.4s ease;
+}
+
+.logo-item img:hover {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.1);
+}
+
+@keyframes scrollLogos {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause on hover */
+.logo-ticker:hover .logo-track {
+    animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+    .logo-item img {
+        height: 30px !important;
+        max-width: 120px !important;
+    }
+    .logo-track { gap: 50px; }
+}

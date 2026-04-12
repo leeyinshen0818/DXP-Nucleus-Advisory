@@ -1,0 +1,58 @@
+/* ===== CTA RIBBON ===== */
+#nucleus-section-ribbon1,
+#nucleus-section-ribbon2 {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, var(--ncl-text-heading) 0%, var(--ncl-primary-hover) 100%) !important;
+}
+
+#nucleus-section-ribbon1 .nucleus-component,
+#nucleus-section-ribbon2 .nucleus-component {
+    margin-bottom: 0 !important;
+}
+
+#nucleus-section-ribbon1 .nucleus-container,
+#nucleus-section-ribbon2 .nucleus-container {
+    max-width: 100%;
+}
+
+.n-ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 28px 32px;
+    flex-wrap: wrap;
+}
+
+.n-ribbon-text {
+    color: rgba(var(--ncl-bg-rgb), 0.9);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.n-ribbon-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: rgba(var(--ncl-bg-rgb), 0.15);
+    border: 1px solid rgba(var(--ncl-bg-rgb), 0.3);
+    color: var(--ncl-bg) !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.n-ribbon-btn:hover {
+    background: rgba(var(--ncl-bg-rgb), 0.25);
+    border-color: rgba(var(--ncl-bg-rgb), 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 600px) {
+    .n-ribbon { flex-direction: column; text-align: center; gap: 16px; padding: 24px 20px; }
+}

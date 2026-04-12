@@ -693,6 +693,31 @@ function nucleus_page_dynamic_builder_html($post)
   if (empty($selected_hf) && in_array($post->post_status, array('auto-draft', 'draft')) && empty($page_data)) {
     $selected_hf = get_option('nucleus_default_hf_set', '');
   }
+
+  // Retrieve Programs for the Program Carousel
+  $programs = get_posts(array(
+    'post_type' => 'nucleus_program',
+    'numberposts' => -1,
+    'post_status' => 'publish'
+  ));  $available_programs = array();
+  foreach ($programs as $prog) {
+    $p = '_nucleus_activity_';
+    $start_date = get_post_meta($prog->ID, $p . 'start_date', true) ?: get_post_meta($prog->ID, '_nucleus_program_start_date', true);
+    $type = get_post_meta($prog->ID, $p . 'type', true);
+    if (empty($type)) $type = 'program';
+    $date_str = $start_date ? date('M j, Y', strtotime($start_date)) : '';
+
+    $available_programs[] = array(
+      'id' => $prog->ID,
+      'title' => trim($prog->post_title . ($date_str ? ' (' . $date_str . ')' : '')),
+      'start_date' => $start_date ? strtotime($start_date) : 0,
+      'type' => strtolower($type)
+    );
+  }
+  // Sort programs by date descending (latest first)
+  usort($available_programs, function($a, $b) {
+    return $b['start_date'] - $a['start_date'];
+  });
 ?>
 
 <!-- HF SET SELECTION -->
@@ -1410,6 +1435,9 @@ function nucleus_page_dynamic_builder_html($post)
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
+    const availablePrograms = <?php echo json_encode($available_programs); ?>;
+    const maxPrograms = availablePrograms.filter(p => !p.type || p.type.includes('program')).length;
+    const maxEvents = availablePrograms.filter(p => p.type && p.type.includes('event')).length;
     let mediaUploader;
 
     // DATA
@@ -1561,6 +1589,7 @@ jQuery(document).ready(function($) {
                                             <optgroup label="Interactive & Media">
                                                 <option value="tabs" ${comp.type === 'tabs' ? 'selected' : ''}>Tabs / Sidebar</option>
                                                 <option value="carousel" ${comp.type === 'carousel' ? 'selected' : ''}>Carousel / Slider</option>
+                                                <option value="program_carousel" ${comp.type === 'program_carousel' ? 'selected' : ''}>Program Carousel</option>
                                                 <option value="accordion" ${comp.type === 'accordion' ? 'selected' : ''}>Accordion / FAQ</option>
                                                 <option value="video" ${comp.type === 'video' ? 'selected' : ''}>Video Embed</option>
                                             </optgroup>
@@ -1614,6 +1643,24 @@ jQuery(document).ready(function($) {
                                             </div>
                                             <button type="button" class="ncl-btn ncl-btn-secondary btn-add-carousel-slide" data-sindex="${sIndex}" data-cindex="${cIndex}">+ Add Slide</button>
                                         </div>
+                                    ` : ''}
+                                    ${comp.type === 'program_carousel' ? `
+                                        <div class="ncl-program-carousel-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
+    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px;">
+        <label style="font-weight: 600;">Display Setting:</label>
+        <div class="program-autofetch-options-wrap" style="display:flex; align-items:center; gap:15px; margin-left: 15px;">
+            <select class="input-program-autofetch-select" data-sindex="${sIndex}" data-cindex="${cIndex}" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="auto_program:" ${comp.meta && comp.meta.toString().startsWith('auto_program:') ? 'selected' : ''}>Programs</option>
+                <option value="auto_event:" ${comp.meta && comp.meta.toString().startsWith('auto_event:') ? 'selected' : ''}>Events</option>
+            </select>
+            <div style="display:flex; align-items:center; gap:5px;">
+                <span>Count: </span>
+                <input type="number" class="input-program-autocount" data-sindex="${sIndex}" data-cindex="${cIndex}" value="${comp.meta ? escapeHtml(comp.meta.toString().split(':')[1] || '3') : '3'}" data-max-prog="${maxPrograms}" data-max-event="${maxEvents}" style="width: 50px; padding: 2px; text-align:center;" min="1" max="${(comp.meta && comp.meta.toString().startsWith('auto_event:')) ? maxEvents : maxPrograms}" />
+            </div>
+            <div style="color: #666; font-size: 12px; margin-left: 10px;">This component will automatically fetch the latest items.</div>
+        </div>
+    </div>
+</div>
                                     ` : ''}
                                     ${comp.type === 'checklist' ? `
                                     <div class="ncl-checklist-editor" style="background:#fafafa; border:1px solid #dcdcde; border-radius:4px; padding:15px; margin-top:10px;">
@@ -1671,7 +1718,7 @@ jQuery(document).ready(function($) {
                                     ` : ''}
                                     <div class="ncl-form-row" style="align-items: flex-start;">
                                         <label style="padding-top:6px;">Content</label>
-                                        ${(comp.type === 'tabs' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial' || comp.type === 'checklist' || comp.type === 'card') ? '' :
+                                        ${(comp.type === 'tabs' || comp.type === 'program_carousel' || comp.type === 'carousel' || comp.type === 'accordion' || comp.type === 'testimonial' || comp.type === 'checklist' || comp.type === 'card') ? '' :
                                         comp.type === 'wysiwyg'
                                             ? `<div style="width: 100%; max-width: 800px; background: #fff;"><textarea id="wysiwyg_${sIndex}_${cIndex}" class="input-comp-wysiwyg" data-sindex="${sIndex}" data-cindex="${cIndex}" style="width:100%; height: 250px;">${escapeHtml(typeof comp.value === 'string' ? comp.value : '')}</textarea></div>` :
                                         (comp.type === 'html' || comp.type === 'code')
@@ -2012,6 +2059,14 @@ jQuery(document).ready(function($) {
             }];
         }
 
+        // Initialize program_carousel array
+        if (newType === 'program_carousel' && !Array.isArray(pageData[sIndex].components[cIndex]
+            .value)) {
+            pageData[sIndex].components[cIndex].value = [{
+                id: ''
+            }];
+        }
+
         // Initialize accordion array
         if (newType === 'accordion' && !Array.isArray(pageData[sIndex].components[cIndex].value)) {
             pageData[sIndex].components[cIndex].value = [{
@@ -2151,6 +2206,268 @@ jQuery(document).ready(function($) {
                 syncHiddenInput();
             }
         });
+
+    // Program Carousel: Add Slide
+    $root.on('click', '.btn-add-program-slide', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+
+        if (!Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value = [];
+        }
+        pageData[sIndex].components[cIndex].value.push({
+            id: ''
+        });
+        renderBuilder();
+    });
+
+    // Program Carousel: Delete Slide
+    $root.on('click', '.btn-delete-program-slide', function(e) {
+        e.preventDefault();
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const tIndex = $(this).data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value.splice(tIndex, 1);
+            renderBuilder();
+        }
+    });
+
+
+    $root.on('change', '.input-program-autofetch-select', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
+        const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
+        
+        const type = $(this).val();
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        countObj.attr('max', maxLimit);
+        
+        let count = parseInt(countObj.val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            countObj.val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        let count = $(this).val() || '3';
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+
+    $root.on('change', '.input-program-autofetch-select', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
+        const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
+        
+        const type = $(this).val();
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        countObj.attr('max', maxLimit);
+        
+        let count = parseInt(countObj.val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            countObj.val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        let count = $(this).val() || '3';
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+
+    $root.on('change', '.input-program-autofetch-select', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
+        const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
+        
+        const type = $(this).val();
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        countObj.attr('max', maxLimit);
+        
+        let count = parseInt(countObj.val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            countObj.val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        
+        const maxProg = parseInt($(this).attr('data-max-prog') || 0);
+        const maxEvt = parseInt($(this).attr('data-max-event') || 0);
+        let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
+        
+        let count = parseInt($(this).val() || '3');
+        if (count > maxLimit) {
+            count = maxLimit;
+            $(this).val(count);
+        }
+        
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    $root.on('input', '.input-program-autocount', function() {
+        const sIndex = $(this).data('sindex');
+        const cIndex = $(this).data('cindex');
+        let count = $(this).val() || '3';
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const type = selectObj.length ? selectObj.val() : 'auto_program:';
+        pageData[sIndex].components[cIndex].meta = type + count;
+        syncHiddenInput();
+    });
+
+    // Program Carousel: Update Fields
+    $root.on('change', '.input-program-id', function() {
+        const $item = $(this).closest('.ncl-program-item');
+        const sIndex = $item.data('sindex');
+        const cIndex = $item.data('cindex');
+        const tIndex = $item.data('tindex');
+
+        if (Array.isArray(pageData[sIndex].components[cIndex].value)) {
+            pageData[sIndex].components[cIndex].value[tIndex] = {
+                id: $(this).val()
+            };
+            syncHiddenInput();
+        }
+    });
 
     // Carousel: Upload Image
     $root.on('click', '.btn-upload-carousel-image', function(e) {
@@ -2661,7 +2978,42 @@ function nucleus_page_content_shortcode($atts)
         .nucleus-carousel-dots { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 10; margin: 0; padding: 0; }
         .nucleus-carousel-dot { width: 12px; height: 12px; background: rgba(0,0,0,0.3); border-radius: 50%; cursor: pointer; border: none; padding: 0; transition: background 0.3s; }
         .nucleus-carousel-dot.active { background: #2271b1; }
+
+        .nucleus-program-carousel-wrapper { position: relative; width: 100%; overflow: hidden; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; background: #fdfdfd; padding: 20px 0;}
+        .nucleus-program-carousel-inner { display: flex; overflow-x: auto; gap: 20px; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 10px 0px; scrollbar-width: none; /* Firefox */ }
+        .nucleus-program-carousel-inner::-webkit-scrollbar { display: none; /* Chrome, Safari */ }
+        .nucleus-program-card { box-sizing: border-box; flex: 0 0 calc((100% - 40px) / 3); min-width: calc((100% - 40px) / 3); max-width: calc((100% - 40px) / 3); scroll-snap-align: start; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; }
+        .nucleus-program-card-image { position: relative; height: 200px; background-color: #aeb6c1; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; }
+        .nucleus-program-carousel-header { display: flex; justify-content: space-between; align-items: center; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto; margin-bottom: 20px; }
+        .nucleus-program-carousel-filters { display: flex; justify-content: center; gap: 10px; background: #f0f4f8; padding: 5px; border-radius: 30px; }
+        .nucleus-program-carousel-filter { background: none; border: none; padding: 8px 20px; font-weight: 600; color: #555; border-radius: 20px; cursor: pointer; transition: all 0.3s; font-size: 14px; }
+        .nucleus-program-carousel-filter.active { background: #2271b1; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nucleus-program-card.hidden { display: none !important; }
+        .nucleus-program-card.fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
         
+                
+        
+                
+        
+                
+        
+                
+        
+        .nucleus-program-tag { position: absolute; top: 15px; left: 15px; background: #fff; color: #448ebf; padding: 5px 12px; border-radius: 20px; font-size: 0.75em; font-weight: 700; letter-spacing: 0.5px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nucleus-program-placeholder { color: #333; font-weight: 600; opacity: 0.7; }
+        .nucleus-program-card-content { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+        .nucleus-program-card-title { font-size: 1.3em; margin: 0 0 10px 0; color: #162e66; font-weight: 700; line-height: 1.3; }
+        .nucleus-program-card-meta { font-size: 0.9em; color: #62a7c4; margin-bottom: 12px; }
+        .nucleus-program-card-desc { font-size: 0.95em; color: #555; line-height: 1.5; margin-bottom: 20px; flex: 1; }
+        .nucleus-program-card-link { font-weight: 600; color: #62a7c4; text-decoration: none; align-self: flex-start; transition: color 0.2s; }
+        .nucleus-program-card-link:hover { color: #162e66; text-decoration: none; }
+        .nucleus-program-carousel-btn { background: #fff; color: #162e66; border: 1px solid #e0e0e0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; padding: 0; margin: 0 10px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .nucleus-program-carousel-btn:hover { background: #f0f0f0; }
+
+        @media (max-width: 900px) { .nucleus-program-card { flex: 0 0 calc(50% - 10px); } }
+        @media (max-width: 600px) { .nucleus-program-card { flex: 0 0 100%; min-width: 100%; } .nucleus-program-carousel-btn { display: none; } }
+
         .nucleus-accordion { border: 1px solid #c3c4c7; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
         .nucleus-accordion-item { border-bottom: 1px solid #c3c4c7; background: #fff; }
         .nucleus-accordion-item:last-child { border-bottom: none; }
@@ -2849,6 +3201,154 @@ function nucleus_page_content_shortcode($atts)
 
                 echo '</div>'; // .nucleus-carousel-wrapper
               }
+            } elseif ($type === 'program_carousel') {
+
+              $meta_val = isset($comp['meta']) ? $comp['meta'] : '';
+
+              $is_auto = strpos($meta_val, 'auto') === 0;
+
+              $auto_count = 3;
+
+              
+
+              if ($is_auto) {
+
+                $parts = explode(':', $meta_val);
+
+                $auto_type = str_replace('auto_', '', $parts[0]); // program, event, or empty for all ('auto')
+
+                $auto_count = isset($parts[1]) ? (int) $parts[1] : 3;
+
+                if ($auto_count < 1) $auto_count = 3;
+
+            
+
+                $latest_progs = get_posts(array(
+
+                  'post_type' => 'nucleus_program',
+
+                  'numberposts' => -1,
+
+                  'post_status' => 'publish'
+
+                ));
+
+            
+
+                $auto_items = array();
+
+                foreach($latest_progs as $lp) {
+
+                  $p = '_nucleus_activity_';
+
+                  $ptype = get_post_meta($lp->ID, $p . 'type', true);
+
+                  if (empty($ptype)) $ptype = 'program';
+
+                  
+
+                  if ($auto_type === 'program' && $ptype !== 'program') continue;
+
+                  if ($auto_type === 'event' && $ptype !== 'event') continue;
+
+            
+
+                  $ld = get_post_meta($lp->ID, $p . 'start_date', true) ?: get_post_meta($lp->ID, '_nucleus_program_start_date', true);
+
+                  $auto_items[] = array('id' => $lp->ID, 'date' => $ld ? strtotime($ld) : 0);
+
+                }
+
+                usort($auto_items, function($a, $b) { return $b['date'] - $a['date']; });
+
+                $auto_items = array_slice($auto_items, 0, $auto_count);
+
+            
+
+                $val = array();
+
+                foreach($auto_items as $ai) {
+
+                  $val[] = array('id' => $ai['id']);
+
+                }
+
+              }
+
+              if (is_array($val) && !empty($val)) {
+                echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-program-carousel-section" data-comp-id="' . esc_attr($full_id) . '">';
+                
+                // Add the filter toggle if it's auto-all or if just we want it available always (safest to always output the filter if array has > 0)
+                $has_program = false;
+                $has_event = false;
+                foreach ($val as $vs) {
+                    $pt = get_post_meta($vs['id'], '_nucleus_activity_type', true);
+                    if (!$pt) $pt = 'program';
+                    if ($pt === 'program') $has_program = true;
+                    if ($pt === 'event') $has_event = true;
+                }
+                
+                
+
+                echo '<div class="nucleus-program-carousel-wrapper">';
+                if (count($val) > 3) {
+                    echo '<button type="button" class="nucleus-program-carousel-btn nucleus-program-carousel-prev">&#10094;</button>';
+                }
+                echo '<div class="nucleus-program-carousel-inner">';
+                foreach ($val as $idx => $slide) {
+                  $prog_id = isset($slide['id']) ? absint($slide['id']) : 0;
+                  if (!$prog_id) continue;
+                  
+                  $prog_post = get_post($prog_id);
+                  if (!$prog_post || $prog_post->post_status !== 'publish' || $prog_post->post_type !== 'nucleus_program') continue;
+                  
+                  $p = '_nucleus_activity_';
+                  $prog_type = get_post_meta($prog_id, $p . 'type', true) ?: 'Workshop';
+                  $prog_desc_raw = get_post_meta($prog_id, $p . 'desc', true);
+                  $prog_desc = wp_strip_all_tags($prog_desc_raw);
+                  if (strlen($prog_desc) > 120) $prog_desc = mb_substr($prog_desc, 0, 117) . '...';
+                  elseif (empty($prog_desc)) $prog_desc = 'Learn more about this ' . esc_html(strtolower($prog_type)) . '.';
+                  
+                  $start_date = get_post_meta($prog_id, $p . 'start_date', true);
+                  $location = get_post_meta($prog_id, $p . 'location', true);
+                  
+                  $media_json = get_post_meta($prog_id, $p . 'media', true);
+                  $media = json_decode($media_json, true);
+                  $image_url = '';
+                  if (is_array($media) && !empty($media) && isset($media[0]['url'])) {
+                    $image_url = $media[0]['url'];
+                  }
+                  
+                  $date_str = $start_date ? date('F Y', strtotime($start_date)) : '';
+                  $meta_str = trim($date_str . ($date_str && $location ? ' | ' : '') . $location);
+                  
+                  $clean_type = strtolower($prog_type);
+                  echo '<div class="nucleus-program-card" data-type="' . esc_attr($clean_type) . '">';
+                  echo '<div class="nucleus-program-card-image" ' . ($image_url ? 'style="background-image:url(\''.esc_url($image_url).'\')"' : '') . '>';
+                  $tags = wp_get_post_terms($prog_id, 'nucleus_activity_tag', array('fields' => 'names'));
+                  $tag_label = !empty($tags) ? strtoupper($tags[0]) : ''; // Display only the first tag
+                  if ($tag_label) {
+                      echo '<span class="nucleus-program-tag">' . esc_html($tag_label) . '</span>';
+                  }
+                  if (!$image_url) {
+                    echo '<div class="nucleus-program-placeholder">Image Placeholder</div>';
+                  }
+                  echo '</div>'; // image
+                  echo '<div class="nucleus-program-card-content">';
+                  echo '<h4 class="nucleus-program-card-title">' . esc_html($prog_post->post_title) . '</h4>';
+                  echo '<p class="nucleus-program-card-meta">' . esc_html($meta_str) . '</p>';
+                  echo '<p class="nucleus-program-card-desc">' . esc_html($prog_desc) . '</p>';
+                  echo '<a href="' . esc_url(get_permalink($prog_id)) . '" class="nucleus-program-card-link">View More &rarr;</a>';
+                  echo '</div>'; // content
+                  echo '</div>'; // card
+                }
+                echo '</div>'; // inner
+                if (count($val) > 3) {
+                    echo '<button type="button" class="nucleus-program-carousel-btn nucleus-program-carousel-next">&#10095;</button>';
+                }
+                echo '</div>'; // wrapper
+                echo '</div>'; // section
+              }
             } elseif ($type === 'accordion') {
               if (is_array($val) && !empty($val)) {
                 echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-accordion" data-comp-id="' . esc_attr($full_id) . '">';
@@ -2962,9 +3462,9 @@ function nucleus_page_content_shortcode($atts)
               $level = !empty($comp['meta']) ? $comp['meta'] : 'h2';
               echo '<' . esc_attr($level) . ' id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-heading">' . wp_kses_post($val) . '</' . esc_attr($level) . '>';
             } elseif ($type === 'wysiwyg') {
-              echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text nucleus-wysiwyg">' . wp_kses_post($val) . '</div>';
+              echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-text nucleus-wysiwyg">' . do_shortcode(wp_kses_post($val)) . '</div>';
             } elseif ($type === 'html') {
-              echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-html">' . $val . '</div>';
+              echo '<div id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-html">' . do_shortcode($val) . '</div>';
             } else {
               if (strpos($comp_id, 'title') !== false && strpos($comp_id, 'subtitle') === false) {
                 echo '<h2 id="' . esc_attr($full_id) . '" class="nucleus-component nucleus-title">' . wp_kses_post($val) . '</h2>';
@@ -3116,6 +3616,41 @@ function nucleus_page_content_shortcode($atts)
             // Pause on hover
             carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
             carousel.addEventListener('mouseleave', startAutoPlay);
+        });
+
+        // Handle Program Carousels
+        const programCarousels = document.querySelectorAll('.nucleus-program-carousel-wrapper');
+        programCarousels.forEach(wrapper => {
+            const inner = wrapper.querySelector('.nucleus-program-carousel-inner');
+            const prevBtn = wrapper.querySelector('.nucleus-program-carousel-prev');
+            const nextBtn = wrapper.querySelector('.nucleus-program-carousel-next');
+
+            if (prevBtn && nextBtn && inner) {
+                const getScrollAmount = () => {
+                    const firstItem = inner.querySelector('.nucleus-program-card:not(.hidden)') || inner.querySelector('.nucleus-program-card');
+                    if (!firstItem) return 0;
+                    return firstItem.offsetWidth + 20; // 20px gap
+                };
+
+                prevBtn.addEventListener('click', () => {
+                    // If at the beginning, cycle to the end
+                    if (inner.scrollLeft <= 10) {
+                        inner.scrollTo({ left: inner.scrollWidth, behavior: 'smooth' });
+                    } else {
+                        inner.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+                    }
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    const maxScroll = inner.scrollWidth - inner.clientWidth;
+                    // If at the end, cycle back to the beginning
+                    if (inner.scrollLeft >= maxScroll - 10) {
+                        inner.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        inner.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+                    }
+                });
+            }
         });
 
         // Handle Accordions

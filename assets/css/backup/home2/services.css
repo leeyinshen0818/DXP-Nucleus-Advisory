@@ -1,0 +1,72 @@
+/* ===== SERVICES TABS ===== */
+#nucleus-section-services {
+    padding: 100px 20px;
+    text-align: center;
+}
+
+#services-badge {
+    display: inline-block ;
+    padding: 6px 16px;
+    background: var(--ncl-surface);
+    color: var(--ncl-primary);
+    border-radius: 99px ;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+}
+
+#services-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--ncl-text-heading);
+    margin-bottom: 48px;
+}
+
+/* Override default tab styles */
+#nucleus-section-services .nucleus-tabs {
+    text-align: left;
+    border: 1px solid var(--ncl-border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--ncl-bg);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+#nucleus-section-services .nucleus-tabs-sidebar {
+    background: var(--ncl-bg);
+    padding: 24px 0;
+    border-right: 1px solid var(--ncl-border);
+    flex: 0 0 240px;
+    gap: 0;
+}
+
+#nucleus-section-services .nucleus-tabs-button {
+    padding: 18px 24px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ncl-text-muted);
+    border-radius: 0;
+    transition: all 0.2s ease;
+}
+#nucleus-section-services .nucleus-tabs-button:hover {
+    color: var(--ncl-text-heading);
+    background: var(--ncl-surface);
+}
+#nucleus-section-services .nucleus-tabs-button.active {
+    color: var(--ncl-primary);
+    background: var(--ncl-bg);
+    border-left-color: var(--ncl-primary);
+}
+
+#nucleus-section-services .nucleus-tab-pane {
+    padding: 40px;
+    border: none;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--ncl-text-muted);
+}

@@ -1,0 +1,230 @@
+/* =========================================
+   0. SECTION BACKGROUND (Like Team Page)
+   ========================================= */
+.contact-section-wrapper {
+    position: relative;
+    padding: 100px 20px;
+    overflow: hidden;
+    /* Force full-screen width breaking out of the center container */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    /* Break out of vertical padding from the parent builder section */
+    margin-top: -80px;
+    margin-bottom: -80px;
+}
+
+.contact-section-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 150% 150% at 120% 0%,
+        rgba(var(--ncl-primary-rgb), 0.7) 0%,
+        rgba(var(--ncl-primary-rgb), 0.4) 30%,
+        rgba(var(--ncl-primary-rgb), 0.2) 45%,
+        rgba(var(--ncl-primary-rgb), 0.08) 65%,
+        rgba(var(--ncl-primary-rgb), 0.04) 100%
+    );
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* =========================================
+   1. MAIN LAYOUT (2-COLUMN GRID)
+   ========================================= */
+.nucleus-group-col {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3%;
+    max-width: 1100px;
+    margin: 25px auto;
+    align-items: flex-start;
+}
+
+.nucleus-component-col-info { flex: 0 0 38%; }
+.nucleus-component-col-form { flex: 0 0 59%; }
+
+/* =========================================
+   2. LEFT COLUMN (TEXT & INFO) STYLING 
+   ========================================= */
+.contact-info-wrapper { padding-right: 15px; }
+
+.contact-header { margin-bottom: 30px; text-align: left; }
+.contact-header h1 {
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 800;
+    color: var(--ncl-text-heading);
+    margin: 0 0 10px 0;
+    line-height: 1.1;
+}
+.contact-header h1 span { color: var(--ncl-primary); }
+
+.contact-header p {
+    font-size: 15px;
+    color: var(--ncl-text-muted);
+    line-height: 1.5;
+    max-width: 400px;
+    margin: 0;
+}
+
+/* Contact Info Details */
+.contact-info h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ncl-text-heading);
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.contact-details { list-style: none; padding: 0; margin: 0; }
+.contact-details li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--ncl-text-muted);
+    align-items: flex-start;
+}
+.contact-icon-wrap {
+    background: rgba(var(--ncl-primary-rgb), 0.1);
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.contact-icon-wrap svg { width: 18px; height: 18px; fill: var(--ncl-primary); }
+.contact-details span.contact-label {
+    display: block;
+    font-weight: 600;
+    color: var(--ncl-text-heading);
+    margin-bottom: 2px;
+}
+.contact-details span.contact-value { line-height: 1.4; }
+
+/* Backward compatibility for old labels */
+.nucleus-component-col-info h1 {
+    color: var(--ncl-text-heading);
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+.nucleus-component-col-info p {
+    color: var(--ncl-text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+.nucleus-component-col-info ul { list-style: none; padding: 0; margin-top: 20px; }
+.nucleus-component-col-info li { font-size: 14px; color: var(--ncl-text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.nucleus-component-col-info li strong { color: var(--ncl-primary); }
+
+/* =========================================
+   3. RIGHT COLUMN (COMPACT FORM) STYLING
+   ========================================= */
+.nucleus-form-wrapper {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+}
+
+/* Side-by-side input structure */
+.nf-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.nf-col { flex: 1; }
+.nf-full { margin-bottom: 12px; }
+
+/* Labels & Span Titles */
+.nucleus-form-wrapper label,
+.nucleus-form-wrapper .nf-label-title {
+    font-weight: 600;
+    font-size: 12px; 
+    color: var(--ncl-text-heading);
+    display: block;
+    margin-bottom: 4px;
+    width: 100%;
+}
+
+/* Text Inputs Typography */
+.wpcf7-form-control-wrap input[type="text"],
+.wpcf7-form-control-wrap input[type="email"],
+.wpcf7-form-control-wrap input[type="tel"],
+.wpcf7-form-control-wrap textarea {
+    width: 100%;
+    padding: 8px 12px; 
+    border: 1px solid var(--ncl-neutral-muted);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    background-color: var(--ncl-bg);
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    margin-top: 0; 
+}
+
+.wpcf7-form-control-wrap input:focus,
+.wpcf7-form-control-wrap textarea:focus {
+    border-color: var(--ncl-primary);
+    background-color: var(--ncl-surface);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--ncl-primary-rgb), 0.15);
+}
+
+/* 2-COLUMN GRID FOR RADIO BUTTONS */
+.wpcf7-radio {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    margin-top: 4px;
+}
+.wpcf7-list-item { margin: 0 !important; }
+.wpcf7-list-item-label {
+    font-weight: 400 !important;
+    font-size: 12px;
+    color: var(--ncl-text-muted);
+    margin-left: 6px;
+    cursor: pointer;
+}
+
+/* Submit Button */
+.n-btn, .wpcf7-submit {
+    background-color: var(--ncl-primary);
+    color: var(--ncl-bg);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 4px;
+}
+.n-btn:hover, .wpcf7-submit:hover {
+    background-color: var(--ncl-primary-hover);
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   4. RESPONSIVE / MOBILE STYLING
+   ========================================= */
+@media (max-width: 991px) {
+    .nucleus-group-col { flex-direction: column; gap: 24px; }
+    .nucleus-component-col-info, .nucleus-component-col-form { flex: 0 0 100%; width: 100%; }
+    .contact-info-wrapper { padding-right: 0; }
+}
+
+@media (max-width: 768px) {
+    .nf-row { flex-direction: column; gap: 0; margin-bottom: 0; }
+    .nf-col { margin-bottom: 12px; }
+    .nucleus-form-wrapper { padding: 20px 16px; }
+    .wpcf7-radio { grid-template-columns: 1fr; }
+}

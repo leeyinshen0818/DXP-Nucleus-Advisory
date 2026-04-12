@@ -1,0 +1,9 @@
+#nucleus-section-cta {
+    padding: 80px 20px !important;
+    background: linear-gradient(160deg, var(--ncl-primary) 0%, var(--ncl-primary-hover) 100%) !important;
+    text-align: center ;
+}
+
+.ncl-cta-content { text-align: center; }
+.ncl-cta-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; color: var(--ncl-bg); margin: 0 0 16px; }
+.ncl-cta-subtitle { font-size: 1.15rem; color: rgba(var(--ncl-bg-rgb), 0.8); max-width: 600px; margin: 0 auto; line-height: 1.7; }

@@ -1,0 +1,109 @@
+/* ===== FEATURES GRID =====  */
+#nucleus-section-features {
+    padding: 100px 20px;
+    color: var(--ncl-bg);
+}
+
+#features-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(var(--ncl-primary-rgb), 0.15);
+    border: 1px solid rgba(var(--ncl-primary-rgb), 0.3);
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ncl-primary-muted);
+    margin-bottom: 16px;
+}
+
+#features-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 56px;
+    text-align: center;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 4-column grid from card groups */
+#nucleus-section-features .nucleus-container {
+    text-align: center;
+}
+
+.nucleus-group-card1,
+.nucleus-group-card2,
+.nucleus-group-card3,
+.nucleus-group-card4 {
+    display: inline-block;
+    vertical-align: top;
+    width: 23%;
+    margin: 0 0.8%;
+    padding: 36px 28px;
+    background: rgba(var(--ncl-bg-rgb), 0.04);
+    border: 1px solid rgba(var(--ncl-bg-rgb), 0.08);
+    border-radius: 16px;
+    text-align: left;
+    transition: all 0.4s ease;
+    box-sizing: border-box;
+}
+
+.nucleus-group-card1:hover,
+.nucleus-group-card2:hover,
+.nucleus-group-card3:hover,
+.nucleus-group-card4:hover {
+    background: rgba(var(--ncl-primary-rgb), 0.08);
+    border-color: rgba(var(--ncl-primary-rgb), 0.2);
+    transform: translateY(-6px);
+}
+
+[id$="-card1-title"],
+[id$="-card2-title"],
+[id$="-card3-title"],
+[id$="-card4-title"] {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--ncl-bg);
+}
+
+[id$="-card1-desc"],
+[id$="-card2-desc"],
+[id$="-card3-desc"],
+[id$="-card4-desc"] {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: rgba(var(--ncl-bg-rgb), 0.55);
+}
+
+#features-cta-action {
+    margin-top: 56px;
+    padding: 16px 36px;
+    background: var(--ncl-primary);
+    color: var(--ncl-bg) !important;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+#features-cta-action:hover {
+    background: var(--ncl-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--ncl-primary-rgb), 0.4);
+}
+
+@media (max-width: 900px) {
+    .nucleus-group-card1,
+    .nucleus-group-card2,
+    .nucleus-group-card3,
+    .nucleus-group-card4 { width: 46%; margin-bottom: 20px; }
+}
+@media (max-width: 600px) {
+    .nucleus-group-card1,
+    .nucleus-group-card2,
+    .nucleus-group-card3,
+    .nucleus-group-card4 { width: 100%; }
+}

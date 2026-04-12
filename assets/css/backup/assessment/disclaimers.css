@@ -1,0 +1,36 @@
+/* =============================================
+   Disclaimers Section
+   ============================================= */
+.ncl-disclaimers-wrap { 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+.ncl-disclaimers-title { 
+    font-size: 1.8rem; 
+    font-weight: 800; 
+    color: var(--ncl-text-heading); 
+    margin: 0 0 30px; 
+    text-align: center; 
+}
+.ncl-disclaimer-item { 
+    margin-bottom: 28px; 
+    padding-bottom: 28px; 
+    border-bottom: 1px solid var(--ncl-neutral-muted); 
+}
+.ncl-disclaimer-item:last-child { 
+    border-bottom: none; 
+    margin-bottom: 0; 
+    padding-bottom: 0; 
+}
+.ncl-disclaimer-head { 
+    font-size: 1rem; 
+    font-weight: 700; 
+    color: var(--ncl-text-heading); 
+    margin: 0 0 8px; 
+}
+.ncl-disclaimer-text { 
+    font-size: 0.9rem; 
+    color: var(--ncl-text-muted); 
+    line-height: 1.7; 
+    margin: 0; 
+}

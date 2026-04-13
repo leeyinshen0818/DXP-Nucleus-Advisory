@@ -88,8 +88,7 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
 
 /* Small CTAs */
 .sp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0;align-items:center}
-.sp-hrdc-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:rgba(var(--ncl-accent-green-rgb), 0.1);color:var(--ncl-accent-green);border:1px solid rgba(var(--ncl-accent-green-rgb), 0.3);border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
-.sp-hrdc-cta:hover{background:rgba(var(--ncl-accent-green-rgb), 0.2);color:var(--ncl-accent-green)}
+.sp-hrdc-cta{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;background:rgba(var(--ncl-accent-green-rgb), 0.1);color:var(--ncl-text-body);border:1px solid rgba(var(--ncl-accent-green-rgb), 0.3);border-radius:5px;text-decoration:none;font-size:1rem;font-weight:800;transition:background .15s}
 .sp-contact-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:var(--ncl-primary);color:var(--ncl-bg);border-radius:5px;text-decoration:none;font-size:.82rem;font-weight:600;transition:background .15s}
 .sp-contact-cta:hover{background:var(--ncl-primary-hover);color:var(--ncl-bg)}
 
@@ -165,7 +164,14 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
     <?php if (($hrdc === '1') || ($is_upcoming && !empty($contact_url))): ?>
     <div class="sp-actions">
         <?php if ($hrdc === '1' && !empty($hrdc_url)): ?>
-            <a href="<?php echo esc_url($hrdc_url); ?>" class="sp-hrdc-cta" target="_blank" rel="noopener">HRDC Claimable ↗</a>
+            <span class="sp-hrdc-cta">
+              <img
+                src="https://nucleusadvisory.co/wp-content/uploads/2026/04/RESIZE-HRD-Corp-Claimable-Logo.png"
+                height="64px"
+                width="64px"
+              />
+              HRDC Claimable
+            </span>
         <?php elseif ($hrdc === '1'): ?>
             <span class="sp-hrdc-cta" style="cursor:default;">HRDC Claimable</span>
         <?php endif; ?>

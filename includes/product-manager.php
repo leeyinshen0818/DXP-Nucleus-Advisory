@@ -999,7 +999,7 @@ function nucleus_products_landing_shortcode($atts)
     ), $atts);
 
     // Enqueue CSS
-    wp_enqueue_style('nucleus-products-landing', NUCLEUS_DXP_URL . 'assets/css/products-landing.css', array(), '3.3');
+    wp_enqueue_style('nucleus-products-landing', NUCLEUS_DXP_URL . 'assets/css/products-landing.css', array(), '3.7');
 
     // Get all products
     $products = get_posts(array(
@@ -1026,7 +1026,7 @@ add_shortcode('nucleus_products_landing', 'nucleus_products_landing_shortcode');
 function nucleus_products_carousel_shortcode($atts)
 {
     // Enqueue CSS
-    wp_enqueue_style('nucleus-products-landing', NUCLEUS_DXP_URL . 'assets/css/products-landing.css', array(), '3.4');
+    wp_enqueue_style('nucleus-products-landing', NUCLEUS_DXP_URL . 'assets/css/products-landing.css', array(), '3.7');
 
     // Get all products
     $products = get_posts(array(
@@ -1041,8 +1041,9 @@ function nucleus_products_carousel_shortcode($atts)
 
     ob_start();
     ?>
-    <div class="nl-spotlight-section" style="padding: 0;">
-        <div class="nl-spotlight-inner">
+    <div class="nl-landing-wrapper">
+        <div class="nl-spotlight-section" style="background: transparent;">
+            <div class="nl-spotlight-inner">
             <div class="nl-carousel" id="nl-carousel">
                 <?php foreach ($products as $index => $product):
                     $p_title    = get_the_title($product->ID);
@@ -1145,6 +1146,7 @@ function nucleus_products_carousel_shortcode($atts)
         startAutoPlay();
     })();
     </script>
+    </div>
     <?php
     return ob_get_clean();
 }

@@ -9,7 +9,7 @@
 
 :root {
     --nl-navy: var(--ncl-text-heading);
-    --nl-navy-light: var(--ncl-secondary-hover);
+    --nl-navy-light: var(--ncl-text-heading);
     --nl-blue: var(--ncl-primary);
     --nl-blue-light: var(--ncl-primary);
     --nl-purple: var(--ncl-tertiary);
@@ -337,8 +337,9 @@
 /* Slide Footer */
 .nl-slide-footer {
     display: flex;
-    align-items: center;
-    gap: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 .nl-slide-price {
@@ -361,7 +362,7 @@
 }
 
 .nl-slide-btn:hover {
-    background: linear-gradient(135deg, var(--nl-blue), var(--nl-purple));
+    background: linear-gradient(135deg, var(--nl-navy-light), var(--nl-navy));
     color: var(--nl-white) !important;
     text-decoration: none !important;
     transform: translateY(-2px);
@@ -388,7 +389,7 @@
     height: 10px;
     border-radius: 50%;
     border: none;
-    background: var(--nl-border);
+    background: rgba(var(--ncl-text-heading-rgb), 0.15);
     cursor: pointer;
     padding: 0;
     transition: all 0.3s ease;
@@ -689,7 +690,7 @@
     }
 
     .nl-slide-footer {
-        justify-content: center;
+        align-items: center;
     }
 
     .nl-hero-title {

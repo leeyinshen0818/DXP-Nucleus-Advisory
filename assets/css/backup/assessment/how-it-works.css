@@ -28,7 +28,7 @@
 }
 
 @media (max-width: 768px) {
-    #nucleus-section-how-it-works div[style*="grid-template-columns"]  {
+    #nucleus-section-how-it-works .ncl-steps-grid  {
         grid-template-columns: 1fr !important ;
         gap: 24px !important ;
     }

@@ -1419,7 +1419,8 @@ function nucleus_page_dynamic_builder_html($post)
 .ncl-tab-item .input-tab-content {
     display: block;
     width: 100%;
-    padding: 8px;
+    min-height: 120px;
+    padding: 12px;
     margin-bottom: 8px;
     border: 1px solid #8c8f94;
     border-radius: 3px;
@@ -1616,8 +1617,8 @@ jQuery(document).ready(function($) {
                                             <div class="ncl-tabs-list">
                                                 ${Array.isArray(comp.value) ? comp.value.map((item, tIndex) => `
                                                     <div class="ncl-tab-item" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">
-                                                        <input type="text" class="input-tab-title" placeholder="Tab Title" value="${escapeHtml(item.title || '')}" />
-                                                        <textarea class="input-tab-content" placeholder="Tab Content" rows="3">${escapeHtml(item.content || '')}</textarea>
+                                                        <input type="text" class="input-tab-title" placeholder="Tab Title" value="${escapeHtml(item.title || '')}" style="font-weight: 600;" />
+                                                        <textarea class="input-tab-content" placeholder="Tab Content (Supports HTML, Shortcodes, & Text)" rows="6" style="font-family: monospace; background: #fdfdfd;">${escapeHtml(item.content || '')}</textarea>
                                                         <button type="button" class="ncl-btn ncl-btn-danger btn-delete-tab" data-sindex="${sIndex}" data-cindex="${cIndex}" data-tindex="${tIndex}">Remove Tab</button>
                                                     </div>
                                                 `).join('') : ''}
@@ -2920,48 +2921,62 @@ function nucleus_page_content_shortcode($atts)
         }
         .nucleus-tabs {
             display: flex;
-            gap: 20px;
-            margin: 20px 0;
+            margin: 40px 0;
+            border: 1px solid var(--ncl-border, #e2e8f0);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--ncl-bg, #fff);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.04);
         }
         .nucleus-tabs-sidebar {
-            flex: 0 0 200px;
+            flex: 0 0 280px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            background: var(--ncl-surface, #f8fafc);
+            border-right: 1px solid var(--ncl-border, #e2e8f0);
         }
         .nucleus-tabs-button {
-            padding: 12px 16px;
-            background: #f0f0f1;
-            border: 1px solid #c3c4c7;
+            padding: 20px 24px;
+            background: transparent;
+            border: none;
             border-left: 3px solid transparent;
             cursor: pointer;
             text-align: left;
-            font-weight: 500;
-            border-radius: 3px 0 0 3px;
-            color: #1d2327;
-            transition: background 0.2s, border-color 0.2s;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--ncl-text-muted, #64748b);
+            transition: all 0.3s ease;
         }
         .nucleus-tabs-button:hover {
-            background: #e9ecf0;
+            background: rgba(0,0,0,0.02);
+            color: var(--ncl-text-heading, #1e293b);
         }
         .nucleus-tabs-button.active {
-            background: #fff;
-            border-left-color: #2271b1;
-            color: #2271b1;
+            background: var(--ncl-bg, #fff);
+            border-left-color: var(--ncl-primary, #2563eb);
+            color: var(--ncl-primary, #2563eb);
         }
         .nucleus-tabs-content {
             flex: 1;
             min-width: 0;
+            background: var(--ncl-bg, #fff);
+            padding: 0;
         }
         .nucleus-tab-pane {
             display: none;
-            padding: 20px;
-            background: #fff;
-            border: 1px solid #c3c4c7;
-            border-radius: 3px;
+            padding: 40px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--ncl-text-muted, #64748b);
         }
+        .nucleus-tab-pane > :first-child { margin-top: 0; }
         .nucleus-tab-pane.active {
             display: block;
+            animation: nclFadeIn 0.4s ease;
+        }
+        @keyframes nclFadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .nucleus-carousel-wrapper { position: relative; overflow: hidden; width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .nucleus-carousel-inner { display: flex; transition: transform 0.5s ease; width: 100%; }
@@ -3038,7 +3053,16 @@ function nucleus_page_content_shortcode($atts)
         .nucleus-code-block { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 0.9em; margin-bottom: 20px; }
         .nucleus-video-wrapper { position: relative; width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        @media (max-width: 768px) {\n            .nucleus-section { padding: 40px 15px; }\n            .nucleus-title { font-size: 1.8em; }\n            .nucleus-tabs { flex-direction: column; }\n            .nucleus-tabs-sidebar { flex: 1; }\n            .nucleus-tabs-button { border-radius: 3px; }\n        }
+@media (max-width: 768px) {
+            .nucleus-section { padding: 40px 15px; }
+            .nucleus-title { font-size: 1.8rem; }
+            .nucleus-tabs { flex-direction: column; margin: 20px 0; border-radius: 12px; }
+            .nucleus-tabs-sidebar { flex: 1; border-right: none; border-bottom: 1px solid var(--ncl-border, #e2e8f0); }
+            .nucleus-tabs-button { border-left: none; border-bottom: 3px solid transparent; padding: 16px 20px; }
+            .nucleus-tabs-button.active { border-bottom-color: var(--ncl-primary, #2563eb); }
+            .nucleus-tabs-content { padding: 0; }
+            .nucleus-tab-pane { padding: 24px 20px; font-size: 1rem; }
+        }
     </style>";
 
   // -- Custom CSS from Builder --
@@ -3149,7 +3173,9 @@ function nucleus_page_content_shortcode($atts)
                 foreach ($val as $tab_index => $tab) {
                   $tab_content = isset($tab['content']) ? $tab['content'] : '';
                   $is_active = ($tab_index === 0) ? 'active' : '';
-                  echo '<div class="nucleus-tab-pane ' . $is_active . '" data-tab-idx="' . esc_attr($tab_index) . '">' . wp_kses_post($tab_content) . '</div>';
+                  // Output the tab content. Allow shortcodes, images, and HTML. wpautop turns newlines into paragraphs automatically.
+                  $formatted_content = do_shortcode(wpautop(wp_kses_post($tab_content)));
+                  echo '<div class="nucleus-tab-pane ' . $is_active . '" data-tab-idx="' . esc_attr($tab_index) . '">' . $formatted_content . '</div>';
                 }
 
                 echo '</div>'; // .nucleus-tabs-content

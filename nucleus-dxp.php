@@ -67,32 +67,18 @@ function nucleus_core_force_db_update()
 }
 add_action('admin_init', 'nucleus_core_force_db_update');
 
-// Testing Page Shortcode — loads template from /templates/
-function nucleus_testing_page_shortcode()
-{
-    ob_start();
-    include NUCLEUS_DXP_PATH . 'templates/testing-page.php';
-    return ob_get_clean();
-}
-add_shortcode('nucleus_testing_page', 'nucleus_testing_page_shortcode');
-
 // Enqueue page CSS and tracking JS on testing page AND single product pages
 function nucleus_dxp_enqueue_assets()
 {
-    $is_testing_lab = is_page('testing-lab');
     $is_product_page = is_singular('nucleus_product');       // single product CPT pages
     $is_products_page = nucleus_is_products_landing(); // detects [nucleus_products_landing] shortcode
-
-    if ($is_testing_lab) {
-        wp_enqueue_style('nucleus-testing-page', NUCLEUS_DXP_URL . 'assets/css/testing-page.css', array(), '4.5');
-    }
 
     // Enqueue styles for Nucleus Page Template
     if (is_page_template('templates/single-nucleus_page.php') || is_page_template('single-nucleus_page.php')) {
         wp_enqueue_style('nucleus-page-style', NUCLEUS_DXP_URL . 'assets/css/nucleus-page.css', array(), '1.1');
     }
 
-    if ($is_testing_lab || $is_product_page || $is_products_page) {
+    if ($is_product_page || $is_products_page) {
         wp_enqueue_script('nucleus-tracking', NUCLEUS_DXP_URL . 'assets/js/tracking.js', array(), '2.3', true);
     }
 }

@@ -1,223 +1,96 @@
-# 🧬 DXP Nucleus Advisory — WordPress Plugin
+# ��� DXP Nucleus Advisory — Project Handover Document
 
-A modular WordPress plugin for **Nucleus Advisory's DXP Platform**. Provides AI-powered consulting landing pages, self-discovery assessment products (with Shopify integration), lead capture, analytics tracking, and an admin dashboard.
+Welcome to the **Nucleus Advisory DXP Platform** framework. This repository contains the source code for a highly customized, modular WordPress plugin that acts as a standalone platform within the WordPress ecosystem. It manages custom content, an isolated testing environment, lead generation, and dynamic theming specifically designed for Nucleus Advisory.
 
-> ⚠️ **Important:** After making any changes, you must **re-zip and re-upload the plugin** via WP Admin → Plugins → Add New → Upload Plugin to see the updated output on the live site.
-
----
-
-## 🌐 Live Pages
-
-| Page | URL | Shortcode |
-|------|-----|-----------|
-| Testing Lab (Landing) | [nucleusadvisory.co/testing-lab](https://nucleusadvisory.co/testing-lab/) | `[nucleus_testing_page]` |
-| Assessments (Products) | [nucleusadvisory.co/assessments](https://nucleusadvisory.co/assessments/) | `[nucleus_products_landing]` |
-| Single Product | Per product permalink | `[nucleus_single_product]` |
+This document serves as the official handover guide for the Nucleus Advisory technical and marketing teams, detailing what the system is, how it's built, and how to manage it going forward.
 
 ---
 
-## ✨ Current Features
+## ���️ System Overview
 
-### 🏠 Testing Lab — Landing Page
-- **Hero Section** — Gradient background with floating animated orbs, mouse parallax, contact form (Contact Form 7), trust indicators
-- **Partners & Expertise** — Dark navy section with horizontal icon→text cards and glowing accent lines on hover
-- **Empowering Transformation** — Light section with numbered vertical feature cards (01–04) and hover animations
-- **Services at a Glance** — Tag cloud of all consulting services with gradient hover effects
-- **The Power of AI Banner** — Full-width dark banner with floating star particles and People Data Platform tagline
-- **Expertise Glimpse** — Animated orbital visual with spinning rings and bouncing icons
-- **CTA Section** — Pulsing glow call-to-action with "Contact Us" and "View Product →" buttons (links to /assessments/)
-- **Scroll Reveal** — IntersectionObserver-based animations across all sections
+Instead of relying on a standard WordPress theme, this plugin acts as a **Custom Experience Builder**. It brings its own templates, database tables, analytics tracking, and Custom Post Types (CPTs) to safely construct landing pages and capture leads without interfering with the rest of the WordPress site.
 
-### 📦 Product Manager (Custom Post Type)
-- **Custom Post Type** — `nucleus_product` with full WordPress admin support
-- **Product Meta Fields** — Subtitle, Price, Hero Summary, Shopify Buy Button Code
-- **Auto Oxygen Setup** — Automatically assigns the Header Footer template (ID: 36) and sets Shortcode content when a product is created
-- **Shopify Integration** — Paste Shopify Buy Button embed code; renders "Add to Cart" on the product page
-- **Terms Checkbox** — Buyers must agree to Privacy, Delivery, and Refund policies before purchasing
-
-### 🛍️ Products Landing Page
-- **Dark Navy Hero** — Same gradient + radial blue/purple glows + floating star particles as the AI banner
-- **Spotlight Carousel** — Auto-rotating product cards with image, title, subtitle, summary, price, and "View Assessment →" CTA
-- **Carousel Controls** — Dot pagination, prev/next arrows, auto-play with progress bar
-- **How It Works** — 3-step numbered cards with hover lift animations and gradient bottom accent lines
-- **Included in Every Package** — 6-item grid showing what each assessment includes
-- **CTA Section** — Dark navy with dot-pattern background
-- **Disclaimers** — Expandable legal sections (educational purpose, data collection, turnaround time, refund policy, agreement)
-
-### 📄 Single Product Page
-- **Dark Navy Hero** — Same gradient + floating particles, product image left, info right
-- **Shopify Buy Button** — Embedded checkout with terms agreement checkbox
-- **What's Included Section** — Auto-split layout (JS-powered) that creates side-by-side columns from WordPress content
-- **Styled Lists** — Three list types auto-detected via JS: ✓ checkmark grid, numbered framework cards, accent-border impact cards
-- **Scroll Reveal** — Staggered list animations on scroll
-
-### 📊 Analytics & Tracking
-- **Google Tag Manager** — Container injection (GTM-NKL3T3HW)
-- **Google Analytics 4** — Direct gtag.js integration (G-V6CKR789PG)
-- **Custom Events** — `view_feature`, `view_service`, `generate_lead`, product views
-
-### 🗄️ Lead Capture & Admin Dashboard
-- **Lead Form** — Contact Form 7 integration on the testing page
-- **Database Table** — `wp_nucleus_leads_testing` for lead storage
-- **Admin Dashboard** — WP Admin leads viewer with submission data
-- **REST API** — Custom endpoints for programmatic access
+### Key Capabilities
+1. **Lead Capture & Data Management:** A standalone backend for capturing custom form submissions, storing them in a dedicated custom table (`wp_nucleus_leads_testing`), and providing a CSV export tool in the WP Admin.
+2. **Modular Content Architecture:** Registers tailored Custom Post Types (CPTs) like `nucleus_product`, `nucleus_program`, and `nucleus_page` to cleanly separate consulting services, digital assessments, and bespoke landing pages.
+3. **Template Engine:** Bypasses active WordPress themes to load bespoke templates directly from the plugin (`/templates/`), ensuring absolute fidelity for design and tracking.
+4. **Targeted Analytics:** Injects precise Google Tag Manager (GTM) and GA4 event tracking logic specific to Nucleus conversion funnels.
+5. **Shopify Integration:** Native spots (meta fields) to embed Shopify Buy Buttons directly into the individual products, connecting lead generation with e-commerce.
 
 ---
 
-## 📁 Plugin Structure
+## ��� Technical Architecture & File Structure
 
-```
+The project is structured logically into distinct modules to keep the codebase clean and maintainable.
+
+```text
 nucleus-dxp/
-├── nucleus-dxp.php                  ← Main loader, shortcodes, asset enqueueing
-├── includes/
-│   ├── product-manager.php          ← Product CPT, meta boxes, product shortcodes
-│   ├── form-handler.php             ← Lead form shortcode + AJAX handler
-│   ├── analytics.php                ← GTM + GA4 script injection
-│   ├── admin-dashboard.php          ← WP Admin leads viewer + reports
-│   └── rest-api.php                 ← REST API endpoints
-├── templates/
-│   ├── testing-page.php             ← Testing Lab landing page
-│   ├── products-landing.php         ← Assessments listing page (carousel)
-│   └── single-product.php           ← Individual product detail page
-└── assets/
-    ├── css/
-    │   ├── testing-page.css         ← Testing Lab styles + animations
-    │   ├── products-landing.css     ← Products listing styles
-    │   └── single-product.css       ← Single product styles
-    └── js/
-        └── tracking.js              ← GA4 custom event tracking
+├── nucleus-dxp.php                  ← The Core Plugin File: Initializes everything, manages DB tables, and enqueues assets.
+├── assets/
+│   ├── css/                         ← Highly modular, component-based CSS architecture.
+│   │   ├── nucleus-page.css
+│   │   ├── products-landing.css
+│   │   └── backup/...               ← Granular, section-specific stylesheets (hero, cta, header, etc.).
+│   ├── icons/                       ← SVG and image assets.
+│   └── js/
+│       └── tracking.js              ← Core behavioral tracking (clicks, scrolls, custom GA4 events).
+├── docs/                            ← Integration documentation (Looker Studio, Sheets, etc.).
+├── includes/                        ← The logic engine.
+│   ├── admin-dashboard.php          ← Builds the WP Admin "Testing Dashboard" and handles CSV lead exports.
+│   ├── analytics.php                ← Injects tracking codes securely.
+│   ├── form-handler.php             ← Processes incoming leads securely, bypassing standard slow WP hooks.
+│   ├── rest-api.php                 ← Custom REST routes for headless or frontend-to-backend communication.
+│   ├── page-manager.php             ← Registers 'nucleus_page' CPT and its meta boxes.
+│   ├── product-manager.php          ← Registers 'nucleus_product' CPT.
+│   ├── program-manager.php          ← Registers 'nucleus_program' CPT.
+│   └── theme-manager.php            ← The routing engine binding CPTs to the custom `/templates/`.
+└── templates/                       ← PHP files dictating the exact HTML structure for the frontend.
+    ├── products-landing.php
+    ├── programs-landing.php
+    ├── single-nucleus_page.php
+    ├── single-nucleus_product.php
+    ├── single-nucleus_program.php
+    └── testing-page.php
 ```
 
-### File Responsibilities
+---
 
-| File | Purpose |
-|------|---------|
-| `nucleus-dxp.php` | Loads all modules, registers `[nucleus_testing_page]` shortcode, enqueues CSS/JS |
-| `includes/product-manager.php` | Registers `nucleus_product` CPT, meta boxes, `[nucleus_products_landing]` and `[nucleus_single_product]` shortcodes |
-| `includes/form-handler.php` | Lead form HTML, validation, AJAX save to database |
-| `includes/analytics.php` | GTM/GA4 IDs and script injection |
-| `includes/admin-dashboard.php` | WP Admin leads table, submission viewer, sales reports |
-| `includes/rest-api.php` | Custom REST API endpoints for data access |
-| `templates/testing-page.php` | Landing page content — hero, partners, features, services, AI banner, glimpse, CTA |
-| `templates/products-landing.php` | Product carousel, how-it-works, packages, disclaimers |
-| `templates/single-product.php` | Product hero, buy button, auto-split content layout |
-| `assets/css/testing-page.css` | Full design system: tokens, sections, animations, responsive breakpoints |
-| `assets/css/products-landing.css` | Product listing styles, carousel, dark hero with particles |
-| `assets/css/single-product.css` | Product detail styles, list card types, particles |
-| `assets/js/tracking.js` | GA4 click event tracking for features, services, downloads |
+## ���️ How to Manage the System
+
+### 1. Managing Leads (The Dashboard)
+When a user submits a form on one of the landing pages, it does *not* go to standard WP comments or a standard form plugin. 
+* **Viewing Leads:** Go to **WP Admin → Testing Dashboard**. Here you will see a chronological list of all captured leads.
+* **Exporting:** Click **Export to CSV**. The system dynamically scans the JSON payloads of all leads and automatically builds a CSV with all dynamic fields columns mapped accurately.
+
+### 2. Managing Products, Programs, and Pages
+In the WP Admin sidebar, you will see new menus for **Product Manager**, **Program Manager**, and **Pages (Nucleus)**.
+* **Adding Content:** Create a new entry just like a normal blog post. 
+* **Custom Meta:** Depending on the type (e.g., Product), you will see custom metaboxes at the bottom of the editor. This is where you configure:
+  * Subtitles & Pricing
+  * Hero Summaries
+  * **Shopify Buy Button Snippets:** Paste the embed code from Shopify directly here. The template (`single-nucleus_product.php`) will render it in the right place automatically.
+
+### 3. Modifying the Design (CSS)
+This plugin uses a **modular CSS approach**. 
+If you need to change a specific section (e.g., the Hero section on the solutions page):
+1. Navigate to `assets/css/backup/solutions/hero.css` (or the respective compiled main CSS file).
+2. The CSS avoids global resets to prevent conflicts with the parent WordPress theme. All DXP designs are scoped under specific class wrappers (like `.nucleus-wrapper`).
+
+### 4. Updating the Plugin on the Live Site
+Since this acts as a WordPress plugin:
+1. Make your local code changes.
+2. Zip the `nucleus-dxp` folder.
+3. In WP Admin, go to **Plugins → Add New → Upload Plugin**.
+4. Upload the zip and click **Replace current with uploaded version**. (Ensure you have a backup of the DB just in case, though this plugin only manages its own isolated tables safely).
 
 ---
 
-## 🚀 Deployment
+## ⚙️ Developer Notes & Database
 
-### First-Time Setup
-1. Download/clone this repository
-2. Zip the entire `nucleus-dxp/` folder
-3. WP Admin → Plugins → Add New → Upload Plugin → Install & Activate
-4. Create WordPress pages and assign shortcodes via Oxygen Builder
+* **Database Table:** `wp_nucleus_leads_testing`. This table is created automatically upon plugin activation (`nucleus_core_activate_table()` in `nucleus-dxp.php`). It stores data securely using JSON for the `form_data` column to support infinite, flexible field layouts without needing column migrations.
+* **Templates Routing:** `includes/theme-manager.php` intercepts WordPress's default `template_include` hook. If the user visits a `nucleus_product` or `nucleus_program`, it forces WordPress to render the PHP file located in the plugin's `templates/` folder, ignoring the active theme.
+* **REST API:** Check `includes/rest-api.php` if you intend to integrate with external dashboards or CRMs (like HubSpot, Salesforce, or connecting to the documented Google Sheets/Looker Studio integrations found in `/docs/`).
 
-### Updating After Changes
-1. Make your code changes in this repository
-2. **Re-zip** the `nucleus-dxp/` folder
-3. WP Admin → Plugins → Deactivate & Delete the old version
-4. WP Admin → Plugins → Add New → Upload Plugin → Install & Activate
-5. Hard refresh the page (`Ctrl + Shift + R`) to clear cached CSS
-
-> 💡 **Tip:** CSS versions are bumped in the PHP files (`nucleus-dxp.php` and `product-manager.php`) to force cache busting. If styles aren't updating, check that the version number was incremented.
-
----
-
-## 🎨 Design System
-
-All three pages share a consistent design language:
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| Navy | `#0a1628` | Dark backgrounds, hero sections |
-| Navy Light | `#1a2d4a` | Gradient endpoints |
-| Blue | `#2563eb` | Primary accent, buttons, links |
-| Purple | `#7c3aed` | Gradient endpoints, secondary accent |
-| Sky | `#e0f2fe` | Section tags, light accents |
-| Light BG | `#f8fafc` | Alternating section backgrounds |
-| Font | Inter (Google Fonts) | All text |
-| Border Radius | `14px` (cards), `10px` (buttons) | Consistent rounding |
-
-### Shared Visual Elements
-- **Dark Navy Gradient Hero** — `linear-gradient(160deg, #0a1628, #1a2d4a, #0f2044)` with radial blue/purple glows
-- **Floating Star Particles** — 6 animated dots with staggered float animations
-- **Blue→Purple Gradient** — Used for accent lines, text gradients, and hover effects
-- **Hover Animations** — `translateY(-6px)` lifts with shadow + gradient bottom lines
-
----
-
-## 📊 Analytics Configuration
-
-### IDs (defined in `includes/analytics.php`)
-```php
-define('NUCLEUS_GA4_ID', 'G-V6CKR789PG');
-define('NUCLEUS_GTM_ID', 'GTM-NKL3T3HW');
-```
-
-### Tracked Events
-
-| Event Name | Trigger | Type |
-|-----------|---------|------|
-| `page_view` | Page load | Auto (GA4) |
-| `scroll` | User scrolls | Auto (GA4) |
-| `user_engagement` | Active on page | Auto (GA4) |
-| `form_start` | Clicks form field | Auto (GA4) |
-| `view_feature` | Clicks feature card | Custom |
-| `view_service` | Clicks service tag | Custom |
-| `generate_lead` | Submits lead form | Custom |
-
----
-
-## 🗄️ Database
-
-Table: `wp_nucleus_leads_testing` (created on plugin activation)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | mediumint | Auto-increment primary key |
-| `name` | tinytext | Full name |
-| `email` | varchar(100) | Work email |
-| `company` | varchar(100) | Company name |
-| `phone` | varchar(20) | Phone number |
-| `submitted_at` | datetime | Submission timestamp |
-
----
-
-## 🔧 Troubleshooting
-
-| Issue | Solution |
-|-------|---------|
-| Page returns 404 | WP Admin → Settings → Permalinks → Save |
-| Styles not updating | Bump the CSS version number in `nucleus-dxp.php` or `product-manager.php`, then re-upload the plugin |
-| Hero hidden by header | Increase top padding in the hero CSS (currently `160px` for products) |
-| Events not in GA4 | Check console for `✅ Tracking Active`; verify Measurement ID |
-| Form not submitting | Check console for errors; verify `admin-ajax.php` accessible |
-| Product page blank | Ensure Oxygen template ID 36 exists; check `ct_other_template` meta |
-| Shopify button not showing | Check product meta `_nucleus_product_shopify_button` has embed code |
-
----
-
-## 📋 Key Design Decisions
-
-1. **Shortcode over Oxygen Code Block** — Oxygen had a bug reverting long code after save
-2. **Direct gtag() over GTM-only** — Custom events bypass GTM trigger configuration
-3. **Plugin over theme** — Survives theme updates, can be toggled independently
-4. **Auto Oxygen template** — Products auto-assign template ID 36 on creation, zero manual setup
-5. **JS-powered layout** — Single product content auto-splits into 2-column layout via DOM manipulation
-6. **Consistent design system** — All pages share the same color palette, animations, and visual treatments
-
----
-
-## 🛠️ Tech Stack
-
-- **CMS:** WordPress
-- **Page Builder:** Oxygen Builder
-- **E-Commerce:** Shopify Buy Button (embedded)
-- **Forms:** Contact Form 7
-- **Analytics:** Google Tag Manager + Google Analytics 4
-- **Visualization:** Looker Studio
-- **Languages:** PHP, HTML, CSS, JavaScript
+## ��� Next Steps for the Team
+- **Review `/docs/`**: Check out `google-sheets-looker-integration.md` to see how the leads currently pipeline into analytics dashboards.
+- **Review Assets**: Familiarize yourself with `tracking.js` so you know exactly what user actions trigger GA4 events. 

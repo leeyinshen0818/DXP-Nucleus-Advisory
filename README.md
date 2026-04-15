@@ -6,6 +6,55 @@ This document focuses on the **System Managers**—the core logic modules built 
 
 ---
 
+## 📂 Project Structure & Assets
+
+The project is thoughtfully structured to separate logic from templates and assets. All CSS logic is compartmentalized.
+
+```text
+nucleus-dxp/
+├── nucleus-dxp.php                  ← Core Plugin File (Handles activation and asset loading)
+├── docs/                            ← Various integrations & references
+├── includes/                        ← Core Manager Logic
+│   ├── admin-dashboard.php
+│   ├── analytics.php
+│   ├── form-handler.php
+│   ├── page-manager.php
+│   ├── product-manager.php
+│   ├── program-manager.php
+│   ├── rest-api.php
+│   └── theme-manager.php
+├── templates/                       ← Bespoke Frontend Views
+│   ├── products-landing.php
+│   ├── programs-landing.php
+│   ├── single-nucleus_page.php
+│   ├── single-nucleus_product.php
+│   └── single-nucleus_program.php
+└── assets/
+    ├── js/
+    │   └── tracking.js              ← GA4 & Click Tracking
+    └── css/                         ← Core styles
+        ├── nucleus-page.css
+        ├── products-landing.css
+        ├── single-product.css
+        └── backup/                  ← ⚠️ IMPORTANT: Component CSS Archive
+            ├── global.css
+            ├── about/
+            ├── assessment/
+            ├── contact/
+            ├── header_footer/
+            ├── home/
+            ├── home2/
+            ├── partnership-client/
+            ├── solutions/
+            └── team/
+```
+
+### The `assets/css/backup/` Folder
+
+This is a critical directory. It holds the "source" or **backup CSS for all individual page components**. Since the CSS might be minified or copied into WordPress's visual builders for production performance, the original raw styles for every component (Hero, CTA, services, footer, etc.) for every individual page (Home, About, Solutions, etc.) are strictly maintained here. Always refer to this directory if you need to modify the design code for a specific section before transferring it to the live site.
+
+---
+
 ## ⚙️ System Managers Overview
 
 To keep the platform flexible and data structured, the system registers several strict Custom Post Types (CPTs) and management dashboards. These are located in the `/includes/` directory and injected directly into the WordPress Admin menu.

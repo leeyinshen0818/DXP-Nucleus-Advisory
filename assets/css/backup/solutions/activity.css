@@ -1,0 +1,251 @@
+/* =============================================
+   Activity Section (Programs & Events)
+   ============================================= */
+
+/* 1. Section Background */
+#nucleus-section-activity {
+  position: relative;
+  padding: 80px 20px 100px 20px;
+  background-color: transparent; 
+}
+
+#nucleus-section-activity::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at top right,
+    rgba(142, 172, 227, 0.25) 0%,
+    rgba(163, 188, 237, 0.1) 40%,
+    rgba(255, 255, 255, 0) 80%
+  );
+  z-index: -1; 
+  pointer-events: none;
+}
+
+/* 2. Top Title and Subtitle */
+#activity-title, #activity-subtitle {
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#activity-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--ncl-text-heading, #0c2b4d);
+  margin-bottom: 10px;
+}
+
+#activity-subtitle {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 60px;
+  max-width: 600px;
+}
+
+/* 3. Program Group */
+#activity-program_title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ncl-text-heading, #0c2b4d);
+  margin-bottom: 20px;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+#activity-program {
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(163, 188, 237, 0.8);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(163, 188, 237, 0.2); 
+  max-width: 1200px; /* To account for padding around 1140px cards container */
+  margin: 0 auto 60px auto; 
+}
+
+/* 4. Event Group */
+#activity-event_title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ncl-text-heading, #0c2b4d);
+  margin-bottom: 20px;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+#activity-event {
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(142, 227, 200, 0.8); 
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(142, 227, 200, 0.2); 
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+}
+
+/* 5. Carousel Base Styles (Applies to both) */
+#nucleus-section-activity .nucleus-program-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+#nucleus-section-activity .nucleus-program-carousel-inner {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+#nucleus-section-activity .nucleus-program-carousel-inner::-webkit-scrollbar {
+  display: none;
+}
+
+#nucleus-section-activity .nucleus-program-card {
+  flex: 0 0 calc((100% - 48px) / 3);
+  scroll-snap-align: start;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Softer shadow inside the box */
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--ncl-border, #eaeaea);
+  text-decoration: none;
+  color: inherit;
+}
+
+#nucleus-section-activity .nucleus-program-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08); /* slightly stronger on hover */
+}
+
+#nucleus-section-activity .nucleus-program-card-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #eaeaea;
+}
+
+#nucleus-section-activity .nucleus-program-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #ffffff;
+  color: var(--ncl-primary, #0c2b4d);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#nucleus-section-activity .nucleus-program-card-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+#nucleus-section-activity .nucleus-program-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ncl-text-heading, #0c2b4d);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+#nucleus-section-activity .nucleus-program-card-meta {
+  font-size: 0.8rem;
+  color: var(--ncl-primary, #4a90e2);
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+#nucleus-section-activity .nucleus-program-card-desc {
+  font-size: 0.9rem;
+  color: var(--ncl-text-muted, #555555);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  flex-grow: 1;
+}
+
+#nucleus-section-activity .nucleus-program-card-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ncl-primary, #4a90e2);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  margin-top: auto;
+}
+
+#nucleus-section-activity .nucleus-program-card-link:hover {
+  color: var(--ncl-text-heading, #0c2b4d);
+}
+
+/* Carousel Buttons */
+#nucleus-section-activity .nucleus-program-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--ncl-primary, #0c2b4d);
+  color: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 2;
+  transition: background 0.3s, opacity 0.3s;
+  opacity: 0.8;
+}
+
+#nucleus-section-activity .nucleus-program-carousel-btn:hover {
+  background: var(--ncl-accent, #4a90e2);
+  opacity: 1;
+}
+
+#nucleus-section-activity .nucleus-program-carousel-prev {
+  left: -20px;
+}
+
+#nucleus-section-activity .nucleus-program-carousel-next {
+  right: -20px;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  #nucleus-section-activity .nucleus-program-card {
+    flex: 0 0 calc((100% - 24px) / 2);
+  }
+}
+
+@media (max-width: 767px) {
+  #nucleus-section-activity .nucleus-program-card {
+    flex: 0 0 100%;
+  }
+}

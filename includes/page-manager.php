@@ -1568,9 +1568,13 @@ jQuery(document).ready(function($) {
                     const fullHtmlId = `${section.section_id}-${comp.id}`;
 
                     $compBox = $(`
-                                <div class="ncl-comp-item">
+                                <div class="ncl-comp-item" data-sindex="${sIndex}" data-cindex="${cIndex}">
                                     <div class="ncl-comp-header">
-                                        <div><button type="button" class="ncl-comp-toggle btn-toggle-comp"><span class="dashicons dashicons-arrow-down-alt2"></span></button><span class="dashicons dashicons-editor-code" style="color: #2271b1; vertical-align: middle;"></span> Component ID: <span class="ncl-comp-id-display">${escapeHtml(fullHtmlId)}</span></div>
+                                        <div>
+                                            <button type="button" class="ncl-comp-toggle btn-toggle-comp"><span class="dashicons dashicons-arrow-down-alt2"></span></button>
+                                            <span class="dashicons dashicons-menu ncl-comp-drag-handle" style="cursor: move; margin-right: 5px; color: #8c8f94; vertical-align: middle;"></span>
+                                            <span class="dashicons dashicons-editor-code" style="color: #2271b1; vertical-align: middle;"></span> Component ID: <span class="ncl-comp-id-display">${escapeHtml(fullHtmlId)}</span>
+                                        </div>
                                         <button type="button" class="ncl-btn ncl-btn-danger btn-delete-comp" data-sindex="${sIndex}" data-cindex="${cIndex}">Remove</button>
                                     </div>
                                     <div class="ncl-form-row">
@@ -1792,6 +1796,18 @@ jQuery(document).ready(function($) {
             }
         });
 
+        // Initialize Sortable for Components
+        $('.ncl-comp-list').each(function() {
+            $(this).sortable({
+                handle: '.ncl-comp-drag-handle',
+                placeholder: 'ui-sortable-placeholder',
+                forcePlaceholderSize: true,
+                update: function(event, ui) {
+                    reorderComponentsArray($(this));
+                }
+            });
+        });
+
         // Initialize WYSIWYG editors
         if (typeof wp !== 'undefined' && wp.editor) {
             $('.input-comp-wysiwyg').each(function() {
@@ -1867,6 +1883,17 @@ jQuery(document).ready(function($) {
             newData.push(pageData[originalIndex]);
         });
         pageData = newData;
+        renderBuilder(); // Re-render to fix indices
+    }
+
+    function reorderComponentsArray($list) {
+        const sIndex = $list.closest('.ncl-section-block').data('sindex');
+        const newComps = [];
+        $list.find('.ncl-comp-item').each(function() {
+            const cIndex = $(this).data('cindex');
+            newComps.push(pageData[sIndex].components[cIndex]);
+        });
+        pageData[sIndex].components = newComps;
         renderBuilder(); // Re-render to fix indices
     }
 
@@ -2062,7 +2089,7 @@ jQuery(document).ready(function($) {
 
         // Initialize program_carousel array
         if (newType === 'program_carousel' && !Array.isArray(pageData[sIndex].components[cIndex]
-            .value)) {
+                .value)) {
             pageData[sIndex].components[cIndex].value = [{
                 id: ''
             }];
@@ -2240,21 +2267,22 @@ jQuery(document).ready(function($) {
     $root.on('change', '.input-program-autofetch-select', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autocount');
         const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
         const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
-        
+
         const type = $(this).val();
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         countObj.attr('max', maxLimit);
-        
+
         let count = parseInt(countObj.val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             countObj.val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2262,19 +2290,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2282,19 +2311,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2303,7 +2333,8 @@ jQuery(document).ready(function($) {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         let count = $(this).val() || '3';
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
@@ -2313,21 +2344,22 @@ jQuery(document).ready(function($) {
     $root.on('change', '.input-program-autofetch-select', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autocount');
         const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
         const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
-        
+
         const type = $(this).val();
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         countObj.attr('max', maxLimit);
-        
+
         let count = parseInt(countObj.val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             countObj.val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2335,19 +2367,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2355,19 +2388,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2376,7 +2410,8 @@ jQuery(document).ready(function($) {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         let count = $(this).val() || '3';
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
@@ -2386,21 +2421,22 @@ jQuery(document).ready(function($) {
     $root.on('change', '.input-program-autofetch-select', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const countObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autocount');
+        const countObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autocount');
         const maxProg = parseInt(countObj.attr('data-max-prog') || 0);
         const maxEvt = parseInt(countObj.attr('data-max-event') || 0);
-        
+
         const type = $(this).val();
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         countObj.attr('max', maxLimit);
-        
+
         let count = parseInt(countObj.val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             countObj.val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2408,19 +2444,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2428,19 +2465,20 @@ jQuery(document).ready(function($) {
     $root.on('input', '.input-program-autocount', function() {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
-        
+
         const maxProg = parseInt($(this).attr('data-max-prog') || 0);
         const maxEvt = parseInt($(this).attr('data-max-event') || 0);
         let maxLimit = type === 'auto_event:' ? maxEvt : maxProg;
-        
+
         let count = parseInt($(this).val() || '3');
         if (count > maxLimit) {
             count = maxLimit;
             $(this).val(count);
         }
-        
+
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();
     });
@@ -2449,7 +2487,8 @@ jQuery(document).ready(function($) {
         const sIndex = $(this).data('sindex');
         const cIndex = $(this).data('cindex');
         let count = $(this).val() || '3';
-        const selectObj = $(this).closest('.program-autofetch-options-wrap').find('.input-program-autofetch-select');
+        const selectObj = $(this).closest('.program-autofetch-options-wrap').find(
+            '.input-program-autofetch-select');
         const type = selectObj.length ? selectObj.val() : 'auto_program:';
         pageData[sIndex].components[cIndex].meta = type + count;
         syncHiddenInput();

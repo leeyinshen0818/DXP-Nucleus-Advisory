@@ -54,7 +54,7 @@ To keep the platform flexible and data structured, the system registers several 
 
 ---
 
-## ���️ Modifying the Managers
+## Modifying the Managers
 
 If the team needs to add new functionality to these managers:
 

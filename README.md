@@ -43,6 +43,7 @@ To keep the platform flexible and data structured, the system registers several 
 
 - **Design Encapsulation:** Pages created via this manager automatically inherit the plugin's isolated CSS framework (`assets/css/nucleus-page.css`) utilizing `.nucleus-wrapper` to prevent styling bleed.
 - **Marketing Specific:** Ideal for ad-driven campaign pages where loading speed, strict analytics, and distraction-free design are required.
+- **Troubleshooting Missing CSS:** If you notice that the CSS is missing after making changes in the Page Manager, simply make a minor modification in the CSS manager (like adding a space and saving it). This triggers an update and successfully applies the styles to the frontend.
 
 ### 5. Theme & Asset Manager (The Router)
 
@@ -65,7 +66,9 @@ If the team needs to add new functionality to these managers:
    If integrating with HubSpot, Salesforce, or Looker Studio, refer to `includes/rest-api.php`. The Lead Manager exposes secure API endpoints that external services can ping to extract the JSON-stored leads in real-time.
 
 3. **Deploying Changes**
-   Once modifications to the PHP logic are tested locally:
-   - Zip the `DXP-Nucleus-Advisory` folder.
-   - In WP Admin → Plugins → Add New → Upload Plugin.
-   - Upload the ZIP and "Replace current with uploaded version".
+   > 🚨 **IMPORTANT: LIVE DEPLOYMENT PROCESS**
+   > Once modifications to the PHP logic or assets are tested locally:
+   >
+   > - **Step 1:** Zip the entire `DXP-Nucleus-Advisory` folder.
+   > - **Step 2:** Go to **WP Admin → Plugins → Add New → Upload Plugin**.
+   > - **Step 3:** Upload the ZIP file and click **"Replace current with uploaded version"**.

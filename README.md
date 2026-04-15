@@ -43,6 +43,7 @@ To keep the platform flexible and data structured, the system registers several 
 
 - **Design Encapsulation:** Pages created via this manager automatically inherit the plugin's isolated CSS framework (`assets/css/nucleus-page.css`) utilizing `.nucleus-wrapper` to prevent styling bleed.
 - **Marketing Specific:** Ideal for ad-driven campaign pages where loading speed, strict analytics, and distraction-free design are required.
+- **URL Structure & Migration:** All pages created from this Manager will have URLs starting with `https://nucleusadvisory.co/nucleus_page/`. If the team confirms utilizing these pages, you can remove the old WP pages from the live site and change the slug (in `includes/page-manager.php` under the CPT rewrite rules), or simply keep everything the same.
 - **Troubleshooting Missing CSS:** If you notice that the CSS is missing after making changes in the Page Manager, simply make a minor modification in the CSS manager (like adding a space and saving it). This triggers an update and successfully applies the styles to the frontend.
 
 ### 5. Theme & Asset Manager (The Router)

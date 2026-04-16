@@ -40,6 +40,7 @@ function nucleus_core_activate_table()
         email varchar(100) NOT NULL,
         company varchar(100) DEFAULT '' NOT NULL,
         phone varchar(20) DEFAULT '' NOT NULL,
+        reason varchar(255) DEFAULT '' NOT NULL,
         form_data longtext DEFAULT '' NOT NULL,
         submitted_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
         PRIMARY KEY  (id)
@@ -58,10 +59,17 @@ function nucleus_core_force_db_update()
 
     // Check if table exists first
     if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name) {
+
+        // Auto-add 'form_data' column if missing
         $row = $wpdb->get_results("SELECT * FROM $table_name LIMIT 1");
-        // If column 'form_data' doesn't exist in the object, run activation
         if (empty($row) || !isset($row[0]->form_data)) {
             nucleus_core_activate_table();
+        }
+
+        // Auto-add 'reason' column if missing (non-destructive ALTER)
+        $columns = $wpdb->get_col("SHOW COLUMNS FROM $table_name LIKE 'reason'");
+        if (empty($columns)) {
+            $wpdb->query("ALTER TABLE $table_name ADD COLUMN reason VARCHAR(255) DEFAULT '' NOT NULL AFTER phone");
         }
     }
 }

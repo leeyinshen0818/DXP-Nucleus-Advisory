@@ -97,7 +97,7 @@ function nucleus_rest_get_leads($request)
         $prepare_args[] = $since . ' 00:00:00';
     }
 
-    $query = "SELECT id, name, email, company, phone, submitted_at 
+    $query = "SELECT id, name, email, company, phone, reason, submitted_at 
               FROM $table_name $where 
               ORDER BY submitted_at DESC 
               LIMIT %d OFFSET %d";

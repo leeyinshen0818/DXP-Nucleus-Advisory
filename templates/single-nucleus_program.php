@@ -115,7 +115,7 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
         <a href="<?php echo esc_url(get_post_type_archive_link('nucleus_program')); ?>" class="sp-back">← All Activities</a>
 
         <div class="sp-meta-line">
-            <span><?php echo esc_html(ucfirst($a_type)); ?></span>
+            <span><?php echo esc_html(nucleus_activity_type_label($a_type)); ?></span>
             <?php if (!empty($tags) && !is_wp_error($tags)): ?>
                 <?php foreach ($tags as $tag): ?>
                     <span class="sp-dot">·</span><span><?php echo esc_html($tag->name); ?></span>

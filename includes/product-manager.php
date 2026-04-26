@@ -46,7 +46,7 @@ function nucleus_dxp_register_product_cpt()
         'label' => __('Product', 'text_domain'),
         'description' => __('Manage products for the website', 'text_domain'),
         'labels' => $labels,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions'),
+        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions', 'page-attributes'),
         'hierarchical' => false,
         'public' => true,
         'show_ui' => true,
@@ -66,6 +66,286 @@ function nucleus_dxp_register_product_cpt()
     register_post_type('nucleus_product', $args);
 }
 add_action('init', 'nucleus_dxp_register_product_cpt', 0);
+
+/**
+ * =====================================
+ * Product Ordering (Drag & Drop)
+ * =====================================
+ * Adds an "Arrange Products" submenu page under Product Manager
+ * that allows drag-and-drop reordering of products.
+ * The order is stored in the WordPress menu_order field.
+ */
+function nucleus_product_order_menu()
+{
+    add_submenu_page(
+        'edit.php?post_type=nucleus_product',
+        'Arrange Products',
+        'Arrange Products',
+        'edit_posts',
+        'nucleus-product-order',
+        'nucleus_product_order_page'
+    );
+}
+add_action('admin_menu', 'nucleus_product_order_menu');
+
+// AJAX handler for saving product order
+function nucleus_save_product_order()
+{
+    check_ajax_referer('nucleus_product_order_nonce', 'nonce');
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error('Permission denied');
+    }
+
+    $order = isset($_POST['order']) ? $_POST['order'] : array();
+    foreach ($order as $position => $post_id) {
+        wp_update_post(array(
+            'ID' => intval($post_id),
+            'menu_order' => intval($position),
+        ));
+    }
+    wp_send_json_success('Order saved');
+}
+add_action('wp_ajax_nucleus_save_product_order', 'nucleus_save_product_order');
+
+function nucleus_product_order_page()
+{
+    $products = get_posts(array(
+        'post_type' => 'nucleus_product',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'orderby' => 'menu_order',
+        'order' => 'ASC',
+    ));
+    $nonce = wp_create_nonce('nucleus_product_order_nonce');
+    ?>
+    <div class="wrap">
+        <h1>Arrange Products</h1>
+        <p style="color:#666; margin-bottom: 20px;">Drag and drop to reorder. The order here controls how products appear in the carousel and landing page.</p>
+
+        <?php if (empty($products)): ?>
+            <p>No published products found.</p>
+        <?php else: ?>
+            <div id="n-product-sortable" style="max-width: 600px;">
+                <?php foreach ($products as $product):
+                    $thumb = get_the_post_thumbnail_url($product->ID, 'thumbnail');
+                    $subtitle = get_post_meta($product->ID, '_nucleus_product_subtitle', true);
+                ?>
+                    <div class="n-sort-item" data-id="<?php echo $product->ID; ?>">
+                        <span class="n-sort-handle" title="Drag to reorder">⠿</span>
+                        <?php if ($thumb): ?>
+                            <img src="<?php echo esc_url($thumb); ?>" class="n-sort-thumb" alt="">
+                        <?php else: ?>
+                            <span class="n-sort-thumb-placeholder">📦</span>
+                        <?php endif; ?>
+                        <div class="n-sort-info">
+                            <strong><?php echo esc_html($product->post_title); ?></strong>
+                            <?php if ($subtitle): ?>
+                                <span class="n-sort-subtitle"><?php echo esc_html($subtitle); ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <span class="n-sort-order-badge">#<?php echo $product->menu_order + 1; ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div id="n-sort-status" style="margin-top: 15px;"></div>
+        <?php endif; ?>
+    </div>
+
+    <style>
+        #n-product-sortable {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .n-sort-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #ccd0d4;
+            border-radius: 6px;
+            padding: 10px 14px;
+            cursor: default;
+            transition: box-shadow 0.15s, border-color 0.15s;
+            user-select: none;
+        }
+        .n-sort-item:hover {
+            border-color: #2271b1;
+        }
+        .n-sort-item.is-dragging {
+            opacity: 0.4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .n-sort-item.drag-over {
+            border-top: 3px solid #2271b1;
+        }
+        .n-sort-handle {
+            cursor: grab;
+            font-size: 18px;
+            color: #999;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .n-sort-handle:hover {
+            color: #555;
+            background: #f0f0f1;
+        }
+        .n-sort-handle:active {
+            cursor: grabbing;
+        }
+        .n-sort-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+        .n-sort-thumb-placeholder {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            font-size: 18px;
+            background: #fafafa;
+            flex-shrink: 0;
+        }
+        .n-sort-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+        .n-sort-info strong {
+            font-size: 14px;
+            color: #1d2327;
+        }
+        .n-sort-subtitle {
+            font-size: 12px;
+            color: #888;
+        }
+        .n-sort-order-badge {
+            background: #f0f0f1;
+            color: #50575e;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .n-sort-save-notice {
+            background: #00a32a;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            display: inline-block;
+            animation: nSortFadeIn 0.3s;
+        }
+        @keyframes nSortFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script>
+    (function() {
+        var container = document.getElementById('n-product-sortable');
+        if (!container) return;
+
+        var dragSrcEl = null;
+
+        function getItems() {
+            return container.querySelectorAll('.n-sort-item');
+        }
+
+        function updateBadges() {
+            getItems().forEach(function(item, i) {
+                var badge = item.querySelector('.n-sort-order-badge');
+                if (badge) badge.textContent = '#' + (i + 1);
+            });
+        }
+
+        function saveOrder() {
+            var items = getItems();
+            var order = [];
+            items.forEach(function(item) {
+                order.push(item.getAttribute('data-id'));
+            });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '<?php echo admin_url('admin-ajax.php'); ?>', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                var status = document.getElementById('n-sort-status');
+                if (xhr.status === 200) {
+                    status.innerHTML = '<span class="n-sort-save-notice">✓ Order saved</span>';
+                    setTimeout(function() { status.innerHTML = ''; }, 2500);
+                } else {
+                    status.innerHTML = '<span style="color:#d63638;">Error saving order.</span>';
+                }
+            };
+            var params = 'action=nucleus_save_product_order&nonce=<?php echo $nonce; ?>';
+            order.forEach(function(id, i) {
+                params += '&order[' + i + ']=' + id;
+            });
+            xhr.send(params);
+        }
+
+        getItems().forEach(function(item) {
+            item.setAttribute('draggable', 'true');
+
+            item.addEventListener('dragstart', function(e) {
+                dragSrcEl = this;
+                this.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', this.outerHTML);
+            });
+
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (this !== dragSrcEl) this.classList.add('drag-over');
+                return false;
+            });
+
+            item.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            item.addEventListener('drop', function(e) {
+                e.stopPropagation();
+                if (dragSrcEl !== this) {
+                    var allItems = Array.from(getItems());
+                    var fromIdx = allItems.indexOf(dragSrcEl);
+                    var toIdx = allItems.indexOf(this);
+                    if (fromIdx < toIdx) {
+                        this.parentNode.insertBefore(dragSrcEl, this.nextSibling);
+                    } else {
+                        this.parentNode.insertBefore(dragSrcEl, this);
+                    }
+                    updateBadges();
+                    saveOrder();
+                }
+                this.classList.remove('drag-over');
+                return false;
+            });
+
+            item.addEventListener('dragend', function() {
+                this.classList.remove('is-dragging');
+                getItems().forEach(function(r) { r.classList.remove('drag-over'); });
+            });
+        });
+    })();
+    </script>
+    <?php
+}
+
 
 /**
  * =====================================
@@ -1006,7 +1286,7 @@ function nucleus_products_landing_shortcode($atts)
         'post_type' => 'nucleus_product',
         'posts_per_page' => -1,
         'post_status' => 'publish',
-        'orderby' => 'date',
+        'orderby' => 'menu_order',
         'order' => 'ASC',
     ));
 
@@ -1033,7 +1313,7 @@ function nucleus_products_carousel_shortcode($atts)
         'post_type'      => 'nucleus_product',
         'posts_per_page' => -1,
         'post_status'    => 'publish',
-        'orderby'        => 'date',
+        'orderby'        => 'menu_order',
         'order'          => 'ASC',
     ));
 

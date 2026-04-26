@@ -1,8 +1,8 @@
 <?php
 /**
- * Program Manager
+ * Programme Manager
  *
- * Unified Activity CPT (Programs & Events) with inline tag management,
+ * Unified Activity CPT (Programmes & Events) with inline tag management,
  * comprehensive date/time/location, and compact admin UI.
  */
 
@@ -20,7 +20,7 @@ function nucleus_register_activity_cpt()
         'labels' => array(
             'name'           => 'Activities',
             'singular_name'  => 'Activity',
-            'menu_name'      => 'Program Manager',
+            'menu_name'      => 'Programme Manager',
             'name_admin_bar' => 'Activity',
             'add_new'        => 'Add New',
             'add_new_item'   => 'Add New Activity',
@@ -36,7 +36,7 @@ function nucleus_register_activity_cpt()
         'show_ui'            => true,
         'show_in_menu'       => true,
         'query_var'          => true,
-        'rewrite'            => array('slug' => 'programs'),
+        'rewrite'            => array('slug' => 'programmes'),
         'capability_type'    => 'post',
         'has_archive'        => true,
         'hierarchical'       => false,
@@ -103,7 +103,7 @@ add_action('admin_init', 'nucleus_register_activity_settings');
 function nucleus_activity_landing_html()
 {
     if (!current_user_can('manage_options')) return;
-    $title     = get_option('_nucleus_landing_title', 'Programs & Initiatives');
+    $title     = get_option('_nucleus_landing_title', 'Programmes & Initiatives');
     $desc      = get_option('_nucleus_landing_desc', '');
     $hf_set_id = get_option('_nucleus_landing_hf', '');
     $hf_sets   = get_posts(array('post_type' => 'nucleus_hf_set', 'numberposts' => -1, 'post_status' => 'any'));
@@ -209,7 +209,7 @@ function nucleus_activity_meta_box_html($post)
         <div>
             <label class="nm-lbl">Type</label>
             <select name="<?php echo esc_attr($p); ?>type" class="nm-input" style="width:140px;">
-                <option value="program" <?php selected($type, 'program'); ?>>Program</option>
+                <option value="program" <?php selected($type, 'program'); ?>>Programme</option>
                 <option value="event" <?php selected($type, 'event'); ?>>Event</option>
             </select>
         </div>
@@ -511,7 +511,7 @@ add_action('manage_nucleus_program_posts_custom_column', function ($col, $pid) {
     $p = '_nucleus_activity_';
     if ($col === 'activity_type') {
         $t = get_post_meta($pid, $p . 'type', true) ?: 'program';
-        echo esc_html(ucfirst($t));
+        echo esc_html(nucleus_activity_type_label($t));
     }
     if ($col === 'activity_date') {
         $s = get_post_meta($pid, $p . 'start_date', true);
@@ -546,6 +546,16 @@ function nucleus_get_activity_status($pid)
     if ($s <= $now && (!empty($e) && $e >= $now)) return 'ongoing';
     if ($s === $now && empty($e)) return 'ongoing';
     return 'past';
+}
+
+/**
+ * Returns the display label for an activity type.
+ * Maps 'program' → 'Programme', 'event' → 'Event'.
+ */
+function nucleus_activity_type_label($type)
+{
+    $labels = array('program' => 'Programme', 'event' => 'Event');
+    return isset($labels[$type]) ? $labels[$type] : ucfirst($type);
 }
 
 

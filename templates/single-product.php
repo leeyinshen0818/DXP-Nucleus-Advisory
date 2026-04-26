@@ -204,7 +204,7 @@ $all_products = get_posts(array(
     'post_type'      => 'nucleus_product',
     'posts_per_page' => -1,
     'post_status'    => 'publish',
-    'orderby'        => 'date',
+    'orderby'        => 'menu_order',
     'order'          => 'ASC',
 ));
 

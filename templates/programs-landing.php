@@ -1,14 +1,14 @@
 <?php
 /**
- * Programs Landing / Archive
+ * Programmes Landing / Archive
  * Simple carousel + compact explorer table.
  */
 if (!defined('ABSPATH')) exit;
 
 $desc       = get_option('_nucleus_landing_desc', '');
 $hf_set_id  = get_option('_nucleus_landing_hf', '');
-$page_title = get_option('_nucleus_landing_title', 'Programs & Initiatives');
-if (empty($page_title)) $page_title = 'Programs & Initiatives';
+$page_title = get_option('_nucleus_landing_title', 'Programmes & Initiatives');
+if (empty($page_title)) $page_title = 'Programmes & Initiatives';
 
 $p   = '_nucleus_activity_';
 $now = current_time('Y-m-d');
@@ -176,7 +176,7 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
         ?>
         <div class="pl-sl <?php echo $si === 0 ? 'active' : ''; ?>">
             <div class="pl-sl-body">
-                <div class="pl-sl-sup"><?php echo esc_html(ucfirst($a_type)); ?><?php if ($tag_str) echo ' · ' . esc_html($tag_str); ?></div>
+                <div class="pl-sl-sup"><?php echo esc_html(nucleus_activity_type_label($a_type)); ?><?php if ($tag_str) echo ' · ' . esc_html($tag_str); ?></div>
                 <h3 class="pl-sl-title"><?php echo esc_html($act->post_title); ?></h3>
                 <?php if ($ds): ?><div class="pl-sl-date"><?php echo esc_html($ds); ?></div><?php endif; ?>
                 <div class="pl-sl-text"><?php echo esc_html(wp_trim_words(wp_strip_all_tags($a_desc ?: ''), 24, '…')); ?></div>
@@ -214,7 +214,7 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
     <h2 class="pl-label">Activities Explorer</h2>
     <div class="pl-filters">
         <input type="text" id="plSrch" class="pl-fi" placeholder="Search…">
-        <select id="plType" class="pl-fi"><option value="all">All Types</option><option value="program">Program</option><option value="event">Event</option></select>
+        <select id="plType" class="pl-fi"><option value="all">All Types</option><option value="program">Programme</option><option value="event">Event</option></select>
         <select id="plStat" class="pl-fi"><option value="all">All Status</option><option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option><option value="past">Past</option></select>
         <select id="plTag" class="pl-fi"><option value="all">All Tags</option>
             <?php $atags = get_terms(array('taxonomy' => 'nucleus_activity_tag', 'hide_empty' => false));
@@ -271,7 +271,7 @@ html,body{margin:0!important;padding:0!important;display:block!important;max-wid
                 <td class="pl-td st"><span class="st-<?php echo esc_attr($r['st']); ?>"><?php echo esc_html(ucfirst(str_replace('-', ' ', $r['st']))); ?></span></td>
                 <td class="pl-td tt"><?php echo esc_html($r['p']->post_title); ?></td>
                 <td class="pl-td tg"><?php echo esc_html(implode(', ', $r['tg'])); ?></td>
-                <td class="pl-td tp"><?php echo esc_html(ucfirst($r['tp'])); ?></td>
+                <td class="pl-td tp"><?php echo esc_html(nucleus_activity_type_label($r['tp'])); ?></td>
                 <td class="pl-td hr">
                     <?php if ($r['h'] === '1'): ?>
                         <?php if (!empty($r['hu'])): ?><a href="<?php echo esc_url($r['hu']); ?>" class="pl-hrdc-y" target="_blank" rel="noopener" onclick="event.stopPropagation();">✓</a>

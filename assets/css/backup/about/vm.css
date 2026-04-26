@@ -4,6 +4,17 @@
 
 #nucleus-section-vm {
   padding: 100px 20px;
+  background-color: var(--ncl-primary);
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(var(--ncl-primary-rgb), 0.25) 0%,
+      rgba(var(--ncl-primary-rgb), 1) 40%
+    ),
+    url("https://nucleusadvisory.co/wp-content/uploads/2023/07/nucleus-advisory-about-vision-mission-bg-mobile-01.jpg");
+  background-size: auto 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
 }
 
 #nucleus-section-vm .nucleus-container {

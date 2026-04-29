@@ -67,8 +67,8 @@
 }
 
 .logo-item img {
-    height: 40px !important;
-    max-width: 160px !important;
+    height: 56px !important;
+    max-width: 200px !important;
     width: auto !important;
     object-fit: contain;
     filter: grayscale(100%) opacity(0.4);
@@ -96,8 +96,8 @@
 
 @media (max-width: 768px) {
     .logo-item img {
-        height: 30px !important;
-        max-width: 120px !important;
+        height: 44px !important;
+        max-width: 160px !important;
     }
     .logo-track { gap: 50px; }
 }

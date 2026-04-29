@@ -16,6 +16,8 @@
     letter-spacing: 1.5px;
     color: var(--ncl-primary-muted);
     margin-bottom: 16px;
+    grid-column: 1 / -1;
+    justify-self: center;
 }
 
 #features-title {
@@ -26,10 +28,15 @@
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
+    grid-column: 1 / -1;
+    justify-self: center;
 }
 
-/* 4-column grid from card groups */
+/* 4-column grid — cards auto-place and stretch to equal height */
 #nucleus-section-features .nucleus-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
     text-align: center;
 }
 
@@ -37,10 +44,6 @@
 .nucleus-group-card2,
 .nucleus-group-card3,
 .nucleus-group-card4 {
-    display: inline-block;
-    vertical-align: top;
-    width: 23%;
-    margin: 0 0.8%;
     padding: 36px 28px;
     background: rgba(var(--ncl-bg-rgb), 0.04);
     border: 1px solid rgba(var(--ncl-bg-rgb), 0.08);
@@ -79,7 +82,7 @@
 }
 
 #features-cta-action {
-    margin-top: 56px;
+    margin-top: 36px;
     padding: 16px 36px;
     background: var(--ncl-primary);
     color: var(--ncl-bg) !important;
@@ -88,6 +91,8 @@
     text-decoration: none;
     transition: all 0.3s ease;
     display: inline-block;
+    grid-column: 1 / -1;
+    justify-self: center;
 }
 #features-cta-action:hover {
     background: var(--ncl-primary-hover);
@@ -96,14 +101,12 @@
 }
 
 @media (max-width: 900px) {
-    .nucleus-group-card1,
-    .nucleus-group-card2,
-    .nucleus-group-card3,
-    .nucleus-group-card4 { width: 46%; margin-bottom: 20px; }
+    #nucleus-section-features .nucleus-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 @media (max-width: 600px) {
-    .nucleus-group-card1,
-    .nucleus-group-card2,
-    .nucleus-group-card3,
-    .nucleus-group-card4 { width: 100%; }
+    #nucleus-section-features .nucleus-container {
+        grid-template-columns: 1fr;
+    }
 }

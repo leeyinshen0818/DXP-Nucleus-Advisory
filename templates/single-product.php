@@ -5,6 +5,9 @@
 // Load assessment catalog
 $catalog = nucleus_get_assessment_catalog();
 
+// Shared policy documents
+$shared_docs = nucleus_shared_docs_get();
+
 // Check for new structured fields
 $sec1_items = get_post_meta($product_id, '_nucleus_product_section_1_items', true);
 $sec2_title = get_post_meta($product_id, '_nucleus_product_section_2_title', true);
@@ -149,7 +152,13 @@ foreach ($pkg_keys as $k => $pkg) {
     $slides_html .= '<div class="n-package-checkout-area">';
     $slides_html .= '<label class="n-terms-checkbox">';
     $slides_html .= '<input type="checkbox" class="n-pkg-terms-checkbox" data-pkg="' . $pkg . '">';
-    $slides_html .= '<span>I agree to the <a href="/wp-content/uploads/2026/04/Nucleus_Advisory_Privacy_Policy.pdf" target="_blank">Privacy Policy</a>, <a href="/wp-content/uploads/2026/04/Nucleus_Advisory_Delivery_Policy.pdf" target="_blank">Delivery Policy</a> and <a href="/wp-content/uploads/2026/04/Nucleus_Advisory_Refund_Policy.pdf" target="_blank">Refund Policy</a>.</span>';
+    $doc_links = array();
+    foreach ($shared_docs as $doc) {
+        if (!empty($doc['url']) && !empty($doc['label'])) {
+            $doc_links[] = '<a href="' . esc_url($doc['url']) . '" target="_blank">' . esc_html($doc['label']) . '</a>';
+        }
+    }
+    $slides_html .= '<span>I agree to the ' . implode(', ', $doc_links) . '.</span>';
     $slides_html .= '</label>';
     $slides_html .= '<button class="n-custom-add-to-cart" id="btn-custom-add-' . $pkg . '" onclick="triggerShopifyCheckout(\'' . $pkg . '\')" disabled>';
     $slides_html .= 'Add to Cart';

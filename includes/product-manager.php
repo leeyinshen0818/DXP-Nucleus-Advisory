@@ -1456,3 +1456,221 @@ add_filter('template_include', function ($template) {
     }
     return $template;
 }, 99999);
+
+/**
+ * =====================================
+ * Shared Documents (Policy PDFs)
+ * =====================================
+ * A global list of PDF documents shared across all products.
+ * Managed via Product Manager → Shared Documents.
+ * Stored in WordPress option: nucleus_shared_documents.
+ */
+
+function nucleus_shared_docs_get()
+{
+    $saved = get_option('nucleus_shared_documents', null);
+    if (!empty($saved) && is_array($saved)) {
+        return $saved;
+    }
+    return array(
+        array('label' => 'Privacy Policy',  'url' => '/wp-content/uploads/2026/04/Nucleus_Advisory_Privacy_Policy.pdf'),
+        array('label' => 'Delivery Policy', 'url' => '/wp-content/uploads/2026/04/Nucleus_Advisory_Delivery_Policy.pdf'),
+        array('label' => 'Refund Policy',   'url' => '/wp-content/uploads/2026/04/Nucleus_Advisory_Refund_Policy.pdf'),
+    );
+}
+
+function nucleus_shared_docs_menu()
+{
+    add_submenu_page(
+        'edit.php?post_type=nucleus_product',
+        'Shared Documents',
+        'Shared Documents',
+        'manage_options',
+        'nucleus-shared-documents',
+        'nucleus_shared_docs_page'
+    );
+}
+add_action('admin_menu', 'nucleus_shared_docs_menu');
+
+function nucleus_shared_docs_page()
+{
+    // Handle save
+    if (isset($_POST['nucleus_shared_docs_nonce']) && wp_verify_nonce($_POST['nucleus_shared_docs_nonce'], 'nucleus_shared_docs_save')) {
+        $labels = isset($_POST['n_doc_label']) ? $_POST['n_doc_label'] : array();
+        $urls   = isset($_POST['n_doc_url'])   ? $_POST['n_doc_url']   : array();
+        $new_docs = array();
+        for ($i = 0; $i < count($labels); $i++) {
+            $label = sanitize_text_field($labels[$i]);
+            $url   = esc_url_raw($urls[$i]);
+            if (!empty($label) && !empty($url)) {
+                $new_docs[] = array('label' => $label, 'url' => $url);
+            }
+        }
+        // Enforce minimum 1 document
+        if (!empty($new_docs)) {
+            update_option('nucleus_shared_documents', $new_docs);
+            echo '<div class="notice notice-success is-dismissible"><p>Shared documents saved.</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>At least one document is required. No changes saved.</p></div>';
+        }
+    }
+
+    wp_enqueue_media();
+    $docs = nucleus_shared_docs_get();
+    ?>
+    <div class="wrap">
+        <h1>Shared Documents</h1>
+        <p>These policy documents appear on every product's checkout terms. All products share this list. Minimum 1 document required.</p>
+        <form method="post">
+            <?php wp_nonce_field('nucleus_shared_docs_save', 'nucleus_shared_docs_nonce'); ?>
+            <div id="n-docs-container" class="n-repeater-container" style="margin-bottom:16px;">
+                <?php foreach ($docs as $i => $doc): ?>
+                <div class="n-repeater-row" draggable="true" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px;background:#fff;border:1px solid #ddd;border-radius:4px;">
+                    <span class="n-drag-handle" title="Drag to reorder" style="cursor:grab;font-size:18px;color:#999;user-select:none;">⠿</span>
+                    <span class="n-row-number" style="font-size:12px;color:#888;min-width:20px;"><?php echo $i + 1; ?></span>
+                    <input type="text" name="n_doc_label[]" value="<?php echo esc_attr($doc['label']); ?>" placeholder="Document Label" style="width:200px;" required>
+                    <input type="text" name="n_doc_url[]" class="n-doc-url-input" value="<?php echo esc_url($doc['url']); ?>" placeholder="PDF URL" style="flex:1;" readonly>
+                    <button type="button" class="button n-doc-select-btn">Select PDF</button>
+                    <button type="button" class="button n-docs-remove-btn" onclick="nDocsRemoveRow(this)" style="color:#a00;">✖ Remove</button>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="button" id="n-docs-add-btn">+ Add Document</button>
+            <p><input type="submit" class="button button-primary" value="Save Documents" style="margin-top:16px;"></p>
+        </form>
+    </div>
+    <script>
+    (function() {
+        // --- Media picker ---
+        function attachMediaPicker(btn) {
+            btn.addEventListener('click', function() {
+                var row = this.closest('.n-repeater-row');
+                var urlInput = row.querySelector('.n-doc-url-input');
+                var frame = wp.media({
+                    title: 'Select PDF Document',
+                    button: { text: 'Use this file' },
+                    multiple: false,
+                    library: { type: 'application/pdf' }
+                });
+                frame.on('select', function() {
+                    var attachment = frame.state().get('selection').first().toJSON();
+                    urlInput.value = attachment.url;
+                });
+                frame.open();
+            });
+        }
+
+        document.querySelectorAll('.n-doc-select-btn').forEach(attachMediaPicker);
+
+        // --- Add row ---
+        document.getElementById('n-docs-add-btn').addEventListener('click', function() {
+            var container = document.getElementById('n-docs-container');
+            var num = container.querySelectorAll('.n-repeater-row').length + 1;
+            var row = document.createElement('div');
+            row.className = 'n-repeater-row';
+            row.setAttribute('draggable', 'true');
+            row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px;background:#fff;border:1px solid #ddd;border-radius:4px;';
+            row.innerHTML = '<span class="n-drag-handle" title="Drag to reorder" style="cursor:grab;font-size:18px;color:#999;user-select:none;">⠿</span>'
+                + '<span class="n-row-number" style="font-size:12px;color:#888;min-width:20px;">' + num + '</span>'
+                + '<input type="text" name="n_doc_label[]" placeholder="Document Label" style="width:200px;" required>'
+                + '<input type="text" name="n_doc_url[]" class="n-doc-url-input" placeholder="PDF URL" style="flex:1;" readonly>'
+                + '<button type="button" class="button n-doc-select-btn">Select PDF</button>'
+                + '<button type="button" class="button n-docs-remove-btn" onclick="nDocsRemoveRow(this)" style="color:#a00;">✖ Remove</button>';
+            container.appendChild(row);
+            attachMediaPicker(row.querySelector('.n-doc-select-btn'));
+            nDocsInitDragDrop(container);
+            nDocsUpdateRemoveButtons();
+        });
+
+        // --- Remove row (min 1) ---
+        window.nDocsRemoveRow = function(btn) {
+            var container = document.getElementById('n-docs-container');
+            if (container.querySelectorAll('.n-repeater-row').length <= 1) {
+                alert('At least one document is required.');
+                return;
+            }
+            btn.closest('.n-repeater-row').remove();
+            nDocsRenumber();
+            nDocsUpdateRemoveButtons();
+        };
+
+        function nDocsRenumber() {
+            document.querySelectorAll('#n-docs-container .n-repeater-row').forEach(function(row, i) {
+                var badge = row.querySelector('.n-row-number');
+                if (badge) badge.textContent = i + 1;
+            });
+        }
+
+        function nDocsUpdateRemoveButtons() {
+            var container = document.getElementById('n-docs-container');
+            var rows = container.querySelectorAll('.n-repeater-row');
+            rows.forEach(function(row) {
+                var btn = row.querySelector('.n-docs-remove-btn');
+                if (btn) btn.disabled = rows.length <= 1;
+            });
+        }
+
+        // --- Drag and drop ---
+        var nDocsDragSrc = null;
+        function nDocsInitDragDrop(container) {
+            container.querySelectorAll('.n-repeater-row').forEach(function(row) {
+                row.removeEventListener('dragstart', nDocsDragStart);
+                row.removeEventListener('dragover',  nDocsDragOver);
+                row.removeEventListener('dragleave', nDocsDragLeave);
+                row.removeEventListener('drop',      nDocsDrop);
+                row.removeEventListener('dragend',   nDocsDragEnd);
+                row.addEventListener('dragstart', nDocsDragStart);
+                row.addEventListener('dragover',  nDocsDragOver);
+                row.addEventListener('dragleave', nDocsDragLeave);
+                row.addEventListener('drop',      nDocsDrop);
+                row.addEventListener('dragend',   nDocsDragEnd);
+            });
+        }
+        function nDocsDragStart(e) {
+            nDocsDragSrc = this;
+            this.classList.add('is-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function nDocsDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this !== nDocsDragSrc) this.classList.add('drag-over');
+            return false;
+        }
+        function nDocsDragLeave() { this.classList.remove('drag-over'); }
+        function nDocsDrop(e) {
+            e.stopPropagation();
+            if (nDocsDragSrc && nDocsDragSrc !== this) {
+                var container = this.closest('.n-repeater-container');
+                var rows = Array.from(container.querySelectorAll('.n-repeater-row'));
+                var from = rows.indexOf(nDocsDragSrc);
+                var to   = rows.indexOf(this);
+                if (from < to) {
+                    this.parentNode.insertBefore(nDocsDragSrc, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(nDocsDragSrc, this);
+                }
+                nDocsRenumber();
+            }
+            this.classList.remove('drag-over');
+            return false;
+        }
+        function nDocsDragEnd() {
+            this.classList.remove('is-dragging');
+            document.querySelectorAll('#n-docs-container .n-repeater-row').forEach(function(r) {
+                r.classList.remove('drag-over');
+            });
+        }
+
+        nDocsInitDragDrop(document.getElementById('n-docs-container'));
+        nDocsUpdateRemoveButtons();
+    })();
+    </script>
+    <style>
+        #n-docs-container .is-dragging { opacity: 0.5; }
+        #n-docs-container .drag-over   { border-color: #2271b1 !important; background: #f0f6fc !important; }
+        #n-docs-container .n-docs-remove-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+    <?php
+}
+

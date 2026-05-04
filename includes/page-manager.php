@@ -1482,6 +1482,7 @@ jQuery(document).ready(function($) {
 
     const $hiddenInput = $('#_nucleus_page_data_json');
     const $hiddenCssInput = $('#_nucleus_page_css_json');
+    $hiddenCssInput.val(JSON.stringify(cssData)); // Pre-populate so CSS isn't wiped on save without touching CSS tab
 
     // Track collapsed section IDs to preserve state across re-renders
     let collapsedSections = new Set();

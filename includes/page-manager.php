@@ -1207,6 +1207,36 @@ function nucleus_page_dynamic_builder_html($post)
     border: 1px solid #2271b1;
 }
 
+.ncl-btn-warning {
+    background: #fff;
+    color: #996800;
+    border: 1px solid #996800;
+}
+
+.ncl-btn-warning:hover {
+    background: #996800;
+    color: #fff;
+}
+
+.ncl-section-block.ncl-section-archived {
+    opacity: 0.6;
+    border-left: 4px solid #996800;
+}
+
+.ncl-archived-badge {
+    display: inline-block;
+    background: #996800;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
 .ncl-btn-secondary:hover {
     background: #f0f0f1;
     border-color: #0a4b78;
@@ -1523,18 +1553,22 @@ jQuery(document).ready(function($) {
             );
 
             const $sectionBox = $(`
-                        <div class="ncl-section-block" data-sindex="${sIndex}">
+                        <div class="ncl-section-block ${section.archived ? 'ncl-section-archived' : ''}" data-sindex="${sIndex}">
                             <div class="ncl-section-header">
                                 <h3>
                                     <button type="button" class="ncl-toggle-btn btn-toggle-section"><span class="dashicons dashicons-arrow-down-alt2"></span></button>
-                                    <span class="dashicons dashicons-menu ncl-drag-handle"></span> 
-                                    Section Name: 
+                                    <span class="dashicons dashicons-menu ncl-drag-handle"></span>
+                                    Section Name:
                                     <input type="text" class="input-sec-id" data-sindex="${sIndex}" value="${escapeHtml(section.section_id)}" placeholder="e.g. hero" style="margin-left: 10px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: 3px; font-family: monospace; width: 180px; font-size: 14px; font-weight: normal;"/>
                                     <div style="font-size: 13px; font-weight: normal; color: #50575e; margin-left: 15px; display: inline-block;">
                                         Section CSS ID: <code class="ncl-sec-css-display" style="color: #d63638; background: #f0f0f1; padding: 2px 5px; border-radius: 3px;">#nucleus-section-${escapeHtml(section.section_id)}</code>
                                     </div>
+                                    ${section.archived ? '<span class="ncl-archived-badge">Hidden</span>' : ''}
                                 </h3>
-                                <button type="button" class="ncl-btn ncl-btn-danger btn-delete-section" data-sindex="${sIndex}">Delete Section</button>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" class="ncl-btn ncl-btn-warning btn-archive-section" data-sindex="${sIndex}">${section.archived ? 'Unarchive' : 'Archive'}</button>
+                                    <button type="button" class="ncl-btn ncl-btn-danger btn-delete-section" data-sindex="${sIndex}">Delete Section</button>
+                                </div>
                             </div>
                             
                             <div class="ncl-bg-settings">
@@ -1986,6 +2020,12 @@ jQuery(document).ready(function($) {
             bg_value: '',
             components: []
         });
+        renderBuilder();
+    });
+
+    $root.on('click', '.btn-archive-section', function() {
+        const sIndex = $(this).data('sindex');
+        pageData[sIndex].archived = !pageData[sIndex].archived;
         renderBuilder();
     });
 
@@ -3127,6 +3167,10 @@ function nucleus_page_content_shortcode($atts)
     echo '<div class="nucleus-sections-root">';
 
     foreach ($page_data as $section) {
+      if (!empty($section['archived'])) {
+        continue;
+      }
+
       $original_sec_id = isset($section['section_id']) ? $section['section_id'] : 'section-' . rand(100, 999);
       $sec_id = sanitize_title($original_sec_id);
 

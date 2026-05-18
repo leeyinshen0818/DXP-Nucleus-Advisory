@@ -126,6 +126,32 @@ function nucleus_dxp_auto_flush_on_update()
 }
 add_action('admin_init', 'nucleus_dxp_auto_flush_on_update');
 
+// Override Reading Settings so / is always treated as the blog home, making pre_get_posts reliable
+add_filter('pre_option_show_on_front', function() { return 'posts'; });
+
+// Serve nucleus_page "home" at the site root (/)
+add_action('pre_get_posts', function ($query) {
+  if (!is_admin() && $query->is_main_query() && $query->is_home()) {
+    $query->set('post_type', 'nucleus_page');
+    $query->set('name', 'home');
+    $query->set('posts_per_page', 1);
+    $query->is_home      = false;
+    $query->is_singular  = true;
+  }
+});
+
+// Redirect /home to / so the canonical URL is always the root
+add_action('template_redirect', function () {
+  if (is_singular('nucleus_page')) {
+    $post = get_queried_object();
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if ($post && $post->post_name === 'home' && trim($path, '/') !== '') {
+      wp_redirect(home_url('/'), 301);
+      exit;
+    }
+  }
+});
+
 /**
  * Force template loading for Single Nucleus Page
  */

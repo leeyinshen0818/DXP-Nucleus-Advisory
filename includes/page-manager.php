@@ -50,7 +50,7 @@ function nucleus_dxp_register_page_cpt()
     'publicly_queryable'  => true,
     'capability_type'     => 'page',
     'show_in_rest'        => true,
-    'rewrite'             => array('slug' => 'nucleus_page', 'with_front' => true), // Explicit rewrite rule
+    'rewrite'             => array('slug' => '/', 'with_front' => false),
   );
 
   register_post_type('nucleus_page', $args);
@@ -118,10 +118,10 @@ register_activation_hook(NUCLEUS_DXP_PATH . 'nucleus-dxp.php', 'nucleus_dxp_rewr
 // Add a one-time automatic flush on admin init to fix existing active installs
 function nucleus_dxp_auto_flush_on_update()
 {
-  if (!get_option('nucleus_page_manager_rules_flushed')) {
+  if (get_option('nucleus_page_manager_rules_flushed') !== 'v2') {
     nucleus_dxp_register_page_cpt();
     flush_rewrite_rules();
-    update_option('nucleus_page_manager_rules_flushed', true);
+    update_option('nucleus_page_manager_rules_flushed', 'v2');
   }
 }
 add_action('admin_init', 'nucleus_dxp_auto_flush_on_update');
